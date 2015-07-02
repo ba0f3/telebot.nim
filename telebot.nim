@@ -124,7 +124,7 @@ type
     forwardFrom*: User
     forwardDate*: int
     replyToMessage*: Message
-    case kind: MessageKind
+    case kind*: MessageKind
     of kText:
       text*: string
     of kAudio:
@@ -179,6 +179,13 @@ proc `$`*(k: KeyboardMarkup): string =
     j["force_reply"] = %k.forceReply  
   result = $j
 
+proc id*(c: Chat): int =
+  case c.kind
+  of kPrivateChat:
+    result = c.user.id
+  of kGroupChat:
+    result = c.group.id
+  
 proc newReplyKeyboardMarkup*(kb: seq[seq[string]], rk = false, otk = false, s = false): KeyboardMarkup =
   new(result)
   result.kind = ReplyKeyboardMarkup
@@ -520,3 +527,11 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0): Future[seq[Update]] {.
 
   let res = await makeRequest(endpoint, data)
   result = parseUpdates(b, res)
+
+proc setWebhook*(b: TeleBot, url: string) {.async.} =
+  let endpoint = API_URL % [b.token, "setWebhook"]
+  var data = newMultipartData()  
+  data["url"] = url
+  
+  discard await makeRequest(endpoint, data)
+  
