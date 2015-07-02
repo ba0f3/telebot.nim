@@ -3,6 +3,8 @@ import httpclient
 import json
 import strutils
 import tempfile
+import os
+
 const
   API_URL = "https://api.telegram.org/bot$#/$#"
 
