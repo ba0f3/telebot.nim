@@ -242,11 +242,12 @@ proc parseAudio(n: JsonNode): Audio =
 
 proc parsePhotoSize(n: JsonNode): PhotoSize =
   new(result)
-  result.fileId = n["file_id"].str
-  result.width = n["width"].num.int
-  result.height = n["height"].num.int
-  if not n["file_size"].isNil:
-    result.fileSize = n["file_size"].num.int
+  if not n["file_id"].isNil:
+    result.fileId = n["file_id"].str
+    result.width = n["width"].num.int
+    result.height = n["height"].num.int
+    if not n["file_size"].isNil:
+      result.fileSize = n["file_size"].num.int
     
 proc parsePhoto(n: JsonNode): seq[PhotoSize] =
   result = @[]
