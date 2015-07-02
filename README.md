@@ -1,7 +1,14 @@
 # telebot.nim
 Async Telegram Bot API Client implement in @Nim-Lang
 
-## Usage
+Installation
+============
+```
+$ nimble install telebot
+```
+
+Usage
+=====
 ```nim
 import asyncdispatch
 import telebot
