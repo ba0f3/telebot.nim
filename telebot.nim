@@ -503,9 +503,7 @@ proc getUserProfilePhotos*(b: TeleBot, userId: int, offset = 0, limit = 100): Fu
   if offset != 0:
     data["offset"] = $offset
   let res = await makeRequest(endpoint, data)
-  echo res  
   result = parseUserProfilePhotos(res)
-
 
 proc getUpdates*(b: TeleBot, offset, limit, timeout = 0): Future[seq[Update]] {.async.} =
   let endpoint = API_URL % [b.token, "getUpdates"]
@@ -521,5 +519,4 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0): Future[seq[Update]] {.
     data["timeout"] = $timeout
 
   let res = await makeRequest(endpoint, data)
-  echo res  
   result = parseUpdates(b, res)
