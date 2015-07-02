@@ -2,7 +2,7 @@ import asyncdispatch
 import httpclient
 import json
 import strutils
-
+import tempfile
 const
   API_URL = "https://api.telegram.org/bot$#/$#"
 
@@ -435,9 +435,13 @@ proc sendPhoto*(b: TeleBot, chatId: int, photo: string, resend = false,cap = "",
     data["photo"] = photo
   else:
     if photo.startsWith("http"):
-      #TODO download file to tmp dir
-      discard
-    data.addFiles({"photo": photo})
+      var (_, _, ext) = photo.splitFile()
+      let tmp = mktemp(suffix=ext)
+      downloadFile(photo, tmp)
+      data.addFiles({"photo": tmp})
+      tmp.removeFile
+    else:
+      data.addFiles({"photo": photo})
 
   if cap != "":
     data["caption"] = cap
@@ -448,7 +452,6 @@ proc sendPhoto*(b: TeleBot, chatId: int, photo: string, resend = false,cap = "",
 
   let res = await makeRequest(endpoint, data)
   result = parseMessage(res)
-
 
 proc sendFile(b: TeleBot, m: string, chatId: int, f: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
   let endpoint = API_URL % [b.token, m]
