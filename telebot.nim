@@ -4,6 +4,7 @@ import json
 import strutils
 import tempfile
 import os
+import uri
 
 const
   API_URL = "https://api.telegram.org/bot$#/$#"
@@ -438,7 +439,8 @@ proc sendPhoto*(b: TeleBot, chatId: int, photo: string, resend = false,cap = "",
     data["photo"] = photo
   else:
     if photo.startsWith("http"):
-      var (_, _, ext) = photo.splitFile()
+      let u = parseUri(photo)
+      var (_, _, ext) = u.path.splitFile()
       let tmp = mktemp(suffix=ext)
       downloadFile(photo, tmp)
       data.addFiles({"photo": tmp})
