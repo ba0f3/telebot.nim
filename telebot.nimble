@@ -1,6 +1,6 @@
 [Package]
 name          = "telebot"
-version       = "0.1.1"
+version       = "0.1.2"
 author        = "Huy Doan"
 description   = "Async Telegram Bot API Client"
 license       = "MIT"
