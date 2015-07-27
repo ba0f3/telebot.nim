@@ -40,7 +40,7 @@ type
     width*: int
     height*: int
     fileSize*: int
-      
+
   Audio* = ref object of RootObj
     fileId*: string
     duration*: int
@@ -60,9 +60,9 @@ type
     height*: int
     thumb*: PhotoSize
     fileSize*: int
-    
+
   Video* = ref object of RootObj
-    fileId*: string  
+    fileId*: string
     width*: int
     height*: int
     duration*: int
@@ -70,7 +70,7 @@ type
     mimeType*: string
     fileSize*: int
     caption*: string
-    
+
   Contact* = ref object of RootObj
     phoneNumber*: string
     firstName*: string
@@ -101,7 +101,7 @@ type
       hideKeyboard*: bool
     of ForceReply:
       forceReply*: bool
-        
+
   MessageKind* = enum
     kText
     kAudio
@@ -117,7 +117,7 @@ type
     kNewChatPhoto
     kDeleteChatPhoto
     kGroupChatCreated
-          
+
 
   Message* = ref object of RootObj
     messageId*: int
@@ -163,7 +163,7 @@ type
 proc `$`*(k: KeyboardMarkup): string =
   var j = newJObject()
   j["selective"] = %k.selective
-  case k.kind  
+  case k.kind
   of ReplyKeyboardMarkup:
     var keyboard: seq[string] = @[]
     var kb = newJArray()
@@ -172,14 +172,14 @@ proc `$`*(k: KeyboardMarkup): string =
       for y in x:
         n.add(%y)
       kb.add(n)
-        
+
     j["keyboard"] = kb
     j["resize_keyboard"] = %k.resizeKeyboard
     j["one_time_keyboard"] = %k.oneTimeKeyboard
   of ReplyKeyboardHide:
     j["hide_keyboard"] = %k.hideKeyboard
   of ForceReply:
-    j["force_reply"] = %k.forceReply  
+    j["force_reply"] = %k.forceReply
   result = $j
 
 proc id*(c: Chat): int =
@@ -188,7 +188,7 @@ proc id*(c: Chat): int =
     result = c.user.id
   of kGroupChat:
     result = c.group.id
-  
+
 proc newReplyKeyboardMarkup*(kb: seq[seq[string]], rk = false, otk = false, s = false): KeyboardMarkup =
   new(result)
   result.kind = ReplyKeyboardMarkup
@@ -208,9 +208,9 @@ proc newForceReply*(f = true, s = false): KeyboardMarkup =
   result.kind = ForceReply
   result.forceReply = f
   result.selective = s
-  
+
 proc parseUser(n: JsonNode): User =
-  new(result)      
+  new(result)
   result.id = n["id"].num.int
   result.firstName = n["first_name"].str
   if not n["last_name"].isNil:
@@ -219,10 +219,10 @@ proc parseUser(n: JsonNode): User =
     result.username = n["username"].str
 
 proc parseGroupChat(n: JsonNode): GroupChat =
-  new(result)    
+  new(result)
   result.id = n["id"].num.int
   result.title = n["title"].str
-    
+
 proc parseChat(n: JsonNode): Chat =
   new(result)
   if n["id"].num.int > 0:
@@ -243,22 +243,23 @@ proc parseAudio(n: JsonNode): Audio =
 
 proc parsePhotoSize(n: JsonNode): PhotoSize =
   new(result)
-  if not n["file_id"].isNil:
+  if n.hasKey("file_id"):
     result.fileId = n["file_id"].str
     result.width = n["width"].num.int
     result.height = n["height"].num.int
     if not n["file_size"].isNil:
       result.fileSize = n["file_size"].num.int
-    
+
 proc parsePhoto(n: JsonNode): seq[PhotoSize] =
   result = @[]
   for x in n:
     result.add(parsePhotoSize(x))
-    
+
 proc parseDocument(n: JsonNode): Document =
   new(result)
   result.fileId = n["file_id"].str
-  result.thumb = parsePhotoSize(n["thumb"])
+  if n.hasKey("thumb"):
+    result.thumb = parsePhotoSize(n["thumb"])
   if not n["file_name"].isNil:
     result.fileName = n["file_name"].str
   if not n["mime_type"].isNil:
@@ -270,8 +271,9 @@ proc parseSticker(n: JsonNode): Sticker =
   new(result)
   result.fileId = n["file_id"].str
   result.width = n["width"].num.int
-  result.height = n["height"].num.int  
-  result.thumb = parsePhotoSize(n["thumb"])  
+  result.height = n["height"].num.int
+  if n.hasKey("thumb"):
+    result.thumb = parsePhotoSize(n["thumb"])
   if not n["file_size"].isNil:
     result.fileSize = n["file_size"].num.int
 
@@ -280,10 +282,11 @@ proc parseVideo(n: JsonNode): Video =
   result.fileId = n["file_id"].str
   result.width = n["width"].num.int
   result.height = n["height"].num.int
-  result.duration = n["duration"].num.int  
-  result.thumb = parsePhotoSize(n["thumb"])
+  result.duration = n["duration"].num.int
+  if n.hasKey("thumb"):
+    result.thumb = parsePhotoSize(n["thumb"])
   if not n["mime_type"].isNil:
-    result.mimeType = n["mime_type"].str  
+    result.mimeType = n["mime_type"].str
   if not n["file_size"].isNil:
     result.fileSize = n["file_size"].num.int
   if not n["caption"].isNil:
@@ -309,7 +312,7 @@ proc parseUserProfilePhotos(n: JsonNode): UserProfilePhotos =
   result.photos = @[]
   for x in n["photos"]:
     result.photos.add(parsePhoto(x))
-      
+
 proc parseMessage(n: JsonNode): Message =
   new(result)
   result.messageId = n["message_id"].num.int
@@ -322,8 +325,8 @@ proc parseMessage(n: JsonNode): Message =
   if not n["forward_date"].isNil:
     result.forwardDate = n["forward_date"].num.int
   if not n["reply_to_message"].isNil:
-    result.replyToMessage = parseMessage(n["reply_to_message"])  
-  
+    result.replyToMessage = parseMessage(n["reply_to_message"])
+
   if not n["text"].isNil:
     result.kind = kText
     result.text = n["text"].str
@@ -371,15 +374,15 @@ proc parseUpdates(b: TeleBot, n: JsonNode): seq[Update] =
   result = @[]
   var u: Update
   for x in n:
-    new(u)    
+    new(u)
     u.updateId = x["update_id"].num.int
     if u.updateId > b.lastUpdateId:
       b.lastUpdateId = u.updateId
     u.message = parseMessage(x["message"])
     result.add(u)
-    
+
 proc newTeleBot*(token: string): TeleBot =
-  ## Init new Telegram Bot instance    
+  ## Init new Telegram Bot instance
   new(result)
   result.token = token
   result.lastUpdateId = 0
@@ -387,24 +390,24 @@ proc newTeleBot*(token: string): TeleBot =
 proc makeRequest(endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
   let client = newAsyncHttpClient()
   let r = await client.post(endpoint, multipart=data)
-  if r.status.startsWith("200"):    
+  if r.status.startsWith("200"):
     var obj = parseJson(r.body)
     if obj["ok"].bval == true:
       result = obj["result"]
   else:
-    raise newException(IOError, r.status)    
+    raise newException(IOError, r.status)
   client.close()
-    
-  
+
+
 proc getMe*(b: TeleBot): Future[User] {.async.} =
-  ## Returns basic information about the bot in form of a ``User`` object.  
+  ## Returns basic information about the bot in form of a ``User`` object.
   let endpoint  = API_URL % [b.token, "getMe"]
   let res = await makeRequest(endpoint)
   result = parseUser(res)
 
 proc sendMessage*(b: TeleBot, chatId: int, text: string, disableWebPagePreview = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   let endpoint = API_URL % [b.token, "sendMessage"]
-  var data = newMultipartData()  
+  var data = newMultipartData()
   data["chat_id"] = $chatId
   data["text"] = text
   if disableWebPagePreview:
@@ -416,54 +419,38 @@ proc sendMessage*(b: TeleBot, chatId: int, text: string, disableWebPagePreview =
 
   let res = await makeRequest(endpoint, data)
   result = parseMessage(res)
-    
+
 
 proc forwardMessage*(b: TeleBot, chatId: int, fromChatId: int, messageId: int): Future[Message] {.async.} =
   let endpoint = API_URL % [b.token, "forwardMessage"]
-  var data = newMultipartData()  
+  var data = newMultipartData()
   data["chat_id"] = $chatId
   data["from_chat_id"] = $fromChatId
   data["message_id"] = $messageId
 
   let res = await makeRequest(endpoint, data)
   result = parseMessage(res)
-    
 
-proc sendPhoto*(b: TeleBot, chatId: int, photo: string, resend = false,cap = "", rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
-  let endpoint = API_URL % [b.token, "sendPhoto"]
-  var data = newMultipartData()
-  data["chat_id"] = $chatId
 
-  if resend:
-    # resend file_id
-    data["photo"] = photo
-  else:
-    if photo.startsWith("http"):
-      let u = parseUri(photo)
-      var (_, _, ext) = u.path.splitFile()
-      let tmp = mktemp(suffix=ext)
-      downloadFile(photo, tmp)
-      data.addFiles({"photo": tmp})
-      tmp.removeFile
-    else:
-      data.addFiles({"photo": photo})
-
-  if cap != "":
-    data["caption"] = cap
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not rM.isNil:
-    data["reply_markup"] = $rM
-
-  let res = await makeRequest(endpoint, data)
-  result = parseMessage(res)
-
-proc sendFile(b: TeleBot, m: string, chatId: int, f: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendFile(b: TeleBot, m: string, chatId: int, key, val: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
   let endpoint = API_URL % [b.token, m]
 
   var data = newMultipartData()
   data["chat_id"] = $chatId
-  
+
+  if resend:
+    data[key] = val
+  else:
+    if val.startsWith("http"):
+      let u = parseUri(val)
+      var (_, _, ext) = u.path.splitFile()
+      let tmp = mktemp(suffix=ext)
+      downloadFile(val, tmp)
+      data.addFiles({key: tmp})
+      tmp.removeFile
+    else:
+      data.addFiles({key: val})
+
   if rtmId != 0:
     data["reply_to_message_id"] = $rtmId
   if not rM.isNil:
@@ -472,18 +459,20 @@ proc sendFile(b: TeleBot, m: string, chatId: int, f: string, resend = false, rtm
   let res = await makeRequest(endpoint, data)
   result = parseMessage(res)
 
-  
+proc sendPhoto*(b: TeleBot, chatId: int, photo: string, resend = false, cap = "", rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
+  result = await b.sendFile("sendPhoto", chatId, "photo", photo, resend, rtmId, rM)
+
 proc sendAudio*(b: TeleBot, chatId: int, audio: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
-  result = await b.sendFile("sendAudio", chatId, audio, resend, rtmId, rM)
+  result = await b.sendFile("sendAudio", chatId, "audio", audio, resend, rtmId, rM)
 
-proc sendDocument*(b: TeleBot, chatId: int, audio: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
-  result = await b.sendFile("sendDocument", chatId, audio, resend, rtmId, rM)
+proc sendDocument*(b: TeleBot, chatId: int, document: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
+  result = await b.sendFile("sendDocument", chatId, "document", document, resend, rtmId, rM)
 
-proc sendSticker*(b: TeleBot, chatId: int, audio: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
-  result = await b.sendFile("sendSticker", chatId, audio, resend, rtmId, rM)
+proc sendSticker*(b: TeleBot, chatId: int, sticker: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
+  result = await b.sendFile("sendSticker", chatId, "sticker", sticker, resend, rtmId, rM)
 
-proc sendVideo*(b: TeleBot, chatId: int, audio: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
-  result = await b.sendFile("sendVideo", chatId, audio, resend, rtmId, rM)
+proc sendVideo*(b: TeleBot, chatId: int, video: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
+  result = await b.sendFile("sendVideo", chatId, "video", video, resend, rtmId, rM)
 
 proc sendLocation*(b: TeleBot, chatId: int, lat, long: float, rtmId = 0, rM: KeyboardMarkup = nil): Future[Message] {.async.} =
   let endpoint = API_URL % [b.token, "sendLocation"]
@@ -492,7 +481,7 @@ proc sendLocation*(b: TeleBot, chatId: int, lat, long: float, rtmId = 0, rM: Key
   data["chat_id"] = $chatId
   data["longitude"] = $long
   data["latitude"] = $lat
-  
+
   if rtmId != 0:
     data["reply_to_message_id"] = $rtmId
   if not rM.isNil:
@@ -508,13 +497,13 @@ proc sendChatAction*(b: TeleBot, chatId: int, action: string): Future[void] {.as
   data["action"] = action
 
   discard makeRequest(endpoint, data)
-  
+
 proc getUserProfilePhotos*(b: TeleBot, userId: int, offset = 0, limit = 100): Future[UserProfilePhotos] {.async.} =
   let endpoint = API_URL % [b.token, "getUserProfilePhotos"]
   var data = newMultipartData()
   data["user_id"] = $userId
   data["limit"] = $limit
-  
+
   if offset != 0:
     data["offset"] = $offset
   let res = await makeRequest(endpoint, data)
@@ -523,7 +512,7 @@ proc getUserProfilePhotos*(b: TeleBot, userId: int, offset = 0, limit = 100): Fu
 proc getUpdates*(b: TeleBot, offset, limit, timeout = 0): Future[seq[Update]] {.async.} =
   let endpoint = API_URL % [b.token, "getUpdates"]
   var data = newMultipartData()
-  
+
   if offset != 0:
     data["offset"] = $offset
   else:
@@ -538,8 +527,7 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0): Future[seq[Update]] {.
 
 proc setWebhook*(b: TeleBot, url: string) {.async.} =
   let endpoint = API_URL % [b.token, "setWebhook"]
-  var data = newMultipartData()  
+  var data = newMultipartData()
   data["url"] = url
-  
+
   discard await makeRequest(endpoint, data)
-  
