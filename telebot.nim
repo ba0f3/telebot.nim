@@ -165,7 +165,6 @@ proc `$`*(k: KeyboardMarkup): string =
   j["selective"] = %k.selective
   case k.kind
   of ReplyKeyboardMarkup:
-    var keyboard: seq[string] = @[]
     var kb = newJArray()
     for x in k.keyboard:
       var n = newJArray()
