@@ -10,7 +10,7 @@ const
   API_URL = "https://api.telegram.org/bot$#/$#"
 
 type
-  TeleBot* = ref object of RootObj
+  TeleBot* = ref object
     token: string
     lastUpdateId: BiggestInt
 
@@ -18,50 +18,50 @@ type
     kPrivateChat
     kGroupChat
 
-  User* = ref object of RootObj
+  User* = object
     id*: int
     firstName*: string
     lastName*: string
     username*: string
 
-  GroupChat* = ref object of RootObj
+  GroupChat* = object
     id*: int
     title*: string
 
-  Chat* = ref object of RootObj
+  Chat* = object
     case kind*: ChatKind
     of kPrivateChat:
       user*: User
     of kGroupChat:
       group*: GroupChat
 
-  PhotoSize* = ref object of RootObj
+  PhotoSize* = object
     fileId*: string
     width*: int
     height*: int
     fileSize*: int
 
-  Audio* = ref object of RootObj
+  Audio* = object
     fileId*: string
     duration*: int
     mimeType*: string
     fileSize*: int
 
-  Document* = ref object of RootObj
+  Document* = object
     fileId*: string
     thumb*: PhotoSize
     fileName*: string
     mimeType*: string
     fileSize*: int
 
-  Sticker* = ref object of RootObj
+  Sticker* = object
     fileId*: string
     width*: int
     height*: int
     thumb*: PhotoSize
     fileSize*: int
 
-  Video* = ref object of RootObj
+  Video* = object
     fileId*: string
     width*: int
     height*: int
@@ -71,17 +71,17 @@ type
     fileSize*: int
     caption*: string
 
-  Contact* = ref object of RootObj
+  Contact* = object
     phoneNumber*: string
     firstName*: string
     lastName*: string
     userId*: string
 
-  Location* = ref object of RootObj
+  Location* = object
     longitude*: float
     latitude*: float
 
-  UserProfilePhotos* = ref object of RootObj
+  UserProfilePhotos* = object
     totalCount*: int
     photos*: seq[seq[PhotoSize]]
 
@@ -90,7 +90,7 @@ type
     ReplyKeyboardMarkup
     ForceReply
 
-  KeyboardMarkup* = ref object of RootObj
+  KeyboardMarkup* = ref object
     selective*: bool
     case kind*: KeyboardKind
     of ReplyKeyboardMarkup:
@@ -119,7 +119,7 @@ type
     kGroupChatCreated
 
 
-  Message* = ref object of RootObj
+  Message* = ref object
     messageId*: int
     fromUser*: User
     date*: int
@@ -156,7 +156,8 @@ type
       deleteChatPhoto: bool
     of kGroupChatCreated:
       groupChatCreated: bool
-  Update* = ref object of RootObj
+
+  Update* = object
     updateId*: int
     message*: Message
 
@@ -189,7 +190,6 @@ proc id*(c: Chat): int =
     result = c.group.id
 
 proc newReplyKeyboardMarkup*(kb: seq[seq[string]], rk = false, otk = false, s = false): KeyboardMarkup =
-  new(result)
   result.kind = ReplyKeyboardMarkup
   result.keyboard = kb
   result.resizeKeyboard = rk
@@ -197,19 +197,16 @@ proc newReplyKeyboardMarkup*(kb: seq[seq[string]], rk = false, otk = false, s = 
   result.selective = s
 
 proc newReplyKeyboardHide*(hide = true, s = false): KeyboardMarkup =
-  new(result)
   result.kind = ReplyKeyboardHide
   result.hideKeyboard = hide
   result.selective = s
 
 proc newForceReply*(f = true, s = false): KeyboardMarkup =
-  new(result)
   result.kind = ForceReply
   result.forceReply = f
   result.selective = s
 
 proc parseUser(n: JsonNode): User =
-  new(result)
   result.id = n["id"].num.int
   result.firstName = n["first_name"].str
   if not n["last_name"].isNil:
@@ -218,12 +215,10 @@ proc parseUser(n: JsonNode): User =
     result.username = n["username"].str
 
 proc parseGroupChat(n: JsonNode): GroupChat =
-  new(result)
   result.id = n["id"].num.int
   result.title = n["title"].str
 
 proc parseChat(n: JsonNode): Chat =
-  new(result)
   if n["id"].num.int > 0:
     result.kind = kPrivateChat
     result.user = parseUser(n)
@@ -232,7 +227,6 @@ proc parseChat(n: JsonNode): Chat =
     result.group = parseGroupChat(n)
 
 proc parseAudio(n: JsonNode): Audio =
-  new(result)
   result.fileId = n["file_id"].str
   result.duration = n["duration"].num.int
   if not n["mime_type"].isNil:
@@ -241,7 +235,6 @@ proc parseAudio(n: JsonNode): Audio =
     result.fileSize = n["file_size"].num.int
 
 proc parsePhotoSize(n: JsonNode): PhotoSize =
-  new(result)
   if n.hasKey("file_id"):
     result.fileId = n["file_id"].str
     result.width = n["width"].num.int
@@ -255,7 +248,6 @@ proc parsePhoto(n: JsonNode): seq[PhotoSize] =
     result.add(parsePhotoSize(x))
 
 proc parseDocument(n: JsonNode): Document =
-  new(result)
   result.fileId = n["file_id"].str
   if n.hasKey("thumb"):
     result.thumb = parsePhotoSize(n["thumb"])
@@ -267,7 +259,6 @@ proc parseDocument(n: JsonNode): Document =
     result.fileSize = n["file_size"].num.int
 
 proc parseSticker(n: JsonNode): Sticker =
-  new(result)
   result.fileId = n["file_id"].str
   result.width = n["width"].num.int
   result.height = n["height"].num.int
@@ -277,7 +268,6 @@ proc parseSticker(n: JsonNode): Sticker =
     result.fileSize = n["file_size"].num.int
 
 proc parseVideo(n: JsonNode): Video =
-  new(result)
   result.fileId = n["file_id"].str
   result.width = n["width"].num.int
   result.height = n["height"].num.int
@@ -292,7 +282,6 @@ proc parseVideo(n: JsonNode): Video =
     result.caption = n["caption"].str
 
 proc parseContact(n: JsonNode): Contact =
-  new(result)
   result.phoneNumber = n["phone_number"].str
   result.firstName = n["first_name"].str
   if not n["last_name"].isNil:
@@ -301,12 +290,10 @@ proc parseContact(n: JsonNode): Contact =
     result.userId = n["user_id"].str
 
 proc parseLocation(n: JsonNode): Location =
-  new(result)
   result.longitude = n["longitude"].fnum
   result.latitude = n["latitude"].fnum
 
 proc parseUserProfilePhotos(n: JsonNode): UserProfilePhotos =
-  new(result)
   result.totalCount = n["total_count"].num.int
   result.photos = @[]
   for x in n["photos"]:
@@ -325,7 +312,6 @@ proc parseMessage(n: JsonNode): Message =
     result.forwardDate = n["forward_date"].num.int
   if not n["reply_to_message"].isNil:
     result.replyToMessage = parseMessage(n["reply_to_message"])
-
   if not n["text"].isNil:
     result.kind = kText
     result.text = n["text"].str
@@ -373,7 +359,6 @@ proc parseUpdates(b: TeleBot, n: JsonNode): seq[Update] =
   result = @[]
   var u: Update
   for x in n:
-    new(u)
     u.updateId = x["update_id"].num.int
     if u.updateId > b.lastUpdateId:
       b.lastUpdateId = u.updateId
@@ -396,7 +381,6 @@ proc makeRequest(endpoint: string, data: MultipartData = nil): Future[JsonNode] 
   else:
     raise newException(IOError, r.status)
   client.close()
-
 
 proc getMe*(b: TeleBot): Future[User] {.async.} =
   ## Returns basic information about the bot in form of a ``User`` object.
