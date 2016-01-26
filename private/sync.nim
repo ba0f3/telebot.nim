@@ -24,7 +24,7 @@ proc sendMessage*(b: TeleBot, chatId: int, text: string, disableWebPagePreview =
   let res = makeRequest(endpoint, data)
   result = parseMessage(res)
 
-proc forwardMessage*(b: TeleBot, chatId: int, fromChatId: int, messageId: int): Message=
+proc forwardMessage*(b: TeleBot, chatId: int, fromChatId: int, messageId: int): Message =
   let endpoint = API_URL % [b.token, "forwardMessage"]
   var data = newMultipartData()
   data["chat_id"] = $chatId
@@ -34,7 +34,7 @@ proc forwardMessage*(b: TeleBot, chatId: int, fromChatId: int, messageId: int): 
   let res = makeRequest(endpoint, data)
   result = parseMessage(res)
 
-proc sendFile(b: TeleBot, m: string, chatId: int, key, val: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Message=
+proc sendFile(b: TeleBot, m: string, chatId: int, key, val: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Message =
   let endpoint = API_URL % [b.token, m]
 
   var data = newMultipartData()
@@ -61,22 +61,22 @@ proc sendFile(b: TeleBot, m: string, chatId: int, key, val: string, resend = fal
   let res = makeRequest(endpoint, data)
   result = parseMessage(res)
 
-proc sendPhoto*(b: TeleBot, chatId: int, photo: string, resend = false, cap = "", rtmId = 0, rM: KeyboardMarkup = nil): Message=
+proc sendPhoto*(b: TeleBot, chatId: int, photo: string, resend = false, cap = "", rtmId = 0, rM: KeyboardMarkup = nil): Message =
   result = b.sendFile("sendPhoto", chatId, "photo", photo, resend, rtmId, rM)
 
-proc sendAudio*(b: TeleBot, chatId: int, audio: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Message=
+proc sendAudio*(b: TeleBot, chatId: int, audio: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Message =
   result = b.sendFile("sendAudio", chatId, "audio", audio, resend, rtmId, rM)
 
-proc sendDocument*(b: TeleBot, chatId: int, document: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Message=
+proc sendDocument*(b: TeleBot, chatId: int, document: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Message =
   result = b.sendFile("sendDocument", chatId, "document", document, resend, rtmId, rM)
 
 proc sendSticker*(b: TeleBot, chatId: int, sticker: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Message =
   result = b.sendFile("sendSticker", chatId, "sticker", sticker, resend, rtmId, rM)
 
-proc sendVideo*(b: TeleBot, chatId: int, video: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Message=
+proc sendVideo*(b: TeleBot, chatId: int, video: string, resend = false, rtmId = 0, rM: KeyboardMarkup = nil): Message =
   result = b.sendFile("sendVideo", chatId, "video", video, resend, rtmId, rM)
 
-proc sendLocation*(b: TeleBot, chatId: int, lat, long: float, rtmId = 0, rM: KeyboardMarkup = nil): Message=
+proc sendLocation*(b: TeleBot, chatId: int, lat, long: float, rtmId = 0, rM: KeyboardMarkup = nil): Message =
   let endpoint = API_URL % [b.token, "sendLocation"]
 
   var data = newMultipartData()
