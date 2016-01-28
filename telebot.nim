@@ -189,6 +189,7 @@ proc id*(c: Chat): int =
     result = c.group.id
 
 proc newReplyKeyboardMarkup*(kb: seq[seq[string]], rk = false, otk = false, s = false): KeyboardMarkup =
+  new(result)
   result.kind = ReplyKeyboardMarkup
   result.keyboard = kb
   result.resizeKeyboard = rk
@@ -196,11 +197,13 @@ proc newReplyKeyboardMarkup*(kb: seq[seq[string]], rk = false, otk = false, s = 
   result.selective = s
 
 proc newReplyKeyboardHide*(hide = true, s = false): KeyboardMarkup =
+  new(result)
   result.kind = ReplyKeyboardHide
   result.hideKeyboard = hide
   result.selective = s
 
 proc newForceReply*(f = true, s = false): KeyboardMarkup =
+  new(result)
   result.kind = ForceReply
   result.forceReply = f
   result.selective = s
