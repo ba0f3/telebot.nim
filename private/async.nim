@@ -17,7 +17,7 @@ proc getMeAsync*(b: TeleBot): Future[User] {.async.} =
   let res = await makeRequestAsync(endpoint)
   result = parseUser(res)
 
-proc sendMessageAsync*(b: TeleBot, chatId: int, text: string, disableWebPagePreview = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendMessageAsync*(b: TeleBot, chatId: int, text: string, disableWebPagePreview = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil, parseMode: string = nil): Future[Message] {.async.} =
   let endpoint = API_URL % [b.token, "sendMessage"]
   var data = newMultipartData()
   data["chat_id"] = $chatId
@@ -28,6 +28,8 @@ proc sendMessageAsync*(b: TeleBot, chatId: int, text: string, disableWebPagePrev
     data["reply_to_message_id"] = $replyToMessageId
   if not replyMarkup.isNil:
     data["reply_markup"] = $replyMarkup
+  if not parseMode.isNil:
+    data["parse_mode"] = $parseMode
 
   let res = await makeRequestAsync(endpoint, data)
   result = parseMessage(res)
