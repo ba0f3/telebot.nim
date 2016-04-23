@@ -9,7 +9,7 @@ proc getMe*(b: Telebot): User =
   let body = makeRequest(endpoint)
   result = parseUser(body)
 
-proc sendMessage*(b: TeleBot, chatId: int, text: string, disableWebPagePreview = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Message =
+proc sendMessage*(b: TeleBot, chatId: int, text: string, disableWebPagePreview = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil, parseMode: string = nil): Message =
   let endpoint = API_URL % [b.token, "sendMessage"]
   var data = newMultipartData()
   data["chat_id"] = $chatId
@@ -20,6 +20,9 @@ proc sendMessage*(b: TeleBot, chatId: int, text: string, disableWebPagePreview =
     data["reply_to_message_id"] = $replyToMessageId
   if not replyMarkup.isNil:
     data["reply_markup"] = $replyMarkup
+  if not parseMode.isNil:
+    data["parse_mode"] = $parseMode
+
 
   let res = makeRequest(endpoint, data)
   result = parseMessage(res)
