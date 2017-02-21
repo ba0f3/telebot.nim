@@ -7,4 +7,4 @@ license       = "MIT"
 
 [Deps]
 Requires: "nim >= 0.10.0"
-Requires: "tempfile >= 0.1.0"
+Requires: "tempfile >= 0.1.5"

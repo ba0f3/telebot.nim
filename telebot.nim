@@ -211,9 +211,9 @@ proc newForceReply*(f = true, s = false): KeyboardMarkup =
 proc parseUser(n: JsonNode): User =
   result.id = n["id"].num.int
   result.firstName = n["first_name"].str
-  if not n["last_name"].isNil:
+  if n.hasKey("last_name"):
     result.lastName = n["last_name"].str
-  if not n["username"].isNil:
+  if n.hasKey("username"):
     result.username = n["username"].str
 
 proc parseGroupChat(n: JsonNode): GroupChat =
@@ -231,9 +231,9 @@ proc parseChat(n: JsonNode): Chat =
 proc parseAudio(n: JsonNode): Audio =
   result.fileId = n["file_id"].str
   result.duration = n["duration"].num.int
-  if not n["mime_type"].isNil:
+  if n.hasKey("mime_type"):
     result.mimeType = n["mime_type"].str
-  if not n["file_size"].isNil:
+  if n.hasKey("file_size"):
     result.fileSize = n["file_size"].num.int
 
 proc parsePhotoSize(n: JsonNode): PhotoSize =
@@ -241,7 +241,7 @@ proc parsePhotoSize(n: JsonNode): PhotoSize =
     result.fileId = n["file_id"].str
     result.width = n["width"].num.int
     result.height = n["height"].num.int
-    if not n["file_size"].isNil:
+    if n.hasKey("file_size"):
       result.fileSize = n["file_size"].num.int
 
 proc parsePhoto(n: JsonNode): seq[PhotoSize] =
@@ -253,11 +253,11 @@ proc parseDocument(n: JsonNode): Document =
   result.fileId = n["file_id"].str
   if n.hasKey("thumb"):
     result.thumb = parsePhotoSize(n["thumb"])
-  if not n["file_name"].isNil:
+  if n.hasKey("file_name"):
     result.fileName = n["file_name"].str
-  if not n["mime_type"].isNil:
+  if n.hasKey("mime_type"):
     result.mimeType = n["mime_type"].str
-  if not n["file_size"].isNil:
+  if n.hasKey("file_size"):
     result.fileSize = n["file_size"].num.int
 
 proc parseSticker(n: JsonNode): Sticker =
@@ -266,7 +266,7 @@ proc parseSticker(n: JsonNode): Sticker =
   result.height = n["height"].num.int
   if n.hasKey("thumb"):
     result.thumb = parsePhotoSize(n["thumb"])
-  if not n["file_size"].isNil:
+  if n.hasKey("file_size"):
     result.fileSize = n["file_size"].num.int
 
 proc parseVideo(n: JsonNode): Video =
@@ -276,19 +276,19 @@ proc parseVideo(n: JsonNode): Video =
   result.duration = n["duration"].num.int
   if n.hasKey("thumb"):
     result.thumb = parsePhotoSize(n["thumb"])
-  if not n["mime_type"].isNil:
+  if n.hasKey("mime_type"):
     result.mimeType = n["mime_type"].str
-  if not n["file_size"].isNil:
+  if n.hasKey("file_size"):
     result.fileSize = n["file_size"].num.int
-  if not n["caption"].isNil:
+  if n.hasKey("caption"):
     result.caption = n["caption"].str
 
 proc parseContact(n: JsonNode): Contact =
   result.phoneNumber = n["phone_number"].str
   result.firstName = n["first_name"].str
-  if not n["last_name"].isNil:
+  if n.hasKey("last_name"):
     result.lastName = n["last_name"].str
-  if not n["user_id"].isNil:
+  if n.hasKey("user_id"):
     result.userId = n["user_id"].str
 
 proc parseLocation(n: JsonNode): Location =
@@ -308,52 +308,52 @@ proc parseMessage(n: JsonNode): Message =
   result.date = n["date"].num.int
   result.chat = parseChat(n["chat"])
 
-  if not n["forward_from"].isNil:
+  if n.hasKey("forward_from"):
     result.forwardFrom = parseUser(n["forward_from"])
-  if not n["forward_date"].isNil:
+  if n.hasKey("forward_date"):
     result.forwardDate = n["forward_date"].num.int
-  if not n["reply_to_message"].isNil:
+  if n.hasKey("reply_to_message"):
     result.replyToMessage = parseMessage(n["reply_to_message"])
-  if not n["text"].isNil:
+  if n.hasKey("text"):
     result.kind = kText
     result.text = n["text"].str
-  elif not n["audio"].isNil:
+  elif n.hasKey("audio"):
     result.kind = kAudio
     result.audio = parseAudio(n["audio"])
-  elif not n["document"].isNil:
+  elif n.hasKey("document"):
     result.kind = kDocument
     result.document = parseDocument(n["document"])
-  elif not n["photo"].isNil:
+  elif n.hasKey("photo"):
     result.kind = kPhoto
     result.photo = parsePhoto(n["photo"])
-  elif not n["sticker"].isNil:
+  elif n.hasKey("sticker"):
     result.kind = kSticker
     result.sticker = parseSticker(n["sticker"])
-  elif not n["video"].isNil:
+  elif n.hasKey("video"):
     result.kind = kVideo
     result.video = parseVideo(n["video"])
-  elif not n["contact"].isNil:
+  elif n.hasKey("contact"):
     result.kind = kContact
     result.contact = parseContact(n["contact"])
-  elif not n["location"].isNil:
+  elif n.hasKey("location"):
     result.kind = kLocation
     result.location = parseLocation(n["location"])
-  elif not n["new_chat_participant"].isNil:
+  elif n.hasKey("new_chat_participant"):
     result.kind = kNewChatParticipant
     result.newChatParticipant = parseUser(n["new_chat_participant"])
-  elif not n["left_chat_participant"].isNil:
+  elif n.hasKey("left_chat_participant"):
     result.kind = kLeftChatParticipant
     result.leftChatParticipant = parseUser(n["left_chat_participant"])
-  elif not n["new_chat_title"].isNil:
+  elif n.hasKey("new_chat_title"):
     result.kind = kNewChatTitle
     result.newChatTitle = n["new_chat_title"].str
-  elif not n["new_chat_photo"].isNil:
+  elif n.hasKey("new_chat_photo"):
     result.kind = kNewChatPhoto
     result.newChatPhoto = parsePhoto(n["new_chat_photo"])
-  elif not n["delete_chat_photo"].isNil:
+  elif n.hasKey("delete_chat_photo"):
     result.kind = kAudio
     result.deleteChatPhoto = n["delete_chat_photo"].bval
-  elif not n["group_chat_created"].isNil:
+  elif n.hasKey("group_chat_created"):
     result.kind = kGroupChatCreated
     result.groupChatCreated = n["group_chat_created"].bval
 
