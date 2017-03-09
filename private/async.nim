@@ -17,9 +17,12 @@ proc getMeAsync*(b: TeleBot): Future[User] {.async.} =
   let res = await makeRequestAsync(endpoint)
   result = parseUser(res)
 
-proc sendMessageAsync*(b: TeleBot, chatId: int, text: string, disableWebPagePreview = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil, parseMode: string = nil): Future[Message] {.async.} =
+proc sendMessageAsync*(b: TeleBot, chatId: int, text: string, disableWebPagePreview = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil, parseMode: string = nil, retry = 0): Future[Message] {.async.} =
   let endpoint = API_URL % [b.token, "sendMessage"]
-  var data = newMultipartData()
+  var
+    data = newMultipartData()
+    retry = retry
+    error = false
   data["chat_id"] = $chatId
   data["text"] = text
   if disableWebPagePreview:
@@ -31,8 +34,23 @@ proc sendMessageAsync*(b: TeleBot, chatId: int, text: string, disableWebPagePrev
   if not parseMode.isNil:
     data["parse_mode"] = $parseMode
 
-  let res = await makeRequestAsync(endpoint, data)
-  result = parseMessage(res)
+  if retry <= 0:
+    retry = 1
+
+  while retry > 0:
+    try:
+      let res = await makeRequestAsync(endpoint, data)
+      result = parseMessage(res)
+      break
+    except:
+      error = true
+
+    if error:
+      error = false
+      await sleepAsync(5_000)
+      dec(retry)
+
+
 
 proc forwardMessageAsync*(b: TeleBot, chatId: int, fromChatId: int, messageId: int): Future[Message] {.async.} =
   let endpoint = API_URL % [b.token, "forwardMessage"]
