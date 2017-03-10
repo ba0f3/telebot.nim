@@ -22,7 +22,6 @@ proc sendMessageAsync*(b: TeleBot, chatId: int, text: string, disableWebPagePrev
   var
     data = newMultipartData()
     retry = retry
-    error = false
   data["chat_id"] = $chatId
   data["text"] = text
   if disableWebPagePreview:
@@ -43,13 +42,10 @@ proc sendMessageAsync*(b: TeleBot, chatId: int, text: string, disableWebPagePrev
       result = parseMessage(res)
       break
     except:
-      error = true
+      echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
 
-    if error:
-      error = false
-      await sleepAsync(5_000)
-      dec(retry)
-
+    dec(retry)
+    await sleepAsync(5_000)
 
 
 proc forwardMessageAsync*(b: TeleBot, chatId: int, fromChatId: int, messageId: int): Future[Message] {.async.} =
