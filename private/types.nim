@@ -328,13 +328,11 @@ type
     id*: string
 
   InlineQuery* = object
-    inlineQueryId*: string
-    results*: seq[InlineQueryResult]
-    cacheTime*: int
-    isPersonal*: bool
-    nextOffset*: string
-    switchPmText*: string
-    switchPmParameter*: string
+    id*: string
+    fromUser*: User
+    location*: Location
+    query*: string
+    offset*: string
 
   ChosenInlineResult* = object
     resultId*: string
