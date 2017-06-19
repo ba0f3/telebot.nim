@@ -1,5 +1,6 @@
 import types, json, strutils
 
+
 proc getUser*(n: JsonNode): User =
   result.id = n["id"].num.int
   result.firstName = $n["first_name"]

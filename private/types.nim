@@ -107,6 +107,10 @@ type
     oneTimeKeyboard*: bool
     selective*: bool
 
+  ReplyKeyboardRemove* = object
+    removeKeyBoard*: bool
+    selective*: bool
+
   CallbackGame* = object
 
   InlineKeyboardButton* = object
@@ -136,7 +140,6 @@ type
     length*: int
     url*: string
     user*: User
-
 
   MessageKind* = enum
     kText

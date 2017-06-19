@@ -1,12 +1,18 @@
 import asyncdispatch, common, utils, strutils
 
+
+type
+  BaseMessage  = object
+    chatId*: int
+
+
 proc getMe*(b: TeleBot): Future[User] {.async.} =
   ## Returns basic information about the bot in form of a ``User`` object.
   END_POINT("getMe")
   let res = await makeRequest(endpoint % b.token)
   result = getUser(res)
 
-proc sendMessage*(b: TeleBot, chatId, text: string, disableWebPagePreview = false, disableNotification = false, replyToMessageId = 0, replyMarkup: string = nil, parseMode: string = nil, retry = 0): Future[Message] {.async.} =
+proc sendMessage*(b: TeleBot, chatId, text: string, disableWebPagePreview = false, disableNotification = false, replyToMessageId = 0, replyMarkup: string = nil, parseMode: string = nil): Future[Message] {.async.} =
   END_POINT("sendMessage")
   var
     data = newMultipartData()
@@ -22,20 +28,12 @@ proc sendMessage*(b: TeleBot, chatId, text: string, disableWebPagePreview = fals
   if not parseMode.isNilOrEmpty:
     data["parse_mode"] = parseMode
 
-  if retry <= 0:
-    retry = 1
-
-  while retry > 0:
-    try:
-      let res = await makeRequest(endpoint % b.token, data)
-      result = getMessage(res)
-      break
-    except:
-      echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
-
-    dec(retry)
-    await sleepAsync(5_000)
-
+  try:
+    let res = await makeRequest(endpoint % b.token, data)
+    result = getMessage(res)
+    break
+  except:
+    echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
 
 proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, disableNotification = false): Future[Message] {.async.} =
   END_POINT("forwardMessage")
