@@ -1,5 +1,6 @@
 import macros, httpclient, asyncdispatch, json, strutils
 
+
 const
   API_URL* = "https://api.telegram.org/bot$#/"
   FILE_URL* = "https://api.telegram.org/file/bot$#/$#"
@@ -18,7 +19,8 @@ proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode]
     raise newException(IOError, r.status)
   client.close()
 
-proc camelCaseToUnderscore*(s: string): string =
+proc camelCaseToUnderscore*(s: string): string {.compileTime.} =
+  result = ""
   for c in s:
     if c.isUpper():
       result.add("_")
@@ -26,78 +28,139 @@ proc camelCaseToUnderscore*(s: string): string =
     else:
       result.add(c)
 
+proc newProcDef(name: string): NimNode {.compileTime.} =
+   result = newNimNode(nnkProcDef)
+   result.add(postfix(ident(name), "*"))
+   result.add(
+     newEmptyNode(),
+     newEmptyNode(),
+     newNimNode(nnkFormalParams),
+     newEmptyNode(),
+     newEmptyNode(),
+     newStmtList()
+   )
 
+proc isSet*[T](value: T): bool {.inline.} =
+  when value is string:
+    result = value.isNilOrEmpty:
+  elif value is int:
+    result = value != 0
+  elif value is bool:
+    result = value
+  else:
+    result = value.isNil
+    
 macro magic*(head, body: untyped): untyped =
   result = newStmtList()
 
-  var typeName: NimNode
+  var
+    tname: NimNode
 
   if head.kind == nnkIdent:
-    typeName = head
+    tname = head
   else:
     quit "Invalid node: " & head.lispRepr
-  echo $typeName
 
   var
     objectTy = newNimNode(nnkObjectTy)
 
   objectTy.add(newEmptyNode(), newEmptyNode())
-  
-  result.add(newNimNode(nnkTypeSection).add(
-    newNimNode(nnkTypeDef).add(postfix(typeName, "*"), newEmptyNode(), objectTy)
-  ))
-  var recList = newNimNode(nnkRecList)
+
+  var
+    realname = $tname & "Config"
+    recList = newNimNode(nnkRecList)
+    constructor = newProcDef("new" & $tname)
+    sender = newProcDef("send")
+    cParams = constructor[3]
+    cStmtList = constructor[6]
+    sParams = sender[3]
+    sStmtList = sender[6]
+
+  sender[4] = newNimNode(nnkPragma).add(ident("async"))
+
   objectTy.add(recList)
+  cParams.add(ident(realname))
 
-  var procDef = newNimNode(nnkProcDef)
-  result.add(procDef)
-  procDef.add(
-    postfix(newIdentNode("new" & $typeName), "*")
-  )
-  procDef.add(
-    newEmptyNode(),
-    newEmptyNode(),
-    newNimNode(nnkFormalParams),
-    newEmptyNode(),
-    newEmptyNode(),
-    newStmtList()
-  )
-  let
-    params = procDef[3]
-    stmts = procDef[6]
+  sParams.add(newNimNode(nnkBracketExpr).add(
+    ident("Future"), ident("Message"))
+  ).add(newIdentDefs(ident("b"), ident("TeleBot"))
+  ).add(newIdentDefs(ident("m"), ident(realname)))
 
-  params.add(typeName)
+  let apiMethod = "send" & $tname
 
-
-  var requiredFields, optionalFields: seq[string] = @[]
+  sStmtList.add(newConstStmt(
+    ident("endpoint"),
+    infix(ident("API_URL"), "&", newStrLitNode(apiMethod))
+  )).add(newVarStmt(
+      ident("data"),
+      newCall(ident("newMultipartData"))
+  ))
 
   for node in body.items:
     let fname = $node[0]
-    case node[1][0].kind 
+    case node[1][0].kind
     of nnkIdent:
-      requiredFields.add(fname)
       var identDefs = newIdentDefs(
         node[0],
-        node[1][0] # stmtList -> Ident
+        node[1][0] # cStmtList -> Ident
       )
       recList.add(identDefs)
-      params.add(identDefs)
-      stmts.add(newAssignment(
-        newDotExpr(newIdentNode("result"), node[0]),
+      cParams.add(identDefs)
+      cStmtList.add(newAssignment(
+        newDotExpr(ident("result"), node[0]),
         node[0]
       ))
 
+      sStmtList.add(newAssignment(
+        newNimNode(nnkBracketExpr).add(
+          ident("data"),
+          newStrLitNode(camelCaseToUnderscore(fname))
+        ),
+        prefix(newDotExpr(ident("m"), node[0]), "$")
+      ))
+
     of nnkPragmaExpr:
-      optionalFields.add(fname)
       recList.add(
         newIdentDefs(
           postfix(node[0], "*"),
           node[1][0][0] # stmtList -> pragma -> ident
         )
       )
-    else:
-      raise newException(ValueError, "Unsupported node: " & $node[1][0].lispRepr)
 
-  echo treeRepr(result)
+      var ifStmt = newNimNode(nnkIfStmt).add(
+        newNimNode(nnkElifBranch).add(
+          newCall(
+            ident("isSet"),
+            newDotExpr(ident("m"), node[0])
+          ),
+          newStmtList(
+            newAssignment(
+              newNimNode(nnkBracketExpr).add(
+                ident("data"),
+                newStrLitNode(camelCaseToUnderscore(fname))
+              ),
+              prefix(newDotExpr(ident("m"), node[0]), "$")
+            )
+          )
+        )
+      )
+      sStmtList.add(ifStmt)
+    else:
+      raise newException(ValueError, "Unsupported node: " & node[1][0].lispRepr)
+
+
+  var epilogue = parseStmt("""
+try:
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.getMessage()
+except:
+  echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
+""")
+  sStmtList.add(epilogue[0])
+
+  result.add(newNimNode(nnkTypeSection).add(
+    newNimNode(nnkTypeDef).add(postfix(ident($tname & "Config"), "*"), newEmptyNode(), objectTy)
+  ))
+  result.add(constructor, sender)
 
 

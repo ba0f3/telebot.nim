@@ -1,40 +1,112 @@
 import asyncdispatch, common, utils, strutils
 
+magic Message:
+  chatId: int
+  text: string
+  parseMode: string {.optional.}
+  disableWebPagePreview: bool {.optional.}
+  disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
 
-type
-  BaseMessage  = object
-    chatId*: int
 
+magic Photo:
+  chatId: int
+  photo: string
+  caption: string {.optional.}
+  disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
 
+magic Audio:
+  chatId: int
+  audio: string
+  caption: string {.optional.}
+  duration: int {.optional.}
+  performer: string {.optional.}
+  title: string {.optional.}
+  disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
+
+magic Document:
+  chatId: int
+  document: string
+  caption: string {.optional.}
+  disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
+
+magic Sticker:
+  chatId: int
+  sticker: string
+  disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
+  
+magic Video:
+  chatId: int
+  video: string
+  duration: int {.optional.}
+  width: int {.optional.}
+  height: int {.optional.}
+  caption: string {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
+
+magic Voice:
+  chatId: int
+  voice: string
+  caption: string {.optional.}
+  duration: int {.optional.}
+  disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
+
+magic VideoNote:
+  chatId: int
+  videoNote: string
+  duration: int {.optional.}
+  length: int {.optional.}
+  disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
+
+magic Location:
+  chatId: int
+  latitude: int
+  longitude: int
+  disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
+
+magic Venue:
+  chatId: int
+  latitude: int
+  longitude: int
+  title: string
+  address: string
+  foursquareId: string {.optional.}
+  disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
+
+magic Contact:
+  chatId: int
+  phoneNumber: string
+  firstName: string
+  lastName: string {.optional.}
+  disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: string {.optional.}
+  
 proc getMe*(b: TeleBot): Future[User] {.async.} =
   ## Returns basic information about the bot in form of a ``User`` object.
   END_POINT("getMe")
   let res = await makeRequest(endpoint % b.token)
   result = getUser(res)
 
-proc sendMessage*(b: TeleBot, chatId, text: string, disableWebPagePreview = false, disableNotification = false, replyToMessageId = 0, replyMarkup: string = nil, parseMode: string = nil): Future[Message] {.async.} =
-  END_POINT("sendMessage")
-  var
-    data = newMultipartData()
-    retry = retry
-  data["chat_id"] = chatId
-  data["text"] = text
-  if disableWebPagePreview:
-    data["disable_web_page_preview"] = "true"
-  if replyToMessageId != 0:
-    data["reply_to_message_id"] = $replyToMessageId
-  if not replyMarkup.isNilOrEmpty:
-    data["reply_markup"] = replyMarkup
-  if not parseMode.isNilOrEmpty:
-    data["parse_mode"] = parseMode
-
-  try:
-    let res = await makeRequest(endpoint % b.token, data)
-    result = getMessage(res)
-    break
-  except:
-    echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
-
+  
 proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, disableNotification = false): Future[Message] {.async.} =
   END_POINT("forwardMessage")
   var data = newMultipartData()
@@ -45,220 +117,6 @@ proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, dis
 
   if disableNotification:
     data["disable_notification"] = "true"
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = getMessage(res)
-
-proc sendPhoto*(b: TeleBot, chatId: string, inputFile, fileIdOrUrl, caption = "", disableNotification = false, rtmId = 0, replyMarkup: string = nil): Future[Message] {.async.} =
-  END_POINT("sendPhoto")
-  var data = newMultiPartData()
-  data["chat_id"] = chatId
-  if not inputFile.isNilOrEmpty:
-    data.addFiles({"photo": inputFile})
-  else:
-    data["photo"] = fileIdOrUrl
-  if not caption.isNilOrEmpty:
-    data["caption"] = caption
-  if disableNotification:
-    data["disable_notification"] = "true"
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not replyMarkup.isNilOrEmpty:
-      data["reply_markup"] = replyMarkup
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = getMessage(res)
-
-
-proc sendAudio*(b: TeleBot, chatId: string, inputFile, fileIdOrUrl, caption = "", duration = 0, performer = "", title = "", disableNotification = false, rtmId = 0, replyMarkup: string = nil): Future[Message] {.async.} =
-  END_POINT("sendAudio")
-  var data = newMultiPartData()
-  data["chat_id"] = chatId
-  if not inputFile.isNilOrEmpty:
-    data.addFiles({"audio": inputFile})
-  else:
-    data["audio"] = fileIdOrUrl
-  if not caption.isNilOrEmpty:
-    data["caption"] = caption
-  if duration > 0:
-    data["duration"] = $duration
-  if not performer.isNilOrEmpty:
-    data["performer"] = performer
-  if not title.isNilOrEmpty:
-    data["title"] = title
-  if disableNotification:
-    data["disable_notification"] = "true"
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not replyMarkup.isNilOrEmpty:
-      data["reply_markup"] = replyMarkup
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = getMessage(res)
-
-proc sendDocument*(b: TeleBot, chatId: string, inputFile, fileIdOrUrl, caption = "", disableNotification = false, rtmId = 0, replyMarkup: string = nil): Future[Message] {.async.} =
-  END_POINT("sendDocument")
-  var data = newMultiPartData()
-  data["chat_id"] = chatId
-  if not inputFile.isNilOrEmpty:
-    data.addFiles({"document": inputFile})
-  else:
-    data["document"] = fileIdOrUrl
-  if not caption.isNilOrEmpty:
-    data["caption"] = caption
-  if disableNotification:
-    data["disable_notification"] = "true"
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not replyMarkup.isNilOrEmpty:
-      data["reply_markup"] = replyMarkup
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = getMessage(res)
-
-proc sendSticker*(b: TeleBot, chatId: string, inputFile, fileIdOrUrl = "", disableNotification = false, rtmId = 0, replyMarkup: string = nil): Future[Message] {.async.} =
-  END_POINT("sendSticker")
-  var data = newMultiPartData()
-  data["chat_id"] = chatId
-  if not inputFile.isNilOrEmpty:
-    data.addFiles({"sticker": inputFile})
-  else:
-    data["sticker"] = fileIdOrUrl
-  if disableNotification:
-    data["disable_notification"] = "true"
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not replyMarkup.isNilOrEmpty:
-      data["reply_markup"] = replyMarkup
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = getMessage(res)
-
-proc sendVideo*(b: TeleBot, chatId: string, inputFile, fileIdOrUrl = "", duration, width, height = 0, caption = "", disableNotification = false, rtmId = 0, replyMarkup: string = nil): Future[Message] {.async.} =
-  END_POINT("sendVideo")
-  var data = newMultiPartData()
-  data["chat_id"] = chatId
-  if not inputFile.isNilOrEmpty:
-    data.addFiles({"video": inputFile})
-  else:
-    data["video"] = fileIdOrUrl
-  if not caption.isNilOrEmpty:
-    data["caption"] = caption
-  if duration > 0:
-    data["duration"] = $duration
-  if width > 0:
-    data["width"] = $width
-  if height > 0:
-    data["height"] = $height
-  if disableNotification:
-    data["disable_notification"] = "true"
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not replyMarkup.isNilOrEmpty:
-      data["reply_markup"] = replyMarkup
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = getMessage(res)
-
-proc sendVoice*(b: TeleBot, chatId: string, inputFile, fileIdOrUrl, caption = "", duration = 0, disableNotification = false, rtmId = 0, replyMarkup: string = nil): Future[Message] {.async.} =
-  END_POINT("sendVoice")
-  var data = newMultiPartData()
-  data["chat_id"] = chatId
-  if not inputFile.isNilOrEmpty:
-    data.addFiles({"voice": inputFile})
-  else:
-    data["voice"] = fileIdOrUrl
-  if not caption.isNilOrEmpty:
-    data["caption"] = caption
-  if duration > 0:
-    data["duration"] = $duration
-  if disableNotification:
-    data["disable_notification"] = "true"
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not replyMarkup.isNilOrEmpty:
-      data["reply_markup"] = replyMarkup
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = getMessage(res)
-
-proc sendVideoNote*(b: TeleBot, chatId: string, inputFile, fileIdOrUrl = "", duration, width, height = 0, disableNotification = false, rtmId = 0, replyMarkup: string = nil): Future[Message] {.async.} =
-  END_POINT("sendVideoNote")
-  var data = newMultiPartData()
-  data["chat_id"] = chatId
-  if not inputFile.isNilOrEmpty:
-    data.addFiles({"video_note": inputFile})
-  else:
-    data["video_note"] = fileIdOrUrl
-  if duration > 0:
-    data["duration"] = $duration
-  if width > 0:
-    data["width"] = $width
-  if height > 0:
-    data["height"] = $height
-  if disableNotification:
-    data["disable_notification"] = "true"
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not replyMarkup.isNilOrEmpty:
-      data["reply_markup"] = replyMarkup
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = getMessage(res)
-
-proc sendLocation*(b: TeleBot, chatId: string, lat, long: float, disableNotification = false, rtmId = 0, replyMarkup: string = nil): Future[Message] {.async.} =
-  END_POINT("sendLocation")
-
-  var data = newMultipartData()
-  data["chat_id"] = chatId
-  data["longitude"] = $long
-  data["latitude"] = $lat
-  if disableNotification:
-    data["disable_notification"] = "true"
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not replyMarkup.isNil:
-    data["reply_markup"] = replyMarkup
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = getMessage(res)
-
-proc sendVenue*(b: TeleBot, chatId: string, lat, long: float, title, address: string, foursquareId = "", disableNotification = false, rtmId = 0, replyMarkup: string = nil): Future[Message] {.async.} =
-  END_POINT("sendVenue")
-
-  var data = newMultipartData()
-  data["chat_id"] = chatId
-  data["longitude"] = $long
-  data["latitude"] = $lat
-  data["title"] = title
-  data["address"] = address
-  if not foursquareId.isNilOrEmpty:
-    data["foursquare_id"] = foursquareId
-  if disableNotification:
-    data["disable_notification"] = "true"
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not replyMarkup.isNil:
-    data["reply_markup"] = replyMarkup
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = getMessage(res)
-
-proc sendContact*(b: TeleBot, chatId: string, phoneNumber, firstName: string, lastName = "", disableNotification = false, rtmId = 0, replyMarkup: string = nil): Future[Message] {.async.} =
-  END_POINT("sendVenue")
-
-  var data = newMultipartData()
-  data["chat_id"] = chatId
-  data["phone_number"] = phoneNumber
-  data["first_name"] = firstName
-  if not lastName.isNilOrEmpty:
-    data["last_name"] = lastName
-  if disableNotification:
-    data["disable_notification"] = "true"
-  if rtmId != 0:
-    data["reply_to_message_id"] = $rtmId
-  if not replyMarkup.isNil:
-    data["reply_markup"] = replyMarkup
 
   let res = await makeRequest(endpoint % b.token, data)
   result = getMessage(res)

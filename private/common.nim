@@ -1,5 +1,4 @@
-import types, json, strutils
-
+import types, json, strutils, utils
 
 proc getUser*(n: JsonNode): User =
   result.id = n["id"].num.int
@@ -320,3 +319,4 @@ proc ReplyKeyboardRemove*(s = false): string =
 proc ForceReply*(s = false): string =
   var json = %*{"force_reply": true, "selective": s }
   result = $json
+

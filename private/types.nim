@@ -107,10 +107,6 @@ type
     oneTimeKeyboard*: bool
     selective*: bool
 
-  ReplyKeyboardRemove* = object
-    removeKeyBoard*: bool
-    selective*: bool
-
   CallbackGame* = object
 
   InlineKeyboardButton* = object
@@ -355,3 +351,4 @@ type
     lastErrorMessage*: string
     maxConnections*: int
     allowedUpdates*: seq[string]
+
