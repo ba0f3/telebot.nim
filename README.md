@@ -16,8 +16,10 @@ import telebot
 let bot = newTeleBot("ABC:XYZ")
 
 proc main() {.async.} =
-  let message =  await bot.sendMessage(XXXX, "hi boss")
-  echo "Sent message ID: ", message.messageId
+  var message = newMessage(XXXX, "hi boss")
+  message.disableNotification = true
+  less response = bot.send(message)
+  echo "Sent message ID: ", response.messageId
   
   var updates: seq[Update]
   while true:
