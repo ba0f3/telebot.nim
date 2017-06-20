@@ -277,7 +277,7 @@ proc processUpdates*(b: TeleBot, n: JsonNode): seq[Update] =
     if u.updateId > b.lastUpdateId:
       b.lastUpdateId = u.updateId
     u.message = getMessage(x["message"])
-  result.add(u)
+    result.add(u)
 
 
 proc `$`*(k: KeyboardButton): string =
