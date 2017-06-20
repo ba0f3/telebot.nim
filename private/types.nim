@@ -1,3 +1,4 @@
+import optional
 
 type
   TeleBot* = ref object of RootObj
@@ -7,9 +8,9 @@ type
   User* = object
     id*: int
     firstName*: string
-    lastName*: string
-    username*: string
-    languageCode*: string
+    lastName*: Optional[string]
+    username*: Optional[string]
+    languageCode*: Optional[string]
 
   Chat* = object
     id*: int

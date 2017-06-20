@@ -1,6 +1,5 @@
 
-import macros, httpclient, asyncdispatch, json, strutils
-
+import macros, httpclient, asyncdispatch, json, strutils, types
 
 const
   API_URL* = "https://api.telegram.org/bot$#/"
@@ -162,5 +161,3 @@ except:
     newNimNode(nnkTypeDef).add(postfix(ident($tname & "Config"), "*"), newEmptyNode(), objectTy)
   ))
   result.add(constructor, sender)
-
-

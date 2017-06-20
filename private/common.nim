@@ -1,14 +1,14 @@
-import types, json, strutils, utils
+import types, json, strutils, utils, optional
 
 proc getUser*(n: JsonNode): User =
   result.id = n["id"].num.int
   result.firstName = $n["first_name"]
   if n.hasKey("last_name"):
-    result.lastName = $n["last_name"]
+    result.lastName = * $n["last_name"]
   if n.hasKey("username"):
-    result.username = $n["username"]
+    result.username = * $n["username"]
   if n.hasKey("language_code"):
-    result.languageCode = $n["username"]
+    result.languageCode = * $n["username"]
 
 proc getChat*(n: JsonNode): Chat =
   result.id = n["id"].num.int
@@ -291,19 +291,19 @@ proc processUpdates*(b: TeleBot, n: JsonNode): seq[Update] =
       u.editedMessage = getMessage(x["edited_channel_post"])
     elif x.hasKey("inline_query"):
       u.kind = kInlineQuery
-      u.editedMessage = getMessage(x["inline_query"])
+      #u.editedMessage = getInlineQuery(x["inline_query"])
     elif x.hasKey("chosen_inline_query"):
       u.kind = kChosenInlineQuery
-      u.editedMessage = getMessage(x["chosen_inline_query"])
+      #u.editedMessage = getChosenInlineResult(x["chosen_inline_query"])
     elif x.hasKey("callback_query"):
       u.kind = kCallbackQuery
-      u.editedMessage = getMessage(x["callback_query"])
+      #u.editedMessage = getCallbackQuery(x["callback_query"])
     elif x.hasKey("shipping_query"):
       u.kind = kShippingQuery
-      u.editedMessage = getMessage(x["shipping_query"])
+      #u.editedMessage = getShippingQuery(x["shipping_query"])
     elif x.hasKey("pre_checkout_query"):
       u.kind = kPreCheckoutQuery
-      u.editedMessage = getMessage(x["pre_checkout_query"])
+      #u.editedMessage = getPreCheckoutQuery(x["pre_checkout_query"])
 
 
     result.add(u)
