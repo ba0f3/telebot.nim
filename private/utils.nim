@@ -1,3 +1,4 @@
+
 import macros, httpclient, asyncdispatch, json, strutils
 
 
@@ -40,16 +41,16 @@ proc newProcDef(name: string): NimNode {.compileTime.} =
      newStmtList()
    )
 
-proc isSet*[T](value: T): bool {.inline.} =
+proc isSet*(value: any): bool {.inline.} =
   when value is string:
-    result = value.isNilOrEmpty:
+    result = not value.isNilOrEmpty
   elif value is int:
     result = value != 0
   elif value is bool:
     result = value
   else:
-    result = value.isNil
-    
+    result = not value.isNil
+
 macro magic*(head, body: untyped): untyped =
   result = newStmtList()
 
@@ -134,11 +135,10 @@ macro magic*(head, body: untyped): untyped =
             newDotExpr(ident("m"), node[0])
           ),
           newStmtList(
-            newAssignment(
-              newNimNode(nnkBracketExpr).add(
-                ident("data"),
-                newStrLitNode(camelCaseToUnderscore(fname))
-              ),
+            newCall(
+              ident("add"),
+              ident("data"),
+              newStrLitNode(camelCaseToUnderscore(fname)),
               prefix(newDotExpr(ident("m"), node[0]), "$")
             )
           )

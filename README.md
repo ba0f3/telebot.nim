@@ -10,15 +10,14 @@ $ nimble install telebot
 Usage
 =====
 ```nim
-import asyncdispatch
-import telebot
+import asyncdispatch, telebot
 
 let bot = newTeleBot("ABC:XYZ")
 
 proc main() {.async.} =
   var message = newMessage(XXXX, "hi boss")
   message.disableNotification = true
-  less response = bot.send(message)
+  less response = await bot.send(message)
   echo "Sent message ID: ", response.messageId
   
   var updates: seq[Update]
