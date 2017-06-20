@@ -232,17 +232,41 @@ type
     migrateToChatId*: int
     retryAfter*: int
 
+  InlineQuery* = object
+  ChosenInlineResult* = object
+
+  UpdateKind* = enum
+    kMessage
+    kEditedMessage
+    kChannelPost
+    kEditedChannelPost
+    kInlineQuery
+    kChosenInlineQuery
+    kCallbackQuery
+    kShippingQuery
+    kPreCheckoutQuery
+    
   Update* = object
     updateId*: int
-    message*: Message
-    editedMessage*: Message
-    channelPost*: Message
-    editedChannelPost*: Message
-    inlineQuery*: InlineQuery
-    chosenInlineResult*: ChosenInlineResult
-    callbackQuery*: CallbackQuery
-    shippingQuery*: ShippingQuery
-    preCheckoutQuery*: PreCheckoutQuery
+    case kind*: UpdateKind
+    of kMessage:
+      message*: Message
+    of kEditedMessage:
+      editedMessage*: Message
+    of kChannelPost:
+      channelPost*: Message
+    of kEditedChannelPost:
+      editedChannelPost*: Message
+    of kInlineQuery:
+      inlineQuery*: InlineQuery
+    of kChosenInlineQuery:
+      chosenInlineResult*: ChosenInlineResult
+    of kCallbackQuery:
+      callbackQuery*: CallbackQuery
+    of kShippingQuery:
+      shippingQuery*: ShippingQuery
+    of kPreCheckoutQuery:
+      preCheckoutQuery*: PreCheckoutQuery
 
   #------------------
   # Game
@@ -318,37 +342,3 @@ type
     invoicePayload*: string
     shippingOptionId*: string
     orderInfo*: OrderInfo
-
-  #------------------
-  # Inline Query
-  #------------------
-  InlineQueryResult* = object
-    kind*: string
-    id*: string
-
-  InlineQuery* = object
-    id*: string
-    fromUser*: User
-    location*: Location
-    query*: string
-    offset*: string
-
-  ChosenInlineResult* = object
-    resultId*: string
-    fromUser*: User
-    location*: Location
-    inlineMessageId*: string
-    query*: string
-
-  #------------------
-  # Webhook
-  #------------------
-  WebhookInfo* = object
-    url*: string
-    hasCustomCertificate*: bool
-    pendingUpdateCount*: int
-    lastErrorDate*: int
-    lastErrorMessage*: string
-    maxConnections*: int
-    allowedUpdates*: seq[string]
-

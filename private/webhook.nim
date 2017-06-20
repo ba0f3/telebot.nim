@@ -1,6 +1,18 @@
 import asyncdispatch, httpclient, strutils, json
 import common, utils, types
 
+type
+  WebhookInfo* = object
+    url*: string
+    hasCustomCertificate*: bool
+    pendingUpdateCount*: int
+    lastErrorDate*: int
+    lastErrorMessage*: string
+    maxConnections*: int
+    allowedUpdates*: seq[string]
+
+
+
 proc getWebhookInfo(n: JsonNode): WebhookInfo =
   result.url = $n["url"]
   result.hasCustomCertificate = n["has_custom_certificate"].getBVal

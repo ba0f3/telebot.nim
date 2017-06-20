@@ -233,4 +233,5 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[str
     data["allowed_updates"] = $allowedUpdates
 
   let res = await makeRequest(endpoint % b.token, data)
+  echo res
   result = processUpdates(b, res)
