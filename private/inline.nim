@@ -1,9 +1,20 @@
-import asyncdispatch, json, utils
+import asyncdispatch, json, utils, types
 
 type
   User = object
   Location = object
-  InlineKeyboardMarkup = object
+
+  InlineKeyboardButton* = object
+    text*: string
+    url*: string
+    callbackData*: string
+    switchInlineQuery*: string
+    switchInlineQueryCurrentChat*: string
+    callbackGame*: CallbackGame
+    pay*: bool
+
+  InlineKeyboardMarkup* = object of KeyBoardMarkup
+    inlineKeyboard*: seq[seq[InlineKeyboardButton]]
 
   InlineQueryResult* = object of RootObj
     kind*: string

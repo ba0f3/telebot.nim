@@ -1,171 +1,78 @@
 import types, json, strutils, utils, optional
 
-proc getUser*(n: JsonNode): User =
-  result.id = n["id"].num.int
-  result.firstName = $n["first_name"]
-  if n.hasKey("last_name"):
-    result.lastName = * $n["last_name"]
-  if n.hasKey("username"):
-    result.username = * $n["username"]
-  if n.hasKey("language_code"):
-    result.languageCode = * $n["username"]
 
-proc getChat*(n: JsonNode): Chat =
-  result.id = n["id"].num.int
-  result.kind = $n["type"]
-  if n.hasKey("title"):
-    result.title = $n["title"]
-  if n.hasKey("username"):
-    result.username = $n["username"]
-  if n.hasKey("first_name"):
-    result.firstName = $n["first_name"]
-  if n.hasKey("last_name"):
-    result.lastName = $n["last_name"]
-  if n.hasKey("all_members_are_administrators"):
-    result.allMembersAreAdministrators = n["all_members_are_administrators"].bval
 
-proc getAudio*(n: JsonNode): Audio =
-  result.fileId = n["file_id"].str
-  result.duration = n["duration"].num.int
-  if n.hasKey("mime_type"):
-    result.mimeType = n["mime_type"].str
-  if n.hasKey("file_size"):
-    result.fileSize = n["file_size"].num.int
+proc getUser*(n: JsonNode): User {.inline.} =
+  result = unmarshal(n, User)
 
-proc getPhotoSize*(n: JsonNode): PhotoSize =
-  if n.hasKey("file_id"):
-    result.fileId = n["file_id"].str
-    result.width = n["width"].num.int
-    result.height = n["height"].num.int
-    if n.hasKey("file_size"):
-      result.fileSize = n["file_size"].num.int
+proc getChat*(n: JsonNode): Chat {.inline.} =
+  result = unmarshal(n, Chat)
+
+proc getAudio*(n: JsonNode): Audio {.inline.} =
+  result = unmarshal(n, Audio)
+
+proc getPhotoSize*(n: JsonNode): PhotoSize {.inline.} =
+  result = unmarshal(n, PhotoSize)
 
 proc getPhoto*(n: JsonNode): seq[PhotoSize] =
   result = @[]
   for x in n:
     result.add(getPhotoSize(x))
 
-proc getDocument*(n: JsonNode): Document =
-  result.fileId = n["file_id"].str
-  if n.hasKey("thumb"):
-    result.thumb = getPhotoSize(n["thumb"])
-  if n.hasKey("file_name"):
-    result.fileName = n["file_name"].str
-  if n.hasKey("mime_type"):
-    result.mimeType = n["mime_type"].str
-  if n.hasKey("file_size"):
-    result.fileSize = n["file_size"].num.int
+proc getDocument*(n: JsonNode): Document {.inline.} =
+  result = unmarshal(n, Document)
 
-proc getSticker*(n: JsonNode): Sticker =
-  result.fileId = n["file_id"].str
-  result.width = n["width"].num.int
-  result.height = n["height"].num.int
-  if n.hasKey("thumb"):
-    result.thumb = getPhotoSize(n["thumb"])
-  if n.hasKey("file_size"):
-    result.fileSize = n["file_size"].num.int
+proc getSticker*(n: JsonNode): Sticker {.inline.} =
+  result = unmarshal(n, Sticker)
 
-proc getVideo*(n: JsonNode): Video =
-  result.fileId = n["file_id"].str
-  result.width = n["width"].num.int
-  result.height = n["height"].num.int
-  result.duration = n["duration"].num.int
-  if n.hasKey("thumb"):
-    result.thumb = getPhotoSize(n["thumb"])
-  if n.hasKey("mime_type"):
-    result.mimeType = n["mime_type"].str
-  if n.hasKey("file_size"):
-    result.fileSize = n["file_size"].num.int
+proc getVideo*(n: JsonNode): Video {.inline.} =
+  result = unmarshal(n, Video)
 
-proc getVoice*(n: JsonNode): Voice =
-  result.fileId = n["file_id"].str
-  result.duration = n["duration"].num.int
-  if n.hasKey("mime_type"):
-    result.mimeType = n["mime_type"].str
-  if n.hasKey("file_size"):
-    result.fileSize = n["file_size"].num.int
+proc getVoice*(n: JsonNode): Voice {.inline.} =
+  result = unmarshal(n, Voice)
 
-proc getVideoNote*(n: JsonNode): VideoNote =
-  result.fileId = $n["file_id"]
-  result.length = n["length"].num.int
-  result.duration = n["duration"].num.int
-  if n.hasKey("thumb"):
-    result.thumb = getPhotoSize(n["thumb"])
-  if n.hasKey("file_size"):
-    result.fileSize = n["file_size"].num.int
+proc getVideoNote*(n: JsonNode): VideoNote {.inline.} =
+  result = unmarshal(n, VideoNote)
 
-proc getContact*(n: JsonNode): Contact =
-  result.phoneNumber = n["phone_number"].str
-  result.firstName = n["first_name"].str
-  if n.hasKey("last_name"):
-    result.lastName = n["last_name"].str
-  if n.hasKey("user_id"):
-    result.userId = n["user_id"].str
+proc getContact*(n: JsonNode): Contact {.inline.} =
+  result = unmarshal(n, Contact)
 
-proc getLocation(n: JsonNode): Location =
-  result.longitude = n["longitude"].fnum
-  result.latitude = n["latitude"].fnum
+proc getLocation(n: JsonNode): Location {.inline.} =
+  result = unmarshal(n, Location)
 
-proc getVenue(n: JsonNode): Venue =
-  result.location = n["location"].getLocation()
-  result.title = $n["title"]
-  result.address = $n["address"]
-  if n.hasKey("foursquare_id"):
-    result.foursquareId = $n["foursquare_id"]
+proc getVenue(n: JsonNode): Venue {.inline.} =
+  result = unmarshal(n, Venue)
 
-proc getUserProfilePhotos*(n: JsonNode): UserProfilePhotos =
+proc getUserProfilePhotos*(n: JsonNode): UserProfilePhotos {.inline.} =
   result.totalCount = n["total_count"].num.int
   result.photos = @[]
   for x in n["photos"]:
     result.photos.add(getPhoto(x))
 
-proc getMessageEntity(n: JsonNode): MessageEntity =
-  result.kind = $n["type"]
-  result.offset = n["offset"].num.int
-  result.length = n["length"].num.int
-  if n.hasKey("url"):
-    result.url = $n["url"]
-  if n.hasKey("user"):
-    result.user = n["user"].getUser()
+proc getMessageEntity(n: JsonNode): MessageEntity {.inline.} =
+  result = unmarshal(n, MessageEntity)
 
-proc getGame*(n: JsonNode): Game =
-  result.title = $n["title"]
-  result.description = $n["description"]
-  result.photo = n["photo"].getPhoto()
-  if n.hasKey("text"):
-    result.text = $n["text"]
-  if n.hasKey("text_entities"):
-    result.textEntities = @[]
-    for e in n["text_entities"]:
-      result.textEntities.add(e.getMessageEntity())
+proc getGame*(n: JsonNode): Game {.inline.} =
+  result = unmarshal(n, Game)
+  
+proc getInvoice(n: JsonNode): Invoice {.inline.} =
+  result = unmarshal(n, Invoice)
 
-proc getInvoice(n: JsonNode): Invoice =
-  result.title = $n["title"]
-  result.description = $n["description"]
-  if n.hasKey("start_parametter"):
-    result.startParameter = $n["start_parameter"]
-  if n.hasKey("currency"):
-    result.currency = $n["currency"]
-  if n.hasKey("total_amount"):
-    result.totalAmount = n["total_amount"].num.int
+proc getFile*(n: JsonNode): types.File {.inline.} =
+  result = unmarshal(n, types.File)
 
-proc getFile*(n: JsonNode): types.File =
-  result.fileId = $n["file_id"]
-  if n.hasKey("file_size"):
-    result.fileSize = n["file_size"].num.int
-  if n.hasKey("file_path"):
-    result.filePath = $n["file_path"]
+proc getChatMember*(n: JsonNode): ChatMember {.inline.} =
+  result = unmarshal(n, ChatMember)
 
-proc getChatMember*(n: JsonNode): ChatMember =
-  result.user = n["user"].getUser()
-  result.status = $n["status"]
-
-proc getSuccessfulPayment(n: JsonNode): SuccessfulPayment =
+proc getSuccessfulPayment(n: JsonNode): SuccessfulPayment {.inline.} =
   ## TODO
   discard
 
-proc getMessage*(n: JsonNode): Message =
-  new(result)
+proc getMessage*(n: JsonNode): Message {.inline.} =
+  result = unmarshal(n, Message)
+
+discard """
+proc getMessage*(n: JsonNode): Message {.inline.} =
   result.messageId = n["message_id"].num.int
   if n.hasKey("from"):
     result.fromUser = getUser(n["from"])
@@ -268,6 +175,7 @@ proc getMessage*(n: JsonNode): Message =
   elif n.hasKey("successful_payment"):
     result.kind = kSuccessfulPayment
     result.successfulPayment = n["successful_payment"].getSuccessfulPayment()
+"""
 
 proc processUpdates*(b: TeleBot, n: JsonNode): seq[Update] =
   result = @[]
@@ -312,9 +220,9 @@ proc processUpdates*(b: TeleBot, n: JsonNode): seq[Update] =
 proc `$`*(k: KeyboardButton): string =
   var j = newJObject()
   j["text"] = %k.text
-  if k.requestContact:
+  if $k.requestContact:
     j["request_contact"] = %true
-  if k.requestLocation:
+  if $k.requestLocation:
     j["request_location"] = %true
 
   result = $j
@@ -335,17 +243,12 @@ proc `$`*(k: ReplyKeyboardMarkup): string =
 
   result = $j
 
-proc initReplyKeyboardMarkup*(kb: seq[seq[KeyboardButton]], rk = false, otk = false, s = false): ReplyKeyboardMarkup =
+proc initReplyKeyboardMarkup*(kb: seq[seq[KeyboardButton]]): ReplyKeyboardMarkup =
   result.keyboard = kb
-  result.resizeKeyboard = rk
-  result.oneTimeKeyboard = otk
-  result.selective = s
 
-proc ReplyKeyboardRemove*(s = false): string =
-  var json = %*{"remove_keyboard": true, "selective": s }
-  result = $json
+proc `$`*(k: ReplyKeyboardRemove): string =
+  return "{'remove_keyboard': true, 'selective':" & $$k.selective & "}"
 
-proc ForceReply*(s = false): string =
-  var json = %*{"force_reply": true, "selective": s }
-  result = $json
+proc `$`*(k: ForceReply): string =
+  result = "{'remove_keyboard': true, 'selective':" & $$k.selective & "}"
 

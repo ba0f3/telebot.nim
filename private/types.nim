@@ -1,142 +1,144 @@
 import optional
 
 type
-  TeleBot* = ref object of RootObj
+  TelegramObject* = object of RootObj
+
+  TeleBot* = ref object of TelegramObject
     token*: string
     lastUpdateId*: BiggestInt
 
-  User* = object
+  True = distinct bool
+  User* = object of TelegramObject
     id*: int
     firstName*: string
     lastName*: Optional[string]
     username*: Optional[string]
     languageCode*: Optional[string]
 
-  Chat* = object
+  Chat* = object of TelegramObject
     id*: int
     kind*: string
-    title*: string
-    username*: string
-    firstName*: string
-    lastName*: string
-    allMembersAreAdministrators*: bool
+    title*: Optional[string]
+    username*: Optional[string]
+    firstName*: Optional[string]
+    lastName*: Optional[string]
+    allMembersAreAdministrators*: Optional[bool]
 
-  PhotoSize* = object
+  PhotoSize* = object of TelegramObject
     fileId*: string
     width*: int
     height*: int
-    fileSize*: int
+    fileSize*: Optional[int]
 
-  Audio* = object
+  Audio* = object of TelegramObject
     fileId*: string
     duration*: int
-    performer*: string
-    title*: string
-    mimeType*: string
-    fileSize*: int
+    performer*: Optional[string]
+    title*: Optional[string]
+    mimeType*: Optional[string]
+    fileSize*: Optional[int]
 
-  Document* = object
+  Document* = object of TelegramObject
     fileId*: string
-    thumb*: PhotoSize
-    fileName*: string
-    mimeType*: string
-    fileSize*: int
+    thumb*: Optional[PhotoSize]
+    fileName*: Optional[string]
+    mimeType*: Optional[string]
+    fileSize*: Optional[int]
 
-  Sticker* = object
+  Sticker* = object of TelegramObject
     fileId*: string
     width*: int
     height*: int
-    thumb*: PhotoSize
-    emoji*: string
-    fileSize*: int
+    thumb*: Optional[PhotoSize]
+    emoji*: Optional[string]
+    fileSize*: OPtional[int]
 
-  Video* = object
+  Video* = object of TelegramObject
     fileId*: string
     width*: int
     height*: int
     duration*: int
-    thumb*: PhotoSize
-    mimeType*: string
-    fileSize*: int
+    thumb*: Optional[PhotoSize]
+    mimeType*: Optional[string]
+    fileSize*: Optional[int]
 
-  Voice* = object
+  Voice* = object of TelegramObject
     fileId*: string
     duration*: int
-    mimeType*: string
-    fileSize*: int
+    mimeType*: Optional[string]
+    fileSize*: Optional[int]
 
-  VideoNote* = object
+  VideoNote* = object of TelegramObject
     fileId*: string
     length*: int
     duration*: int
-    thumb*: PhotoSize
-    fileSize*: int
+    thumb*: Optional[PhotoSize]
+    fileSize*: Optional[int]
 
-  Contact* = object
+  Contact* = object of TelegramObject
     phoneNumber*: string
     firstName*: string
-    lastName*: string
-    userId*: string
+    lastName*: Optional[string]
+    userId*: Optional[string]
 
-  Location* = object
+  Location* = object of TelegramObject
     longitude*: float
     latitude*: float
 
-  Venue* = object
+  Venue* = object of TelegramObject
     location*: Location
     title*: string
     address*: string
-    foursquareId*: string
+    foursquareId*: Optional[string]
 
-  UserProfilePhotos* = object
+  UserProfilePhotos* = object of TelegramObject
     totalCount*: int
     photos*: seq[seq[PhotoSize]]
 
-  File* = object
+  File* = object of TelegramObject
     fileId*: string
     fileSize*: int
     filePath*: string
 
-  KeyboardButton* = object
+  KeyboardButton* = object of TelegramObject
     text*: string
-    requestContact*: bool
-    requestLocation*: bool
+    requestContact*: Optional[bool]
+    requestLocation*: Optional[bool]
 
-  ReplyKeyboardMarkup* = object
+  KeyboardMarkup* = object of TelegramObject
+
+  ReplyKeyboardMarkup* = object of KeyboardMarkup
     keyboard*: seq[seq[KeyboardButton]]
-    resizeKeyboard*: bool
-    oneTimeKeyboard*: bool
-    selective*: bool
+    resizeKeyboard*: Optional[bool]
+    oneTimeKeyboard*: Optional[bool]
+    selective*: Optional[bool]
 
-  CallbackGame* = object
+  ReplyKeyboardRemove* = object of KeyboardMarkup
+    removeKeyboard*: True
+    selective*: Optional[bool]
 
-  InlineKeyboardButton* = object
-    text*: string
-    url*: string
-    callbackData*: string
-    switchInlineQuery*: string
-    switchInlineQueryCurrentChat*: string
-    callbackGame*: CallbackGame
-    pay*: bool
+  ForceReply* = object of KeyboardMarkup
+    forceReply*: True
+    selective*: Optional[bool]
 
-  InlineKeyboardMarkup* = object
-    inlineKeyboard*: seq[seq[InlineKeyboardButton]]
+  CallbackGame* = object of TelegramObject
 
-  CallbackQuery* = object
+
+  CallbackQuery* = ref object of TelegramObject
     id*: string
     fromUser*: User
-    message*: Message
-    inlineMessageId*: string
-    chatInstance*: string
-    data*: string
-    gameShortName*: string
+    message*: Optional[Message]
+    inlineMessageId*: Optional[string]
+    chatInstance*: Optional[string]
+    data*: Optional[string]
+    gameShortName*: Optional[string]
 
-  MessageEntity* = object
+  MessageEntity* = object of TelegramObject
     kind*: string
     offset*: int
     length*: int
-    url*: string
-    user*: User
+    url*: Optional[string]
+    user*: Optional[User]
 
   MessageKind* = enum
     kText
@@ -165,76 +167,53 @@ type
     kInvoice
     kSuccessfulPayment
 
-  Message* = ref object
+  
+  Message* = object of TelegramObject
     messageId*: int
-    fromUser*: User
+    fromUser*: Optional[User]
     date*: int
     chat*: Chat
-    forwardFrom*: User
-    forwardFromChat*: Chat
-    forwardFromMessageId*: int
-    forwardDate*: int
-    replyToMessage*: Message
-    editDate*: int
-    caption*: string
-    case kind*: MessageKind
-    of kText:
-      text*: string
-      entities*: seq[MessageEntity]
-    of kAudio:
-      audio*: Audio
-    of kDocument:
-      document*: Document
-    of kGame:
-      game*: Game
-    of kPhoto:
-      photo*: seq[PhotoSize]
-    of kSticker:
-      sticker*: Sticker
-    of kVideo:
-      video*: Video
-    of kVoice:
-      voice*: Voice
-    of kVideoNote:
-      videoNote*: VideoNote
-    of kContact:
-      contact*: Contact
-    of kLocation:
-      location*: Location
-    of kVenue:
-      venue*: Venue
-    of kNewChatMember:
-      newChatMembers*: seq[User]
-      newChatMember*: User
-    of kLeftChatMember:
-      leftChatMember*: User
-    of kNewChatTitle:
-      newChatTitle*: string
-    of kNewChatPhoto:
-      newChatPhoto*: seq[PhotoSize]
-    of kMigrateToChatId:
-      migrateToChatId*: int
-    of kMigrateFromChatId:
-      migrateFromChatId*: int
-    of kPinnedMessage:
-      pinnedMessage*: Message
-    of kInvoice:
-      invoice*: Invoice
-    of kSuccessfulPayment:
-      successfulPayment*: SuccessfulPayment
-    else:
-      discard
+    forwardFrom*: Optional[User]
+    forwardFromChat*: Optional[Chat]
+    forwardFromMessageId*: Optional[int]
+    forwardDate*: Optional[int]
+    replyToMessage*: Optional[ref Message]
+    editDate*: Optional[int]
+    caption*: Optional[string]
+    text*: Optional[string]
+    entities*: Optional[seq[MessageEntity]]
+    audio*: Optional[Audio]
+    document*: Optional[Document]
+    game*: Optional[Game]
+    photo*: Optional[seq[PhotoSize]]
+    sticker*: Optional[Sticker]
+    video*: Optional[Video]
+    voice*: Optional[Voice]
+    videoNote*: Optional[VideoNote]
+    contact*: Optional[Contact]
+    location*: Optional[Location]
+    venue*: Optional[Venue]
+    newChatMembers*: Optional[seq[User]]
+    newChatMember*: Optional[User]
+    leftChatMember*: Optional[User]
+    newChatTitle*: Optional[string]
+    newChatPhoto*: Optional[seq[PhotoSize]]
+    migrateToChatId*: Optional[int]
+    migrateFromChatId*: Optional[int]
+    pinnedMessage*: Optional[ref Message]
+    invoice*: Optional[Invoice]
+    successfulPayment*: Optional[SuccessfulPayment]
 
-  ChatMember* = object
+  ChatMember* = object of TelegramObject
     user*: User
     status*: string
 
-  ResponseParameters* = object
-    migrateToChatId*: int
-    retryAfter*: int
+  ResponseParameters* = object of TelegramObject
+    migrateToChatId*: Optional[int]
+    retryAfter*: Optional[int]
 
-  InlineQuery* = object
-  ChosenInlineResult* = object
+  InlineQuery* = object of TelegramObject
+  ChosenInlineResult* = object of TelegramObject
 
   UpdateKind* = enum
     kMessage
@@ -246,8 +225,8 @@ type
     kCallbackQuery
     kShippingQuery
     kPreCheckoutQuery
-    
-  Update* = object
+
+  Update* = object of TelegramObject
     updateId*: int
     case kind*: UpdateKind
     of kMessage:
@@ -272,32 +251,32 @@ type
   #------------------
   # Game
   #------------------
-  Animation* = object
+  Animation* = object of TelegramObject
     fileId*: string
-    thumb*: PhotoSize
-    fileName*: string
-    mimeType*: string
-    fileSize*: int
+    thumb*: Optional[PhotoSize]
+    fileName*: Optional[string]
+    mimeType*: Optional[string]
+    fileSize*: Optional[int]
 
-  Game* = object
+  Game* = object of TelegramObject
     title*: string
     description*: string
     photo*: seq[PhotoSize]
-    text*: string
-    textEntities*: seq[MessageEntity]
-    animation*: Animation
+    text*: Optional[string]
+    textEntities*: Optional[seq[MessageEntity]]
+    animation*: Optional[Animation]
 
   #------------------
   # Payment
   #------------------
-  Invoice* = object
+  Invoice* = object of TelegramObject
     title*: string
     description*: string
     startParameter*: string
     currency*: string
     totalAmount*: int
 
-  ShippingAddress* = object
+  ShippingAddress* = object of TelegramObject
     countryCode*: string
     state*: string
     city*: string
@@ -305,41 +284,41 @@ type
     streetLine2*: string
     postCode*: string
 
-  OrderInfo* = object
-    name*: string
-    phoneNumber*: string
-    email*: string
-    shippingAddress*: ShippingAddress
+  OrderInfo* = object of TelegramObject
+    name*: Optional[string]
+    phoneNumber*: Optional[string]
+    email*: Optional[string]
+    shippingAddress*: Optional[ShippingAddress]
 
-  LabeledPrice* = object
+  LabeledPrice* = object of TelegramObject
     label*: string
     amount*: int
 
-  ShippingOption* = object
+  ShippingOption* = object of TelegramObject
     id*: string
     title*: string
     prices*: seq[LabeledPrice]
 
-  SuccessfulPayment* = object
+  SuccessfulPayment* = object of TelegramObject
     currentcy*: string
     totalAmount*: int
     invoicePayload*: string
-    shippingOptionId*: string
-    orderInfo*: OrderInfo
+    shippingOptionId*: Optional[string]
+    orderInfo*: Optional[OrderInfo]
     telegramPaymentChargeId*: string
     providerPaymentChargeId*: string
 
-  ShippingQuery* = object
+  ShippingQuery* = object of TelegramObject
     id*: string
     fromUser*: User
     invoicePayload*: string
     shippingAddress*: ShippingAddress
 
-  PreCheckoutQuery* = object
+  PreCheckoutQuery* = object of TelegramObject
     id*: string
     fromUser*: User
     currency*: string
     totalAmount*: int
     invoicePayload*: string
-    shippingOptionId*: string
-    orderInfo*: OrderInfo
+    shippingOptionId*: Optional[string]
+    orderInfo*: Optional[OrderInfo]

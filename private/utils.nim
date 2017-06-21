@@ -8,6 +8,7 @@ const
 macro END_POINT*(s: string): typed =
   result = parseStmt("const endpoint = \"" & API_URL & s.strVal & "\"")
 
+
 proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
   let client = newAsyncHttpClient()
   let r = await client.post(endpoint, multipart=data)
@@ -22,11 +23,29 @@ proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode]
 proc camelCaseToUnderscore*(s: string): string {.compileTime.} =
   result = ""
   for c in s:
-    if c.isUpper():
+    if c.isUpperAscii():
       result.add("_")
-      result.add(c.toLower())
+      result.add(c.toUpperAscii)
     else:
       result.add(c)
+
+proc unmarshal*(n: JsonNode, T: typedesc[TelegramObject]): T =
+  for name, value in result.fieldPairs:
+    let jname = camelCaseToUnderscore(name)
+    when value.type is Optional:
+      if n.hasKey(jname):
+        toOptional(value, n[jname])
+    elif value.type is TelegramObject:
+      value = unmarshal(n[jname], value.type)
+    elif value.type is seq:
+      discard
+    elif value.type is ref:
+      echo "ref "
+    else:
+      if not n.hasKey(jname):
+        raise newException(ValueError, name & " " & " is required")
+      value = to(n[jname], type(value))
+
 
 proc newProcDef(name: string): NimNode {.compileTime.} =
    result = newNimNode(nnkProcDef)
@@ -151,7 +170,7 @@ macro magic*(head, body: untyped): untyped =
   var epilogue = parseStmt("""
 try:
   let res = await makeRequest(endpoint % b.token, data)
-  result = res.getMessage()
+  result = unmarshal(res, Message)
 except:
   echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
 """)
