@@ -10,6 +10,7 @@ type
 proc wrap*[T](v: T): Optional[T] {.inline.} =
   new(result)
   result.value = v
+
 proc unwrap*[T](o: Optional[T]): T {.inline.} =
   if not o.isNil:
      result = o.value
@@ -17,7 +18,6 @@ proc unwrap*[T](o: Optional[T]): T {.inline.} =
 proc `$`*[T](o: Optional[T]): string {.inline.} =
   if not o.isNil:
     result = $o.value
-
 
 proc toOptional*[T](o: var Optional[T], n: JsonNode) {.inline.} =
   when T is TelegramObject:
