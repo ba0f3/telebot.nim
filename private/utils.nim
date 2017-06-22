@@ -1,5 +1,5 @@
 
-import macros, httpclient, asyncdispatch, json, strutils, types
+import macros, httpclient, asyncdispatch, json, strutils, types, optional
 
 const
   API_URL* = "https://api.telegram.org/bot$#/"

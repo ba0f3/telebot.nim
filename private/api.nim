@@ -104,7 +104,7 @@ proc getMe*(b: TeleBot): Future[User] {.async.} =
   ## Returns basic information about the bot in form of a ``User`` object.
   END_POINT("getMe")
   let res = await makeRequest(endpoint % b.token)
-  result = getUser(res)
+  result = unmarshal(res, User)
 
   
 proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, disableNotification = false): Future[Message] {.async.} =
@@ -138,14 +138,14 @@ proc getUserProfilePhotos*(b: TeleBot, userId: int, offset = 0, limit = 100): Fu
   if offset != 0:
     data["offset"] = $offset
   let res = await makeRequest(endpoint % b.token, data)
-  result = getUserProfilePhotos(res)
+  result = unmarshal(res, UserProfilePhotos)
 
 proc getFile*(b: TeleBot, fileId: string): Future[types.File] {.async.} =
   END_POINT("getFile")
   var data = newMultipartData()
   data["file_id"] = fileId
   let res = await makeRequest(endpoint % b.token, data)
-  result = getFile(res)
+  result = unmarshal(res, types.File)
 
 proc kickChatMember*(b: TeleBot, chatId: string, userId: int): Future[bool] {.async.} =
   END_POINT("kickChatMember")
@@ -175,7 +175,7 @@ proc getChat*(b: TeleBot, chatId: string): Future[Chat] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   let res = await makeRequest(endpoint % b.token, data)
-  result = getChat(res)
+  result = unmarshal(res, Chat)
 
 proc getChatAdministrators*(b: TeleBot, chatId: string): Future[seq[ChatMember]] {.async.} =
   END_POINT("getChatAdministrators")
@@ -184,7 +184,7 @@ proc getChatAdministrators*(b: TeleBot, chatId: string): Future[seq[ChatMember]]
   let res = await makeRequest(endpoint % b.token, data)
   result = @[]
   for m in res:
-    result.add(m.getChatMember())
+    result.add(unmarshal(m, ChatMember))
 
 proc getChatMemberCount*(b: TeleBot, chatId: string): Future[int] {.async.} =
   END_POINT("getChatMemberCount")
@@ -199,7 +199,7 @@ proc getChatMEMBER*(b: TeleBot, chatId: string, userId: int): Future[ChatMember]
   data["chat_id"] = chatId
   data["user_id"] = $userId
   let res = await makeRequest(endpoint % b.token, data)
-  result = getChatMember(res)
+  result = unmarshal(res, ChatMember)
 
 proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAlert = false, url = "",  cacheTime = 0): Future[bool] {.async.} =
   END_POINT("answerCallbackQuery")

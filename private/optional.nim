@@ -6,8 +6,8 @@ type
 
 
 proc `&`*[T](v: T): Optional[T] {.inline.} = result.value = v
-proc `$`*[T](o: Optional[T]): T {.inline.} = o.value
-proc `$$`*[T](o: Optional[T]): string {.inline.} = $o.value
+proc `*`*[T](o: Optional[T]): T {.inline.} = o.value
+proc `$`*[T](o: Optional[T]): string {.inline.} = $o.value
 
 
 proc toOptional*[T](o: var Optional[T], n: JsonNode) {.inline.} =
