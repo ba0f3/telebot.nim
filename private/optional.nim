@@ -1,28 +1,39 @@
 import json
 
 type
-  Optional*[T] = object
+  Optional*[T] = ref object
     value*: T
 
+  OptionalSeq*[T] = ref object
+    values: seq[T]
 
-proc `&`*[T](v: T): Optional[T] {.inline.} = result.value = v
-proc `*`*[T](o: Optional[T]): T {.inline.} = o.value
-proc `$`*[T](o: Optional[T]): string {.inline.} = $o.value
+proc wrap*[T](v: T): Optional[T] {.inline.} =
+  new(result)
+  result.value = v
+proc unwrap*[T](o: Optional[T]): T {.inline.} =
+  if not o.isNil:
+     result = o.value
+
+proc `$`*[T](o: Optional[T]): string {.inline.} =
+  if not o.isNil:
+    result = $o.value
 
 
 proc toOptional*[T](o: var Optional[T], n: JsonNode) {.inline.} =
-  when T is int:
-    o = &n.num.int
+  when T is TelegramObject:
+    o.value = unmarshal(n, o.value.type)
+  elif T is int:
+    o = wrap(n.num.int)
   elif T is string:
-    o = &n.str
+    o = wrap(n.str)
   elif T is bool:
-    o = &n.bval
-  else:
-    discard
-
-proc getType*[T](o: Optional[T]): typedesc =
-  return T
-
+    o = wrap(n.bval)
+  elif T is seq:
+    o.value = @[]
+    for item in n.items:
+      o.value.put(item)
+  elif T is ref:
+    o.value = unref(o.value, n)
 
 
 when isMainModule:

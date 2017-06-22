@@ -47,9 +47,9 @@ proc processUpdates*(b: TeleBot, n: JsonNode): seq[Update] =
 proc `$`*(k: KeyboardButton): string =
   var j = newJObject()
   j["text"] = %k.text
-  if *k.requestContact:
+  if k.requestContact.unwrap:
     j["request_contact"] = %true
-  if *k.requestLocation:
+  if k.requestLocation.unwrap:
     j["request_location"] = %true
 
   result = $j

@@ -141,34 +141,6 @@ type
     url*: Optional[string]
     user*: Optional[User]
 
-  MessageKind* = enum
-    kText
-    kAudio
-    kDocument
-    kGame
-    kPhoto
-    kSticker
-    kVideo
-    kVoice
-    kVideoNote
-    kContact
-    kLocation
-    kVenue
-    kNewChatMember
-    kLeftChatMember
-    kNewChatTitle
-    kNewChatPhoto
-    kDeleteChatPhoto
-    kGroupChatCreated
-    kSupergroupChatCreated
-    kChannelChatCreated
-    kMigrateToChatId
-    kMigrateFromChatId
-    kPinnedMessage
-    kInvoice
-    kSuccessfulPayment
-
-  
   Message* = object of TelegramObject
     messageId*: int
     fromUser*: Optional[User]

@@ -20,7 +20,7 @@ proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode]
     raise newException(IOError, r.status)
   client.close()
 
-proc objKeyToJson*(s: string): string {.compileTime.} =
+proc `%%`(s: string): string {.compileTime.} =
   if s == "kind":
     return "type"
   if s == "fromUser":
@@ -34,21 +34,37 @@ proc objKeyToJson*(s: string): string {.compileTime.} =
     else:
       result.add(c)
 
-proc unmarshal*(n: JsonNode, T: typedesc[TelegramObject]): T =
-  for name, value in result.fieldPairs:
-    const jname = objKeyToJson(name)
-    when value.type is Optional:
-      if n.hasKey(jname):
-        toOptional(value, n[jname])
-    elif value.type is TelegramObject:
-      value = unmarshal(n[jname], value.type)
-    elif value.type is seq:
-      discard
-    elif value.type is ref:
-      echo "ref "
-    else:
-      value = to(n[jname], type(value))
+proc unmarshal*(n: JsonNode, T: typedesc): T {.inline.} =
+  when result is object:
+    for name, value in result.fieldPairs:
+      when value.type is Optional:
+        if n.hasKey(%%name):
+          if value.isNil:
+            new(value)
+          toOptional(value, n[%%name])
+      elif value.type is TelegramObject:
+        value = unmarshal(n[%%name], value.type)
+      elif value.type is seq:
+        value = @[]
+        for item in n[%%name].items:
+          put(value, item)
+        echo "unmarshal seq"
+      elif value.type is ref:
+        echo "unmarshal ref"
+      else:
+        value = to(n[%%name], value.type)
+  elif result is seq:
+    result = @[]
+    for item in n.items:
+      result.put(item)
 
+
+proc put*[T](s: var seq[T], n: JsonNode) {.inline.} =
+  s.add(unmarshal(n, T))
+
+proc unref*[T: TelegramObject](r: ref T, n: JsonNode ): ref T {.inline.} =
+  new(result)
+  result[] =  unmarshal(n, T)
 
 proc newProcDef(name: string): NimNode {.compileTime.} =
    result = newNimNode(nnkProcDef)
@@ -136,7 +152,7 @@ macro magic*(head, body: untyped): untyped =
       sStmtList.add(newAssignment(
         newNimNode(nnkBracketExpr).add(
           ident("data"),
-          newStrLitNode(objKeyToJson(fname))
+          newStrLitNode(%%fname)
         ),
         prefix(newDotExpr(ident("m"), node[0]), "$")
       ))
@@ -159,7 +175,7 @@ macro magic*(head, body: untyped): untyped =
             newCall(
               ident("add"),
               ident("data"),
-              newStrLitNode(objKeyToJson(fname)),
+              newStrLitNode(%%fname),
               prefix(newDotExpr(ident("m"), node[0]), "$")
             )
           )
