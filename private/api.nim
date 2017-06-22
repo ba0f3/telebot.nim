@@ -1,4 +1,4 @@
-import asyncdispatch, common, utils, strutils
+import asyncdispatch, common, utils, strutils, logging
 
 magic Message:
   chatId: int
@@ -233,4 +233,20 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[str
     data["allowed_updates"] = $allowedUpdates
 
   let res = await makeRequest(endpoint % b.token, data)
-  result = processUpdates(b, res)
+  result = @[]
+  for item in res.items:
+    result.add(unmarshal(item, Update))
+
+proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
+  const endpoint = API_URL & "answerInlineQuery"
+  var data = newMultipartData()
+  
+  d("inline_query_id", id)
+  data["inline_query_id"] = id
+  var s = ""
+  marshal(results, s)
+  d("results", s)
+  data["results"] = s
+
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval

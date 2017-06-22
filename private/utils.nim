@@ -1,5 +1,5 @@
 
-import macros, httpclient, asyncdispatch, json, strutils, types, optional
+import macros, httpclient, asyncdispatch, json, strutils, types, optional, logging
 
 const
   API_URL* = "https://api.telegram.org/bot$#/"
@@ -8,14 +8,29 @@ const
 macro END_POINT*(s: string): typed =
   result = parseStmt("const endpoint = \"" & API_URL & s.strVal & "\"")
 
+proc isSet*(value: any): bool {.inline.} =
+  when value is string:
+    result = not value.isNilOrEmpty
+  elif value is int:
+    result = value != 0
+  elif value is bool:
+    result = value
+  else:
+    result = not value.isNil
+
+template d*(args: varargs[string, `$`]) =
+  when declared(verbose):
+    debug(args)
 
 proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
   let client = newAsyncHttpClient()
+  d("Making request to ", endpoint)
   let r = await client.post(endpoint, multipart=data)
   if r.code == Http200:
     var obj = parseJson(await r.body)
     if obj["ok"].bval == true:
       result = obj["result"]
+      d("Result: ", result)
   else:
     raise newException(IOError, r.status)
   client.close()
@@ -57,6 +72,28 @@ proc unmarshal*(n: JsonNode, T: typedesc): T {.inline.} =
     for item in n.items:
       result.put(item)
 
+proc marshal*[T](t: T, s: var string) =
+  when t is object:
+    s.add "{"
+    for name, value in t.fieldPairs:
+      s.add("\"" & %%name & "\":")
+      marshal(value, s)
+      s.add(',')
+    s.removeSuffix(',')
+    s.add "}"
+  elif t is seq or t is openarray:
+    s.add "["
+    for item in t:
+      marshal(item, s)
+    s.add "]"
+  else:
+    if t.isSet:
+      when t is string:
+        s.add("\"" & $t & "\"")
+      else:
+        s.add($t)
+    else:
+      s.add("null")
 
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.} =
   s.add(unmarshal(n, T))
@@ -76,16 +113,6 @@ proc newProcDef(name: string): NimNode {.compileTime.} =
      newEmptyNode(),
      newStmtList()
    )
-
-proc isSet*(value: any): bool {.inline.} =
-  when value is string:
-    result = not value.isNilOrEmpty
-  elif value is int:
-    result = value != 0
-  elif value is bool:
-    result = value
-  else:
-    result = not value.isNil
 
 macro magic*(head, body: untyped): untyped =
   result = newStmtList()
@@ -191,7 +218,6 @@ try:
   result = unmarshal(res, Message)
 except:
   echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
-  raise getCurrentException()
 """)
   sStmtList.add(epilogue[0])
 

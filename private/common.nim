@@ -1,13 +1,16 @@
-import types, json, strutils, utils, optional
+import types, json, strutils, utils, optional, logging
 
 
 proc getMessage*(n: JsonNode): Message {.inline.} =
   result = unmarshal(n, Message)
 
+proc setLogger*(b:TeleBot, L: Logger) = b.logger = L
+discard """
 proc processUpdates*(b: TeleBot, n: JsonNode): seq[Update] =
   result = @[]
   var u: Update
   for x in n:
+    
     u.updateId = x["update_id"].num.int
     if u.updateId > b.lastUpdateId:
       b.lastUpdateId = u.updateId
@@ -26,7 +29,7 @@ proc processUpdates*(b: TeleBot, n: JsonNode): seq[Update] =
       u.editedMessage = getMessage(x["edited_channel_post"])
     elif x.hasKey("inline_query"):
       u.kind = kInlineQuery
-      #u.editedMessage = getInlineQuery(x["inline_query"])
+      u.inlineQuery = getInlineQuery(x["inline_query"])
     elif x.hasKey("chosen_inline_query"):
       u.kind = kChosenInlineQuery
       #u.editedMessage = getChosenInlineResult(x["chosen_inline_query"])
@@ -42,7 +45,7 @@ proc processUpdates*(b: TeleBot, n: JsonNode): seq[Update] =
 
 
     result.add(u)
-
+"""
 
 proc `$`*(k: KeyboardButton): string =
   var j = newJObject()

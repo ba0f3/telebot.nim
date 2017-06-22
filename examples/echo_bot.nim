@@ -14,8 +14,9 @@ proc main() {.async.} =
             user = unwrap(update.message.fromUser)
             text = unwrap(update.message.text)
 
-          var message = newMessage(update.message.chat.id, "Got message from: *" & user.firstName &  "*\nText: `" & text & "`")
+          var message = newMessage(update.message.chat.id, text)
           message.disableNotification = true
+          message.replyToMessageId = update.message.messageId
           message.parseMode = "markdown"
           discard await bot.send(message)
 
