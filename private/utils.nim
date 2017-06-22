@@ -88,7 +88,7 @@ proc marshal*[T](t: T, s: var string) =
   else:
     if t.isSet:
       when t is string:
-        s.add("\"" & $t & "\"")
+        s.add("\"" & t & "\"")
       else:
         s.add($t)
     else:
