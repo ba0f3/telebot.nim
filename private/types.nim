@@ -8,7 +8,7 @@ type
     lastUpdateId*: BiggestInt
 
   True = distinct bool
-  
+
   User* = object of TelegramObject
     id*: int
     firstName*: string
