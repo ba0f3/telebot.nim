@@ -288,7 +288,7 @@ type
   InlineKeyboardMarkup* = object of KeyBoardMarkup
     inlineKeyboard*: seq[seq[InlineKeyboardButton]]
 
-  InlineQueryResult* = object of RootObj
+  InlineQueryResult* = object of TelegramObject
     kind*: string
     id*: string
     inputMessageContent*: InputMessageContent
@@ -446,14 +446,14 @@ type
     documentFileId*: string
     description*: string
 
-  InlineQuery* = object
+  InlineQuery* = object of TelegramObject
     id*: string
     fromUser*: User
-    location*: Location
+    location*: Optional[Location]
     query*: string
     offset*: string
 
-  ChosenInlineResult* = object
+  ChosenInlineResult* = object of TelegramObject
     resultId*: string
     fromUser*: User
     location*: Location

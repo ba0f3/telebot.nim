@@ -19,7 +19,6 @@ proc isSet*(value: any): bool {.inline.} =
     result = not value.isNil
 
 template d*(args: varargs[string, `$`]) =
-  when declared(verbose):
     debug(args)
 
 proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
