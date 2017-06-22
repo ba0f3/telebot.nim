@@ -20,18 +20,23 @@ proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode]
     raise newException(IOError, r.status)
   client.close()
 
-proc camelCaseToUnderscore*(s: string): string {.compileTime.} =
+proc objKeyToJson*(s: string): string {.compileTime.} =
+  if s == "kind":
+    return "type"
+  if s == "fromUser":
+    return "from"
+
   result = ""
   for c in s:
     if c.isUpperAscii():
       result.add("_")
-      result.add(c.toUpperAscii)
+      result.add(c.toLowerAscii)
     else:
       result.add(c)
 
 proc unmarshal*(n: JsonNode, T: typedesc[TelegramObject]): T =
   for name, value in result.fieldPairs:
-    let jname = camelCaseToUnderscore(name)
+    let jname = objKeyToJson(name)
     when value.type is Optional:
       if n.hasKey(jname):
         toOptional(value, n[jname])
@@ -43,7 +48,7 @@ proc unmarshal*(n: JsonNode, T: typedesc[TelegramObject]): T =
       echo "ref "
     else:
       if not n.hasKey(jname):
-        raise newException(ValueError, name & " " & " is required")
+        raise newException(ValueError,  name & " is required")
       value = to(n[jname], type(value))
 
 
@@ -133,7 +138,7 @@ macro magic*(head, body: untyped): untyped =
       sStmtList.add(newAssignment(
         newNimNode(nnkBracketExpr).add(
           ident("data"),
-          newStrLitNode(camelCaseToUnderscore(fname))
+          newStrLitNode(objKeyToJson(fname))
         ),
         prefix(newDotExpr(ident("m"), node[0]), "$")
       ))
@@ -156,7 +161,7 @@ macro magic*(head, body: untyped): untyped =
             newCall(
               ident("add"),
               ident("data"),
-              newStrLitNode(camelCaseToUnderscore(fname)),
+              newStrLitNode(objKeyToJson(fname)),
               prefix(newDotExpr(ident("m"), node[0]), "$")
             )
           )
