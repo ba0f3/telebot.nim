@@ -48,9 +48,8 @@ proc unmarshal*(n: JsonNode, T: typedesc): T {.inline.} =
         value = @[]
         for item in n[%%name].items:
           put(value, item)
-        echo "unmarshal seq"
-      elif value.type is ref:
-        echo "unmarshal ref"
+      #elif value.type is ref:
+      #  echo "unmarshal ref"
       else:
         value = to(n[%%name], value.type)
   elif result is seq:
@@ -192,6 +191,7 @@ try:
   result = unmarshal(res, Message)
 except:
   echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
+  raise getCurrentException()
 """)
   sStmtList.add(epilogue[0])
 
