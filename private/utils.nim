@@ -36,7 +36,7 @@ proc objKeyToJson*(s: string): string {.compileTime.} =
 
 proc unmarshal*(n: JsonNode, T: typedesc[TelegramObject]): T =
   for name, value in result.fieldPairs:
-    let jname = objKeyToJson(name)
+    const jname = objKeyToJson(name)
     when value.type is Optional:
       if n.hasKey(jname):
         toOptional(value, n[jname])
@@ -47,8 +47,6 @@ proc unmarshal*(n: JsonNode, T: typedesc[TelegramObject]): T =
     elif value.type is ref:
       echo "ref "
     else:
-      if not n.hasKey(jname):
-        raise newException(ValueError,  name & " is required")
       value = to(n[jname], type(value))
 
 
