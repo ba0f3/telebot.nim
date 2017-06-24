@@ -1,8 +1,8 @@
-import httpclient, json, strutils, tempfile, os, uri
+import httpclient, json, strutils, tempfile, os, uri, options
 
 
-import private/[types, optional, common, webhook]
-export types, optional.`$`, optional.`unwrap`
+import private/[types, common, webhook]
+export types, options
 
 proc newTeleBot*(token: string): TeleBot =
   ## Init new Telegram Bot instance

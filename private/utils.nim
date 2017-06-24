@@ -1,5 +1,5 @@
 
-import macros, httpclient, asyncdispatch, json, strutils, types, optional, logging
+import macros, httpclient, asyncdispatch, json, strutils, types, options, logging
 
 const
   API_URL* = "https://api.telegram.org/bot$#/"
@@ -19,7 +19,7 @@ proc isSet*(value: any): bool {.inline.} =
     result = not value.isNil
 
 template d*(args: varargs[string, `$`]) =
-    debug(args)
+  debug(args)
 
 proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
   let client = newAsyncHttpClient()
@@ -51,11 +51,9 @@ proc `%%`(s: string): string {.compileTime.} =
 proc unmarshal*(n: JsonNode, T: typedesc): T {.inline.} =
   when result is object:
     for name, value in result.fieldPairs:
-      when value.type is Optional:
+      when value.type is Option:
         if n.hasKey(%%name):
-          if value.isNil:
-            new(value)
-          toOptional(value, n[%%name])
+          toOption(value, n[%%name])
       elif value.type is TelegramObject:
         value = unmarshal(n[%%name], value.type)
       elif value.type is seq:
@@ -101,6 +99,28 @@ proc unref*[T: TelegramObject](r: ref T, n: JsonNode ): ref T {.inline.} =
   new(result)
   result[] =  unmarshal(n, T)
 
+proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
+  when T is TelegramObject:
+    o = some(unmarshal(n, T))
+  elif T is int:
+    o = some(n.num.int)
+  elif T is string:
+    o = some(n.str)
+  elif T is bool:
+    o = some(n.bval)
+  elif T is seq:
+    var arr: T = @[]
+    for item in n.items:
+      arr.put(item)
+    o = some(arr)
+  elif T is ref:
+    var res: T
+    o = some(unref(res, n))
+
+proc `%`*[T](o: Option[T]): JsonNode {.inline.} =
+  if o.isSome:
+    result = %o.get
+  
 proc newProcDef(name: string): NimNode {.compileTime.} =
    result = newNimNode(nnkProcDef)
    result.add(postfix(ident(name), "*"))

@@ -221,13 +221,13 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[str
   END_POINT("getUpdates")
   var data = newMultipartData()
 
-  if offset != 0:
+  if offset > 0:
     data["offset"] = $offset
-  else:
+  elif b.lastUpdateId > 0:
     data["offset"] = $(b.lastUpdateId+1)
-  if limit != 0:
+  if limit > 0:
     data["limit"] = $limit
-  if timeout != 0:
+  if timeout > 0:
     data["timeout"] = $timeout
   if allowedUpdates != nil:
     data["allowed_updates"] = $allowedUpdates
@@ -235,7 +235,10 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[str
   let res = await makeRequest(endpoint % b.token, data)
   result = @[]
   for item in res.items:
-    result.add(unmarshal(item, Update))
+    var update = unmarshal(item, Update)
+    if update.updateId > b.lastUpdateId:
+      b.lastUpdateId = update.updateId
+    result.add(update)
 
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   const endpoint = API_URL & "answerInlineQuery"

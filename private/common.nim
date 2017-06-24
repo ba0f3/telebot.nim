@@ -1,10 +1,9 @@
-import types, json, strutils, utils, optional, logging
-
+import types, json, strutils, utils, options
 
 proc getMessage*(n: JsonNode): Message {.inline.} =
   result = unmarshal(n, Message)
 
-proc setLogger*(b:TeleBot, L: Logger) = b.logger = L
+
 discard """
 proc processUpdates*(b: TeleBot, n: JsonNode): seq[Update] =
   result = @[]
@@ -50,26 +49,28 @@ proc processUpdates*(b: TeleBot, n: JsonNode): seq[Update] =
 proc `$`*(k: KeyboardButton): string =
   var j = newJObject()
   j["text"] = %k.text
-  if k.requestContact.unwrap:
+  if k.requestContact.get:
     j["request_contact"] = %true
-  if k.requestLocation.unwrap:
+  if k.requestLocation.get:
     j["request_location"] = %true
 
   result = $j
 
 proc `$`*(k: ReplyKeyboardMarkup): string =
   var j = newJObject()
-  j["selective"] = %k.selective
   var kb = newJArray()
   for x in k.keyboard:
     var n = newJArray()
     for y in x:
       n.add(%y)
     kb.add(n)
-
   j["keyboard"] = kb
-  j["resize_keyboard"] = %k.resizeKeyboard
-  j["one_time_keyboard"] = %k.oneTimeKeyboard
+  if k.selective.isSome and k.selective.get:
+    j["selective"] = %k.selective
+  if k.resizeKeyboard.isSome and k.resizeKeyboard.get:
+    j["resize_keyboard"] = %k.resizeKeyboard
+  if k.oneTimeKeyboard.isSome and k.oneTimeKeyboard.get:
+    j["one_time_keyboard"] = %k.oneTimeKeyboard
 
   result = $j
 
@@ -77,8 +78,15 @@ proc initReplyKeyboardMarkup*(kb: seq[seq[KeyboardButton]]): ReplyKeyboardMarkup
   result.keyboard = kb
 
 proc `$`*(k: ReplyKeyboardRemove): string =
-  return "{'remove_keyboard': true, 'selective':" & $k.selective & "}"
+  if k.selective.isNone or not k.selective.get:
+    return "{'remove_keyboard': true}"
+  else:
+    return "{'remove_keyboard': true, 'selective': true}"
+
 
 proc `$`*(k: ForceReply): string =
-  result = "{'remove_keyboard': true, 'selective':" & $k.selective & "}"
+  if k.selective.isNone or not k.selective.get:
+    return "{'force_reply': true}"
+  else:
+    return "{'force_reply': true, 'selective': true}"
 
