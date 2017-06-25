@@ -193,7 +193,7 @@ proc getChatMemberCount*(b: TeleBot, chatId: string): Future[int] {.async.} =
   let res = await makeRequest(endpoint % b.token, data)
   result = res.num.int
 
-proc getChatMEMBER*(b: TeleBot, chatId: string, userId: int): Future[ChatMember] {.async.} =
+proc getChatMember*(b: TeleBot, chatId: string, userId: int): Future[ChatMember] {.async.} =
   END_POINT("getChatMember")
   var data = newMultipartData()
   data["chat_id"] = chatId
@@ -242,8 +242,11 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[str
 
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   const endpoint = API_URL & "answerInlineQuery"
+
+  if results.isNil or results.len == 0:
+    return false
+
   var data = newMultipartData()
-  
   d("inline_query_id", id)
   data["inline_query_id"] = id
   var s = ""

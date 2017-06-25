@@ -7,7 +7,7 @@ const API_KEY = slurp("secret.key")
 
 proc fetchResults(query: string): Future[seq[InlineQueryResultPhoto]] {.async.} =
   result = @[]
-  let url = "https://api.reddit.com/r/EarthPorn/search?limit=6&type=link&q=" & encodeUrl(query)
+  let url = "https://api.reddit.com/r/unixporn/search?limit=6&type=link&q=" & encodeUrl(query)
   var
     client = newAsyncHttpClient()
     response = await client.get(url)
