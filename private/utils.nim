@@ -70,23 +70,36 @@ proc unmarshal*(n: JsonNode, T: typedesc): T {.inline.} =
       result.put(item)
 
 proc marshal*[T](t: T, s: var string) =
-  when t is object:
+  when t is Option:
+    if t.isNone:
+      s.add "null"
+    else:
+      marshal(t.get, s)
+  elif t is object:
     s.add "{"
     for name, value in t.fieldPairs:
-      s.add("\"" & %%name & "\":")
-      marshal(value, s)
-      s.add(',')
+      when value is Option:
+        if value.isSome:
+          s.add("\"" & %%name & "\":")
+          marshal(value, s)
+          s.add(',')
+      else:
+        s.add("\"" & %%name & "\":")
+        marshal(value, s)
+        s.add(',')
     s.removeSuffix(',')
     s.add "}"
   elif t is seq or t is openarray:
     s.add "["
     for item in t:
       marshal(item, s)
+      s.add(',')
+    s.removeSuffix(',')
     s.add "]"
   else:
     if t.isSet:
       when t is string:
-        s.add("\"" & t & "\"")
+        s.add(escape(t))
       else:
         s.add($t)
     else:

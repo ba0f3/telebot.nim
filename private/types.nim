@@ -290,8 +290,8 @@ type
   InlineQueryResult* = object of TelegramObject
     kind*: string
     id*: string
-    inputMessageContent*: InputMessageContent
-    replyMarkup*: InlineKeyboardMarkup
+    inputMessageContent*: Option[InputMessageContent]
+    replyMarkup*: Option[InlineKeyboardMarkup]
 
   InlineQueryResultWithThumb* = object of InlineQueryResult
     thumbUrl*: string
@@ -330,11 +330,11 @@ type
   InlineQueryResultPhoto* = object of InlineQueryResult
     photoUrl*: string
     thumbUrl*: string
-    photoWidth*: int
-    photoHeight*: int
-    title*: string
-    description*: string
-    caption*: string
+    photoWidth*: Option[int]
+    photoHeight*: Option[int]
+    title*: Option[string]
+    description*: Option[string]
+    caption*: Option[string]
 
   InlineQueryResultGif* = object of InlineQueryResult
     gifUrl*: string

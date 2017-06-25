@@ -1,5 +1,4 @@
 import ../telebot, asyncdispatch, json, httpclient, logging
-
 var L = newConsoleLogger()
 addHandler(L)
 
@@ -15,29 +14,28 @@ proc fetchResults(query: string): Future[seq[InlineQueryResultPhoto]] {.async.} 
   if response.code == Http200:
     var data = parseJson(await response.body)
     for child in data["data"]["children"].items:
-      echo child["data"]
-      if $child["data"]["thumbnail"] == "self":
+      if child["data"]["thumbnail"].str[0..3] != "http":
          continue
       var photo: InlineQueryResultPhoto
       photo.kind = "photo"
-      photo.id = $child["data"]["id"]
-      photo.photoUrl = $child["data"]["url"]
-      photo.thumbUrl = $child["data"]["thumbnail"]
-      photo.title = $child["data"]["title"]
+      photo.id = child["data"]["id"].str
+      photo.photoUrl = child["data"]["url"].str
+      photo.thumbUrl = child["data"]["thumbnail"].str
+      photo.title = some($child["data"]["title"])
       result.add(photo)
 
 var updates: seq[Update]
 proc main() {.async.} =
   let bot = newTeleBot(API_KEY)
+
   while true:
     updates = await bot.getUpdates(timeout=300)
     for update in updates:
-      if update.inlineQuery.isNil:
+      if update.inlineQuery.isNone:
         continue
       var
-        query = unwrap(update.inlineQuery)
+        query = update.inlineQuery.get
         results = await fetchResults(query.query)
-      echo query
       discard await bot.answerInlineQuery(query.id, results)
 asyncCheck main()
 runForever()
