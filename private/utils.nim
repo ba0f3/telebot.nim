@@ -15,6 +15,8 @@ proc isSet*(value: any): bool {.inline.} =
     result = value != 0
   elif value is bool:
     result = value
+  elif value is object:
+    result = true
   else:
     result = not value.isNil
 
@@ -129,6 +131,10 @@ proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
   elif T is ref:
     var res: T
     o = some(unref(res, n))
+
+proc getMessage*(n: JsonNode): Message {.inline.} =
+  result = unmarshal(n, Message)
+
 
 proc `%`*[T](o: Option[T]): JsonNode {.inline.} =
   if o.isSome:

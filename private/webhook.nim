@@ -1,5 +1,5 @@
 import asyncdispatch, httpclient, strutils, json
-import common, utils, types
+import utils, types
 
 type
   WebhookInfo* = object

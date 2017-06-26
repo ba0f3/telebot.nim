@@ -101,29 +101,39 @@ type
     fileSize*: int
     filePath*: string
 
-  KeyboardButton* = object of TelegramObject
+  KeyboardButton* = object
     text*: string
     requestContact*: Option[bool]
     requestLocation*: Option[bool]
 
-  KeyboardMarkup* = object of TelegramObject
+  InlineKeyboardButton* = object
+    text*: string
+    url*: string
+    callbackData*: string
+    switchInlineQuery*: string
+    switchInlineQueryCurrentChat*: string
+    callbackGame*: CallbackGame
+    pay*: bool
 
-  ReplyKeyboardMarkup* = object of KeyboardMarkup
-    keyboard*: seq[seq[KeyboardButton]]
-    resizeKeyboard*: Option[bool]
-    oneTimeKeyboard*: Option[bool]
-    selective*: Option[bool]
+  KeyboardKind* = enum
+    kReplyKeyboardMarkup
+    kReplyKeyboardRemove
+    kForceReply
+    kInlineKeyboardMarkup
 
-  ReplyKeyboardRemove* = object of KeyboardMarkup
-    removeKeyboard*: True
+  KeyboardMarkup* = ref object of TelegramObject
     selective*: Option[bool]
-
-  ForceReply* = object of KeyboardMarkup
-    forceReply*: True
-    selective*: Option[bool]
+    case kind*: KeyboardKind
+    of kReplyKeyboardMarkup:
+      keyboard*: seq[seq[KeyboardButton]]
+      resizeKeyboard*: Option[bool]
+      oneTimeKeyboard*: Option[bool]
+    of kInlineKeyboardMarkup:
+      inlineKeyboard*: seq[seq[InlineKeyboardButton]]
+    else:
+      discard
 
   CallbackGame* = object of TelegramObject
-
 
   CallbackQuery* = ref object of TelegramObject
     id*: string
@@ -275,23 +285,11 @@ type
   #------------------
   # Inline Query
   #------------------
-  InlineKeyboardButton* = object
-    text*: string
-    url*: string
-    callbackData*: string
-    switchInlineQuery*: string
-    switchInlineQueryCurrentChat*: string
-    callbackGame*: CallbackGame
-    pay*: bool
-
-  InlineKeyboardMarkup* = object of KeyBoardMarkup
-    inlineKeyboard*: seq[seq[InlineKeyboardButton]]
-
   InlineQueryResult* = object of TelegramObject
     kind*: string
     id*: string
     inputMessageContent*: Option[InputMessageContent]
-    replyMarkup*: Option[InlineKeyboardMarkup]
+    replyMarkup*: Option[KeyboardMarkup]
 
   InlineQueryResultWithThumb* = object of InlineQueryResult
     thumbUrl*: string

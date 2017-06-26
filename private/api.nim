@@ -1,4 +1,4 @@
-import asyncdispatch, common, utils, strutils, logging
+import asyncdispatch, utils, strutils, logging
 
 magic Message:
   chatId: int
@@ -7,7 +7,7 @@ magic Message:
   disableWebPagePreview: bool {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
 
 
 magic Photo:
@@ -16,7 +16,7 @@ magic Photo:
   caption: string {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
 
 magic Audio:
   chatId: int
@@ -27,7 +27,7 @@ magic Audio:
   title: string {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
 
 magic Document:
   chatId: int
@@ -35,14 +35,14 @@ magic Document:
   caption: string {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
 
 magic Sticker:
   chatId: int
   sticker: string
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
   
 magic Video:
   chatId: int
@@ -52,7 +52,7 @@ magic Video:
   height: int {.optional.}
   caption: string {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
 
 magic Voice:
   chatId: int
@@ -61,7 +61,7 @@ magic Voice:
   duration: int {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
 
 magic VideoNote:
   chatId: int
@@ -70,7 +70,7 @@ magic VideoNote:
   length: int {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
 
 magic Location:
   chatId: int
@@ -78,7 +78,7 @@ magic Location:
   longitude: int
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
 
 magic Venue:
   chatId: int
@@ -89,7 +89,7 @@ magic Venue:
   foursquareId: string {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
 
 magic Contact:
   chatId: int
@@ -98,7 +98,7 @@ magic Contact:
   lastName: string {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
-  replyMarkup: string {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
   
 proc getMe*(b: TeleBot): Future[User] {.async.} =
   ## Returns basic information about the bot in form of a ``User`` object.
