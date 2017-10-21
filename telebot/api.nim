@@ -1,4 +1,5 @@
-import httpclient, json, asyncdispatch, utils, strutils
+import httpclient, json, asyncdispatch, utils, strutils, options, strtabs
+
 magic Message:
   chatId: int
   text: string
@@ -41,7 +42,7 @@ magic Sticker:
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
-  
+
 magic Video:
   chatId: int
   video: string
@@ -97,18 +98,13 @@ magic Contact:
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
-  
+
 proc getMe*(b: TeleBot): Future[User] {.async.} =
   ## Returns basic information about the bot in form of a ``User`` object.
   END_POINT("getMe")
   let res = await makeRequest(endpoint % b.token)
   result = unmarshal(res, User)
 
-proc handle*(b: Telebot, command: string, p: Command) =
-  var commandWithName = command & "@" & b.name
-  b.commands.add(command, p)
-  b.commands.add(commandWithName, p)
-  
 proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, disableNotification = false): Future[Message] {.async.} =
   END_POINT("forwardMessage")
   var data = newMultipartData()
@@ -219,7 +215,7 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
-proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[string] = nil): Future[seq[Update]] {.async.} =
+proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[string] = nil): Future[void] {.async.} =
   END_POINT("getUpdates")
   var data = newMultipartData()
 
@@ -235,13 +231,20 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[str
     data["allowed_updates"] = $allowedUpdates
 
   let res = await makeRequest(endpoint % b.token, data)
-  result = @[]
   for item in res.items:
     var update = unmarshal(item, Update)
     if update.updateId > b.lastUpdateId:
       b.lastUpdateId = update.updateId
-    result.add(update)
-    callCommands(b, update)
+    await b.updateEmitter.emit("update", update)
+
+    if update.hasCommand():
+      var userCommands = update.getCommands()
+      for key in userCommands.keys():
+        var cmd: Command
+        cmd.message = update.message.get()
+        cmd.params = userCommands[key]
+        await b.commandEmitter.emit(key, cmd)
+
 
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   const endpoint = API_URL & "answerInlineQuery"
@@ -260,6 +263,6 @@ proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
   
-proc poll*(b: TeleBot, timeout: int32 = 0) =
+proc poll*(b: TeleBot, timeout: int32 = 0) {.async.} =
   while true:
-    discard b.getUpdates(0, 0, timeout)
+    await b.getUpdates(timeout=timeout)

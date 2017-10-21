@@ -1,5 +1,5 @@
 
-import macros, httpclient, asyncdispatch, json, strutils, types, options, logging, tables
+import macros, httpclient, asyncdispatch, json, strutils, types, options, logging, strtabs
 
 const
   API_URL* = "https://api.telegram.org/bot$#/"
@@ -18,8 +18,8 @@ proc hasCommand*(update: Update): bool =
         if entity.kind == "bot_command":
           return true
 
-proc getCommands*(update: Update): Table[string, string] =
-  result = initTable[string, string](2)
+proc getCommands*(update: Update): StringTableRef =
+  result = newStringTable(modeCaseInsensitive)
   if update.message.isSome:
     var message = update.message.get()
     if message.entities.isSome:
@@ -28,17 +28,12 @@ proc getCommands*(update: Update): Table[string, string] =
         if entity.kind == "bot_command":
           var messageText = message.text.get()
           var command = message_text[(entity.offset + 1)..entity.length].strip()
+          if '@' in command:
+            command = command.split('@')[0]
+            
           var param = message_text[(entity.offset + entity.length)..^1]
           param = param.split(Whitespace, 0).join().strip()
-          result.add(command, param)
-
-proc callCommands*(b: Telebot, update: Update) =
-  if update.hasCommand():
-    var userCommands = update.getCommands()
-    for key in userCommands.keys():
-      if b.commands.hasKey(key):
-        var p = b.commands[key]
-        p(b, update.message.get(), userCommands[key])
+          result[command] = param
 
 proc isSet*(value: any): bool {.inline.} =
   when value is string:
@@ -210,7 +205,7 @@ macro magic*(head, body: untyped): untyped =
     sParams = sender[3]
     sStmtList = sender[6]
 
-  sender[4] = newNimNode(nnkPragma).add(ident("async"))
+  sender[4] = newNimNode(nnkPragma).add(ident("async"), ident("discardable"))
 
   objectTy.add(recList)
   cParams.add(ident(realname))

@@ -1,17 +1,20 @@
-import options, tables
+import options, tables, asyncevents
 
 type
   TelegramObject* = object of RootObj
 
   TeleBot* = ref object of TelegramObject
     token*: string
-    name*: string
     lastUpdateId*: BiggestInt
-    commands*: Table[string, Command]
+    updateEmitter*: AsyncEventEmitter[Update, string]
+    commandEmitter*: AsyncEventEmitter[Command, string]
 
-  True = distinct bool
+  UpdateCallback* = EventProc[Update]
+  CommandCallback* = EventProc[Command]
 
-  Command* = proc (b: TeleBot, message: Message, param: string)
+  Command* = object of TelegramObject
+    message*: Message
+    params*: string
 
   User* = object of TelegramObject
     id*: int

@@ -1,14 +1,15 @@
-import tables
+import asyncevents
 
 import telebot/[types, keyboard, webhook]
 export types, webhook, keyboard
 
-proc newTeleBot*(token: string, name: string): TeleBot =
+proc newTeleBot*(token: string): TeleBot =
   ## Init new Telegram Bot instance
   new(result)
   result.token = token
   result.lastUpdateId = 0
-  result.commands = initTable[string, Command](2)
-  result.name = name
+  result.updateEmitter = initAsyncEventEmitter[Update, string]()
+  result.commandEmitter = initAsyncEventEmitter[Command, string]()
 
 include telebot/api
+include telebot/events

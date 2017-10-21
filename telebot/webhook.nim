@@ -13,7 +13,7 @@ type
 
 proc getWebhookInfo(n: JsonNode): WebhookInfo =
   result.url = $n["url"]
-  result.hasCustomCertificate = n["has_custom_certificate"].getBVal
+  result.hasCustomCertificate = n["has_custom_certificate"].getBool
   result.pendingUpdateCount = n["pending_update_count"].num.int
   if n.hasKey("last_error_date"):
     result.lastErrorDate = n["last_error_date"].num.int
@@ -44,7 +44,7 @@ proc setWebhook*(b: TeleBot, url: string, certificate: string = nil, maxConnecti
 proc deleteWebhook*(b: TeleBot): Future[bool] {.async.} =
   END_POINT("deleteWebhook")
   let res = await makeRequest(endpoint % b.token)
-  result = res.getBVal()
+  result = res.getBool()
 
 proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =
   END_POINT("getWebhookInfo")
