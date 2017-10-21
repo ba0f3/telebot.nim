@@ -260,3 +260,6 @@ proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
   
+proc poll*(b: TeleBot, timeout: int32 = 0) =
+  while true:
+    discard b.getUpdates(0, 0, timeout)
