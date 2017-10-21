@@ -1,13 +1,17 @@
-import options
+import options, tables
 
 type
   TelegramObject* = object of RootObj
 
   TeleBot* = ref object of TelegramObject
     token*: string
+    name*: string
     lastUpdateId*: BiggestInt
+    commands*: Table[string, Command]
 
   True = distinct bool
+
+  Command* = proc (b: TeleBot, message: Message, param: string)
 
   User* = object of TelegramObject
     id*: int

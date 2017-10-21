@@ -5,4 +5,3 @@ license       = "MIT"
 skipDirs      = @["examples"]
 
 requires        "nim >= 0.17.0"
-requires        "tempfile >= 0.1.5"

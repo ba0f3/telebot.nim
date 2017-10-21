@@ -1,13 +1,14 @@
-import httpclient, json, strutils, tempfile, os, uri, options
+import tables
 
+import telebot/[types, keyboard, webhook]
+export types, webhook, keyboard
 
-import private/[types, keyboard, webhook]
-export types, options, keyboard
-
-proc newTeleBot*(token: string): TeleBot =
+proc newTeleBot*(token: string, name: string): TeleBot =
   ## Init new Telegram Bot instance
   new(result)
   result.token = token
   result.lastUpdateId = 0
+  result.commands = initTable[string, Command](2)
+  result.name = name
 
-include private/api
+include telebot/api

@@ -1,5 +1,4 @@
-import asyncdispatch, utils, strutils, logging
-
+import httpclient, json, asyncdispatch, utils, strutils
 magic Message:
   chatId: int
   text: string
@@ -8,7 +7,6 @@ magic Message:
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
-
 
 magic Photo:
   chatId: int
@@ -106,6 +104,10 @@ proc getMe*(b: TeleBot): Future[User] {.async.} =
   let res = await makeRequest(endpoint % b.token)
   result = unmarshal(res, User)
 
+proc handle*(b: Telebot, command: string, p: Command) =
+  var commandWithName = command & "@" & b.name
+  b.commands.add(command, p)
+  b.commands.add(commandWithName, p)
   
 proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, disableNotification = false): Future[Message] {.async.} =
   END_POINT("forwardMessage")
@@ -239,6 +241,7 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[str
     if update.updateId > b.lastUpdateId:
       b.lastUpdateId = update.updateId
     result.add(update)
+    callCommands(b, update)
 
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   const endpoint = API_URL & "answerInlineQuery"
@@ -256,3 +259,4 @@ proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 
 
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
+  
