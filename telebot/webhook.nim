@@ -11,8 +11,6 @@ type
     maxConnections*: int
     allowedUpdates*: seq[string]
 
-
-
 proc getWebhookInfo(n: JsonNode): WebhookInfo =
   result.url = $n["url"]
   result.hasCustomCertificate = n["has_custom_certificate"].getBVal
@@ -29,7 +27,6 @@ proc getWebhookInfo(n: JsonNode): WebhookInfo =
     result.allowedUpdates = @[]
     for i in n["allowed_udpates"]:
           result.allowedUpdates.add($i)
-
 
 proc setWebhook*(b: TeleBot, url: string, certificate: string = nil, maxConnections = -1, allowedUpdates: seq[string] = nil) {.async.} =
   END_POINT("setWebhook")

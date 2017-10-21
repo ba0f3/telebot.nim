@@ -1,5 +1,5 @@
 
-import macros, httpclient, asyncdispatch, json, strutils, types, options, logging
+import macros, httpclient, asyncdispatch, json, strutils, types, options, logging, tables
 
 const
   API_URL* = "https://api.telegram.org/bot$#/"
@@ -7,6 +7,38 @@ const
 
 macro END_POINT*(s: string): typed =
   result = parseStmt("const endpoint = \"" & API_URL & s.strVal & "\"")
+
+proc hasCommand*(update: Update): bool =
+  result = false
+  if update.message.isSome:
+    var message = update.message.get()
+    if message.entities.isSome:
+      var entities = message.entities.get()
+      for entity in entities:
+        if entity.kind == "bot_command":
+          return true
+
+proc getCommands*(update: Update): Table[string, string] =
+  result = initTable[string, string](2)
+  if update.message.isSome:
+    var message = update.message.get()
+    if message.entities.isSome:
+      var entities = message.entities.get()
+      for entity in entities:
+        if entity.kind == "bot_command":
+          var messageText = message.text.get()
+          var command = message_text[(entity.offset + 1)..entity.length].strip()
+          var param = message_text[(entity.offset + entity.length)..^1]
+          param = param.split(Whitespace, 0).join().strip()
+          result.add(command, param)
+
+proc callCommands*(b: Telebot, update: Update) =
+  if update.hasCommand():
+    var userCommands = update.getCommands()
+    for key in userCommands.keys():
+      if b.commands.hasKey(key):
+        var p = b.commands[key]
+        p(b, update.message.get(), userCommands[key])
 
 proc isSet*(value: any): bool {.inline.} =
   when value is string:
@@ -31,7 +63,7 @@ proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode]
     var obj = parseJson(await r.body)
     if obj["ok"].bval == true:
       result = obj["result"]
-      d("Result: ", result)
+      d("Result: ", pretty(result))
   else:
     raise newException(IOError, r.status)
   client.close()
