@@ -1,4 +1,4 @@
-import ../telebot, asyncdispatch, json, httpclient, logging
+import ../telebot, asyncdispatch, json, httpclient, logging, options
 var L = newConsoleLogger()
 addHandler(L)
 
@@ -26,7 +26,7 @@ proc fetchResults(query: string): Future[seq[InlineQueryResultPhoto]] {.async.} 
 
 var updates: seq[Update]
 proc main() {.async.} =
-  let bot = newTeleBot(API_KEY)
+  let bot = newTeleBot(API_KEY, "nim_telebot")
 
   while true:
     updates = await bot.getUpdates(timeout=300)

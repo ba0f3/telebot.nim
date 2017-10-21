@@ -1,4 +1,4 @@
-import ../telebot, asyncdispatch, logging
+import ../telebot, asyncdispatch, logging, options
 
 var L = newConsoleLogger()
 addHandler(L)
@@ -7,7 +7,7 @@ const API_KEY = slurp("secret.key")
 
 var updates: seq[Update]
 proc main() {.async.} =
-  let bot = newTeleBot(API_KEY)
+  let bot = newTeleBot(API_KEY, "nim_telebot")
   while true:
     updates = await bot.getUpdates(timeout=300)
     for update in updates:
