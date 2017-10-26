@@ -30,7 +30,7 @@ proc getCommands*(update: Update): StringTableRef =
           var command = message_text[(entity.offset + 1)..entity.length].strip()
           if '@' in command:
             command = command.split('@')[0]
-            
+
           var param = message_text[(entity.offset + entity.length)..^1]
           param = param.split(Whitespace, 0).join().strip()
           result[command] = param
@@ -54,11 +54,13 @@ proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode]
   let client = newAsyncHttpClient()
   d("Making request to ", endpoint)
   let r = await client.post(endpoint, multipart=data)
-  if r.code == Http200:
+  if r.code == Http200 or r.code == Http400:
     var obj = parseJson(await r.body)
     if obj["ok"].bval == true:
       result = obj["result"]
       d("Result: ", pretty(result))
+    else:
+      raise newException(IOError, obj["description"].getStr(r.status))
   else:
     raise newException(IOError, r.status)
   client.close()
