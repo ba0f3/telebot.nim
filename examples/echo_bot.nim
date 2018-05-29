@@ -28,7 +28,7 @@ proc greatingHandler(bot: Telebot): CommandCallback =
 
   result = cb
 
-proc main() {.async.} =
+when isMainModule:
   let
     bot = newTeleBot(API_KEY)
     handler = handleUpdate(bot)
@@ -36,8 +36,4 @@ proc main() {.async.} =
 
   bot.onUpdate(handler)
   bot.onCommand("hello", greatingCb)
-
-  discard bot.poll(300)
-
-asyncCheck main()
-runForever()
+  bot.poll(300)

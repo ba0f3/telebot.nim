@@ -32,7 +32,7 @@ proc setWebhook*(b: TeleBot, url: string, certificate: string = nil, maxConnecti
   END_POINT("setWebhook")
   var data = newMultipartData()
   data["url"] = url
-  if not certificate.isNilOrEmpty:
+  if certificate.len > 0:
     data.addFiles({"certificate": certificate})
   if maxConnections > 0 and maxConnections != 40:
     data["max_connections"] = $maxConnections

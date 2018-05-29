@@ -203,11 +203,11 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
   END_POINT("answerCallbackQuery")
   var data = newMultipartData()
   data["callback_query_id"] = callbackQueryId
-  if not text.isNilOrEmpty:
+  if text.len > 0:
     data["text"] = text
   if showAlert:
     data["show_alert"] = "true"
-  if not url.isNilOrEmpty:
+  if url.len > 0:
     data["url"] = url
   if cacheTime > 0:
     data["cache_time"] = $cacheTime
@@ -263,6 +263,6 @@ proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
   
-proc poll*(b: TeleBot, timeout: int32 = 0) {.async.} =
+proc poll*(b: TeleBot, timeout: int32 = 0) =
   while true:
-    await b.getUpdates(timeout=timeout)
+    waitFor b.getUpdates(timeout=timeout)

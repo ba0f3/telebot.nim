@@ -1,4 +1,4 @@
-import asyncevents
+import asyncevents except off
 
 import telebot/[types, keyboard, webhook]
 export types, webhook, keyboard

@@ -27,7 +27,7 @@ proc getCommands*(update: Update): StringTableRef =
       for entity in entities:
         if entity.kind == "bot_command":
           var messageText = message.text.get()
-          var command = message_text[(entity.offset + 1)..entity.length].strip()
+          var command = message_text[(entity.offset + 1)..<entity.length].strip()
           if '@' in command:
             command = command.split('@')[0]
 
@@ -37,7 +37,7 @@ proc getCommands*(update: Update): StringTableRef =
 
 proc isSet*(value: any): bool {.inline.} =
   when value is string:
-    result = not value.isNilOrEmpty
+    result = value.len > 0
   elif value is int:
     result = value != 0
   elif value is bool:
@@ -276,8 +276,8 @@ macro magic*(head, body: untyped): untyped =
       )
       sStmtList.add(ifStmt)
     else:
-      raise newException(ValueError, "Unsupported node: " & node[1][0].lispRepr)
-
+      # silently ignore unsupported node
+      discard
 
   var epilogue = parseStmt("""
 try:
