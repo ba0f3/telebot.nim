@@ -105,8 +105,8 @@ type
 
   File* = object of TelegramObject
     fileId*: string
-    fileSize*: int
-    filePath*: string
+    fileSize*: Option[int]
+    filePath*: Option[string]
 
   KeyboardButton* = object
     text*: string
@@ -115,12 +115,12 @@ type
 
   InlineKeyboardButton* = object
     text*: string
-    url*: string
-    callbackData*: string
-    switchInlineQuery*: string
-    switchInlineQueryCurrentChat*: string
-    callbackGame*: CallbackGame
-    pay*: bool
+    url*: Option[string]
+    callbackData*: Option[string]
+    switchInlineQuery*: Option[string]
+    switchInlineQueryCurrentChat*: Option[string]
+    callbackGame*: Option[CallbackGame]
+    pay*: Option[bool]
 
   KeyboardKind* = enum
     kReplyKeyboardMarkup
@@ -288,7 +288,7 @@ type
     invoicePayload*: string
     shippingOptionId*: Option[string]
     orderInfo*: Option[OrderInfo]
-    
+
   #------------------
   # Inline Query
   #------------------
