@@ -33,6 +33,9 @@ type
     firstName*: Option[string]
     lastName*: Option[string]
     allMembersAreAdministrators*: Option[bool]
+    photo*: Option[ChatPhoto]
+    description*: Option[string]
+    inviteLink*: Option[string]
 
   PhotoSize* = object of TelegramObject
     fileId*: string
@@ -196,9 +199,27 @@ type
     invoice*: Option[Invoice]
     successfulPayment*: Option[SuccessfulPayment]
 
+  ChatPhoto* = object of TelegramObject
+    smallFileId*: string
+    bigFileId*: string
+
   ChatMember* = object of TelegramObject
     user*: User
     status*: string
+    untilDate*: int
+    canBeEdited*: Option[bool]
+    canChangeInfo*: Option[bool]
+    canPostMessages*: Option[bool]
+    canEditMessages*: Option[bool]
+    canDeleteMessages*: Option[bool]
+    canInviteUsers*: Option[bool]
+    canRestrictMembers*: Option[bool]
+    canPinMessages*: Option[bool]
+    canPromoteMebers*: Option[bool]
+    canSendMessages*: Option[bool]
+    canSendMediaMessages*: Option[bool]
+    canSendOtherMessages*: Option[bool]
+    canAddWebPagePreviews*: Option[bool]
 
   ResponseParameters* = object of TelegramObject
     migrateToChatId*: Option[int]

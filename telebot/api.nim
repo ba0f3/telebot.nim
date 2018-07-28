@@ -145,11 +145,13 @@ proc getFile*(b: TeleBot, fileId: string): Future[types.File] {.async.} =
   let res = await makeRequest(endpoint % b.token, data)
   result = unmarshal(res, types.File)
 
-proc kickChatMember*(b: TeleBot, chatId: string, userId: int): Future[bool] {.async.} =
+proc kickChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0): Future[bool] {.async.} =
   END_POINT("kickChatMember")
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
+  if untilDate > 0:
+    data["until_date"] = $untilDate
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
@@ -158,6 +160,104 @@ proc unbanChatMember*(b: TeleBot, chatId: string, userId: int): Future[bool] {.a
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
+proc restrictChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0, canSendMessages = false, canSendMediaMessages = false, canSendOtherMessages = false, canAddWebPagePreviews = false): Future[bool] {.async.} =
+  END_POINT("restrictChatMember")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  data["user_id"] = $userId
+  if untilDate > 0:
+    data["until_date"] = $untilDate
+  if canSendMessages:
+    data["can_send_messages"] = "true"
+  if canSendMediaMessages:
+    data["can_send_media_messages"] = "true"
+  if canSendOtherMessages:
+    data["can_send_other_messages"] = "true"
+  if canAddWebPagePreviews:
+    data["can_add_web_page_previews"] = "true"
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
+proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, canChangeInfo = false, canPostMessages = false, canEditMessages = false, canDeleteMessages = false, canInviteUsers = false, canRestrictMembers = false, canPinMessages = false, canPromoteMebers = false): Future[bool] {.async.} =
+  END_POINT("promoteChatMember")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  data["user_id"] = $userId
+  if canChangeInfo:
+    data["can_change_info"] = "true"
+  if canPostMessages:
+    data["can_post_messages"] = "true"
+  if canEditMessages:
+    data["can_edit_messages"] = "true"
+  if canDeleteMessages:
+    data["can_delete_messages"] = "true"
+  if canInviteUsers:
+    data["can_invite_users"] = "true"
+  if canRestrictMembers:
+    data["can_restrict_members"] = "true"
+  if canPinMessages:
+    data["can_pin_messages"] = "true"
+  if canPromoteMebers:
+    data["can_promote_members"] = "true"    
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
+proc exportChatInviteLink*(b: TeleBot, chatId: string): Future[string] {.async.} =
+  END_POINT("exportChatInviteLink")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.getStr
+
+proc setChatPhoto*(b: TeleBot, chatId: string, photo: InputFile): Future[bool] {.async.} =
+  END_POINT("setChatPhoto")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  data.addFiles({"photo": photo})
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
+proc deleteChatPhoto*(b: TeleBot, chatId: string): Future[bool] {.async.} =
+  END_POINT("deleteChatPhoto")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
+proc setChatTitle*(b: TeleBot, chatId: string, title: string): Future[bool] {.async.} =
+  END_POINT("setChatTitle")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  data["title"] = title
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval  
+
+proc setChatDescription*(b: TeleBot, chatId: string, description = ""): Future[bool] {.async.} =
+  END_POINT("setChatDescription")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  if description.len > 0:
+    data["description"] = description
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
+proc pinChatMessage*(b: TeleBot, chatId: string, messageId: int, disableNotification = false): Future[bool] {.async.} =
+  END_POINT("pinChatMessage")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  data["message_id"] = $messageId
+  if disableNotification:
+    data["disable_notification"] = "true"
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval  
+
+proc unpinChatMessage*(b: TeleBot, chatId: string): Future[bool] {.async.} =
+  END_POINT("unpinChatMessage")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
