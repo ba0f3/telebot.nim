@@ -20,6 +20,7 @@ type
 
   User* = object of TelegramObject
     id*: int
+    isBot*: bool
     firstName*: string
     lastName*: Option[string]
     username*: Option[string]
@@ -36,6 +37,7 @@ type
     photo*: Option[ChatPhoto]
     description*: Option[string]
     inviteLink*: Option[string]
+    pinnedMessage*: Option[ref Message]
 
   PhotoSize* = object of TelegramObject
     fileId*: string
@@ -183,9 +185,11 @@ type
     forwardFrom*: Option[User]
     forwardFromChat*: Option[Chat]
     forwardFromMessageId*: Option[int]
+    forwardSignature*: Option[string]
     forwardDate*: Option[int]
     replyToMessage*: Option[ref Message]
     editDate*: Option[int]
+    authorSignature*: Option[string]
     caption*: Option[string]
     text*: Option[string]
     entities*: Option[seq[MessageEntity]]
