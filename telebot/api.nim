@@ -299,6 +299,67 @@ proc getChatMember*(b: TeleBot, chatId: string, userId: int): Future[ChatMember]
   let res = await makeRequest(endpoint % b.token, data)
   result = unmarshal(res, ChatMember)
 
+proc getStickerSet*(b: TeleBot, name: string): Future[StickerSet] {.async.} =
+  END_POINT("getStickerSet")
+  var data = newMultipartData()
+  data["name"] = name
+  let res = await makeRequest(endpoint % b.token, data)
+  result = unmarshal(res, StickerSet)
+
+proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: InputFile): Future[types.File] {.async.} =
+  END_POINT("uploadStickerFile")
+  var data = newMultipartData()
+  data["user_id"] = $userId
+  data.addFiles({"png_sticker": pngSticker})
+  let res = await makeRequest(endpoint % b.token, data)
+  result = unmarshal(res, types.File)
+  
+proc createNewStickerSet*(b: TeleBot, userId: int, name: string, title: string, pngSticker: string, emojis: string, containsMasks = false, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
+  END_POINT("createNewStickerSet")
+  var data = newMultipartData()
+  data["user_id"] = $userId
+  data["name"] = name
+  data["title"] = title
+  data.addData("png_sticker", pngSticker)
+  data["emojis"] = emojis
+  if containsMasks:
+    data["contains_masks"] = "true"
+  if maskPosition.isSome():
+    var tmp = ""
+    maskPosition.marshal(tmp)
+    data["mask_position"] = tmp    
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
+proc addStickerToSet*(b: TeleBot, userId: int, name: string, pngSticker: string, emojis: string, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
+  END_POINT("addStickerToSet")
+  var data = newMultipartData()
+  data["user_id"] = $userId
+  data["name"] = name
+  data.addData("png_sticker", pngSticker)  
+  data["emojis"] = emojis
+  if maskPosition.isSome():
+    var tmp = ""
+    maskPosition.marshal(tmp)
+    data["mask_position"] = tmp    
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+  
+proc setStickerPositionInSet*(b: TeleBot, sticker: string, position: int): Future[bool] {.async.} =
+  END_POINT("setStickerPositionInSet")
+  var data = newMultipartData()
+  data["sticker"] = sticker
+  data["position"] = $position  
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+  
+proc deleteStickerFromSet*(b: TeleBot, sticker: string): Future[bool] {.async.} =
+  END_POINT("deleteStickerFromSet")
+  var data = newMultipartData()
+  data["sticker"] = sticker
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
 proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAlert = false, url = "",  cacheTime = 0): Future[bool] {.async.} =
   END_POINT("answerCallbackQuery")
   var data = newMultipartData()

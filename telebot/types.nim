@@ -66,6 +66,18 @@ type
     emoji*: Option[string]
     fileSize*: Option[int]
 
+  StickerSet* = object of TelegramObject
+    name*: string
+    title*: string
+    containsMasks*: bool
+    stickers*: seq[Sticker]
+
+  MaskPosition* = object of TelegramObject
+    point*: string
+    xShift*: float
+    yShift*: float
+    scale*: float
+
   Video* = object of TelegramObject
     fileId*: string
     width*: int
@@ -237,7 +249,7 @@ type
     shippingQuery*: Option[ShippingQuery]
     preCheckoutQuery*: Option[PreCheckoutQuery]
 
-  #------------------
+    #------------------
   # Game
   #------------------
   Animation* = object of TelegramObject

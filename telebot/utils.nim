@@ -44,6 +44,8 @@ proc isSet*(value: any): bool {.inline.} =
     result = value
   elif value is object:
     result = true
+  elif value is float:
+    result = value != 0
   else:
     result = not value.isNil
 
