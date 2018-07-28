@@ -75,6 +75,7 @@ magic Location:
   chatId: int
   latitude: int
   longitude: int
+  livePeriod: int {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
