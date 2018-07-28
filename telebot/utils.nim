@@ -181,6 +181,13 @@ proc newProcDef(name: string): NimNode {.compileTime.} =
      newStmtList()
    )
 
+proc addData*(p: var MultipartData, name: string, content: auto) {.inline.} =
+  when content is InputFile:
+    p.addFiles({name: content})
+  else:
+    p.add(name, $content)
+
+
 macro magic*(head, body: untyped): untyped =
   result = newStmtList()
 
@@ -198,7 +205,7 @@ macro magic*(head, body: untyped): untyped =
   objectTy.add(newEmptyNode(), newEmptyNode())
 
   var
-    objRealName = $objNameNode & "Config"
+    objName = $objNameNode & "Object"
     objParamList = newNimNode(nnkRecList)
     objInitProc = newProcDef("new" & $objNameNode)
     objSendProc = newProcDef("send")
@@ -210,12 +217,12 @@ macro magic*(head, body: untyped): untyped =
   objSendProc[4] = newNimNode(nnkPragma).add(ident("async"), ident("discardable"))
 
   objectTy.add(objParamList)
-  objInitProcParams.add(ident(objRealName))
+  objInitProcParams.add(ident(objName))
 
   objSendProcParams.add(newNimNode(nnkBracketExpr).add(
     ident("Future"), ident("Message")) # return value
   ).add(newIdentDefs(ident("b"), ident("TeleBot"))
-  ).add(newIdentDefs(ident("m"), ident(objRealName)))
+  ).add(newIdentDefs(ident("m"), ident(objName)))
 
   objSendProcBody.add(newConstStmt(
     ident("endpoint"),
@@ -227,6 +234,7 @@ macro magic*(head, body: untyped): untyped =
 
   for node in body.items:
     let fieldName = $node[0]
+
     case node[1][0].kind
     of nnkIdent:
       var identDefs = newIdentDefs(
@@ -240,12 +248,12 @@ macro magic*(head, body: untyped): untyped =
         node[0]
       ))
 
-      objSendProcBody.add(newAssignment(
-        newNimNode(nnkBracketExpr).add(
+      objSendProcBody.add(
+        newCall(
+          ident("addData"),
           ident("data"),
-          newStrLitNode(formatName(fieldName))
-        ),
-        prefix(newDotExpr(ident("m"), node[0]), "$")
+          newStrLitNode(formatName(fieldName)),
+          newDotExpr(ident("m"), node[0])
       ))
 
     of nnkPragmaExpr:
@@ -264,10 +272,10 @@ macro magic*(head, body: untyped): untyped =
           ),
           newStmtList(
             newCall(
-              ident("add"),
+              ident("addData"),
               ident("data"),
               newStrLitNode(formatName(fieldName)),
-              prefix(newDotExpr(ident("m"), node[0]), "$")
+              newDotExpr(ident("m"), node[0])
             )
           )
         )
@@ -287,6 +295,6 @@ except:
   objSendProcBody.add(epilogue[0])
 
   result.add(newNimNode(nnkTypeSection).add(
-    newNimNode(nnkTypeDef).add(postfix(ident(objRealName), "*"), newEmptyNode(), objectTy)
+    newNimNode(nnkTypeDef).add(postfix(ident(objName), "*"), newEmptyNode(), objectTy)
   ))
   result.add(objInitProc, objSendProc)
