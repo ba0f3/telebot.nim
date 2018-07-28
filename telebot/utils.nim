@@ -65,7 +65,7 @@ proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode]
     raise newException(IOError, r.status)
   client.close()
 
-proc `%%`(s: string): string {.compileTime.} =
+proc formatName(s: string): string {.compileTime.} =
   if s == "kind":
     return "type"
   if s == "fromUser":
@@ -83,18 +83,18 @@ proc unmarshal*(n: JsonNode, T: typedesc): T {.inline.} =
   when result is object:
     for name, value in result.fieldPairs:
       when value.type is Option:
-        if n.hasKey(%%name):
-          toOption(value, n[%%name])
+        if n.hasKey(formatName(name)):
+          toOption(value, n[formatName(name)])
       elif value.type is TelegramObject:
-        value = unmarshal(n[%%name], value.type)
+        value = unmarshal(n[formatName(name)], value.type)
       elif value.type is seq:
         value = @[]
-        for item in n[%%name].items:
+        for item in n[formatName(name)].items:
           put(value, item)
       #elif value.type is ref:
       #  echo "unmarshal ref"
       else:
-        value = to(n[%%name], value.type)
+        value = to(n[formatName(name)], value.type)
   elif result is seq:
     result = @[]
     for item in n.items:
@@ -111,11 +111,11 @@ proc marshal*[T](t: T, s: var string) =
     for name, value in t.fieldPairs:
       when value is Option:
         if value.isSome:
-          s.add("\"" & %%name & "\":")
+          s.add("\"" & formatName(name) & "\":")
           marshal(value, s)
           s.add(',')
       else:
-        s.add("\"" & %%name & "\":")
+        s.add("\"" & formatName(name) & "\":")
         marshal(value, s)
         s.add(',')
     s.removeSuffix(',')
@@ -168,7 +168,7 @@ proc getMessage*(n: JsonNode): Message {.inline.} =
 proc `%`*[T](o: Option[T]): JsonNode {.inline.} =
   if o.isSome:
     result = %o.get
-  
+ 
 proc newProcDef(name: string): NimNode {.compileTime.} =
    result = newNimNode(nnkProcDef)
    result.add(postfix(ident(name), "*"))
@@ -185,10 +185,10 @@ macro magic*(head, body: untyped): untyped =
   result = newStmtList()
 
   var
-    tname: NimNode
+    objNameNode: NimNode
 
   if head.kind == nnkIdent:
-    tname = head
+    objNameNode = head
   else:
     quit "Invalid node: " & head.lispRepr
 
@@ -198,60 +198,58 @@ macro magic*(head, body: untyped): untyped =
   objectTy.add(newEmptyNode(), newEmptyNode())
 
   var
-    realname = $tname & "Config"
-    recList = newNimNode(nnkRecList)
-    constructor = newProcDef("new" & $tname)
-    sender = newProcDef("send")
-    cParams = constructor[3]
-    cStmtList = constructor[6]
-    sParams = sender[3]
-    sStmtList = sender[6]
+    objRealName = $objNameNode & "Config"
+    objParamList = newNimNode(nnkRecList)
+    objInitProc = newProcDef("new" & $objNameNode)
+    objSendProc = newProcDef("send")
+    objInitProcParams = objInitProc[3]
+    objInitProcBody = objInitProc[6]
+    objSendProcParams = objSendProc[3]
+    objSendProcBody = objSendProc[6]
 
-  sender[4] = newNimNode(nnkPragma).add(ident("async"), ident("discardable"))
+  objSendProc[4] = newNimNode(nnkPragma).add(ident("async"), ident("discardable"))
 
-  objectTy.add(recList)
-  cParams.add(ident(realname))
+  objectTy.add(objParamList)
+  objInitProcParams.add(ident(objRealName))
 
-  sParams.add(newNimNode(nnkBracketExpr).add(
-    ident("Future"), ident("Message"))
+  objSendProcParams.add(newNimNode(nnkBracketExpr).add(
+    ident("Future"), ident("Message")) # return value
   ).add(newIdentDefs(ident("b"), ident("TeleBot"))
-  ).add(newIdentDefs(ident("m"), ident(realname)))
+  ).add(newIdentDefs(ident("m"), ident(objRealName)))
 
-  let apiMethod = "send" & $tname
-
-  sStmtList.add(newConstStmt(
+  objSendProcBody.add(newConstStmt(
     ident("endpoint"),
-    infix(ident("API_URL"), "&", newStrLitNode(apiMethod))
+    infix(ident("API_URL"), "&", newStrLitNode("send" & $objNameNode))
   )).add(newVarStmt(
       ident("data"),
       newCall(ident("newMultipartData"))
   ))
 
   for node in body.items:
-    let fname = $node[0]
+    let fieldName = $node[0]
     case node[1][0].kind
     of nnkIdent:
       var identDefs = newIdentDefs(
         node[0],
-        node[1][0] # cStmtList -> Ident
+        node[1][0] # objInitProcBody -> Ident
       )
-      recList.add(identDefs)
-      cParams.add(identDefs)
-      cStmtList.add(newAssignment(
+      objParamList.add(identDefs)
+      objInitProcParams.add(identDefs)
+      objInitProcBody.add(newAssignment(
         newDotExpr(ident("result"), node[0]),
         node[0]
       ))
 
-      sStmtList.add(newAssignment(
+      objSendProcBody.add(newAssignment(
         newNimNode(nnkBracketExpr).add(
           ident("data"),
-          newStrLitNode(%%fname)
+          newStrLitNode(formatName(fieldName))
         ),
         prefix(newDotExpr(ident("m"), node[0]), "$")
       ))
 
     of nnkPragmaExpr:
-      recList.add(
+      objParamList.add(
         newIdentDefs(
           postfix(node[0], "*"),
           node[1][0][0] # stmtList -> pragma -> ident
@@ -268,13 +266,13 @@ macro magic*(head, body: untyped): untyped =
             newCall(
               ident("add"),
               ident("data"),
-              newStrLitNode(%%fname),
+              newStrLitNode(formatName(fieldName)),
               prefix(newDotExpr(ident("m"), node[0]), "$")
             )
           )
         )
       )
-      sStmtList.add(ifStmt)
+      objSendProcBody.add(ifStmt)
     else:
       # silently ignore unsupported node
       discard
@@ -286,9 +284,9 @@ try:
 except:
   echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
 """)
-  sStmtList.add(epilogue[0])
+  objSendProcBody.add(epilogue[0])
 
   result.add(newNimNode(nnkTypeSection).add(
-    newNimNode(nnkTypeDef).add(postfix(ident($tname & "Config"), "*"), newEmptyNode(), objectTy)
+    newNimNode(nnkTypeDef).add(postfix(ident(objRealName), "*"), newEmptyNode(), objectTy)
   ))
-  result.add(constructor, sender)
+  result.add(objInitProc, objSendProc)
