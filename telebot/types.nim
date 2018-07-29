@@ -36,6 +36,8 @@ type
     description*: Option[string]
     inviteLink*: Option[string]
     pinnedMessage*: Option[ref Message]
+    stickerSetName*: Option[string]
+    canSetStickerSet*: Option[bool]
 
   PhotoSize* = object of TelegramObject
     fileId*: string
@@ -191,6 +193,7 @@ type
     caption*: Option[string]
     text*: Option[string]
     entities*: Option[seq[MessageEntity]]
+    captionEntities*: Option[seq[MessageEntity]]
     audio*: Option[Audio]
     document*: Option[Document]
     game*: Option[Game]

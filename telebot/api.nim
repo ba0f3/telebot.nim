@@ -361,6 +361,53 @@ proc deleteStickerFromSet*(b: TeleBot, sticker: string): Future[bool] {.async.} 
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
+proc setChatStickerSet*(b: TeleBot, chatId: string, stickerSetname: string): Future[bool] {.async.} =
+  END_POINT("setChatStickerSet")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  data["sticker_set_name"] = stickerSetname  
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
+proc deleteChatStickerSet*(b: TeleBot, chatId: string): Future[bool] {.async.} =
+  END_POINT("deleteChatStickerSet")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval    
+
+proc editMessageLiveLocation*(b: TeleBot, latitude: float, longitude: float, chatId = "", messageId = 0, inlineMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[bool] {.async.} =
+  END_POINT("editMessageLiveLocation")
+  var data = newMultipartData()
+  data["latiude"] = $latitude
+  data["longitude"] = $longitude
+  if chatId.len != 0:
+    data["chat_id"] = chat_id
+  if messageId != 0:
+    data["message_id"] = $messageId
+  if inlineMessageId != 0:
+    data["inline_message_id"] = $inlineMessageId
+  if replyMarkup != nil:
+    data["reply_markup"] = $replyMarkup
+
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval  
+
+proc stopMessageLiveLocation*(b: TeleBot, chatId = "", messageId = 0, inlineMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[bool] {.async.} =
+  END_POINT("stopMessageLiveLocation")
+  var data = newMultipartData()
+  if chatId.len != 0:
+    data["chat_id"] = chat_id
+  if messageId != 0:
+    data["message_id"] = $messageId
+  if inlineMessageId != 0:
+    data["inline_message_id"] = $inlineMessageId
+  if replyMarkup != nil:
+    data["reply_markup"] = $replyMarkup
+
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval  
+
 proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAlert = false, url = "",  cacheTime = 0): Future[bool] {.async.} =
   END_POINT("answerCallbackQuery")
   var data = newMultipartData()
