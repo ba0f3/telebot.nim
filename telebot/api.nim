@@ -217,7 +217,7 @@ proc setChatPhoto*(b: TeleBot, chatId: string, photo: InputFile): Future[bool] {
   END_POINT("setChatPhoto")
   var data = newMultipartData()
   data["chat_id"] = chatId
-  data.addFiles({"photo": photo})
+  data.addFiles({"name": "photo", "file": photo.string})
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
@@ -311,7 +311,7 @@ proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: InputFile): Future[
   END_POINT("uploadStickerFile")
   var data = newMultipartData()
   data["user_id"] = $userId
-  data.addFiles({"png_sticker": pngSticker})
+  data.addFiles({"name": "png_sticker", "file": pngSticker.string})
   let res = await makeRequest(endpoint % b.token, data)
   result = unmarshal(res, types.File)
   
@@ -321,7 +321,7 @@ proc createNewStickerSet*(b: TeleBot, userId: int, name: string, title: string, 
   data["user_id"] = $userId
   data["name"] = name
   data["title"] = title
-  data.addData("png_sticker", pngSticker)
+  data.addFiles({"name": "png_sticker", "file": pngSticker})
   data["emojis"] = emojis
   if containsMasks:
     data["contains_masks"] = "true"
@@ -337,7 +337,7 @@ proc addStickerToSet*(b: TeleBot, userId: int, name: string, pngSticker: string,
   var data = newMultipartData()
   data["user_id"] = $userId
   data["name"] = name
-  data.addData("png_sticker", pngSticker)  
+  data.addFiles({"name": "png_sticker", "file": pngSticker})
   data["emojis"] = emojis
   if maskPosition.isSome():
     var tmp = ""
