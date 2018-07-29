@@ -15,7 +15,7 @@ proc handleUpdate(bot: TeleBot): UpdateCallback =
       message.disableNotification = true
       message.replyToMessageId = response.messageId
       message.parseMode = "markdown"
-      discard bot.send(message)
+      discard await bot.send(message)
   result = cb
 
 proc greatingHandler(bot: Telebot): CommandCallback =

@@ -1,8 +1,6 @@
 import options, tables, asyncevents
 
 type
-  InputFile* = string
-
   TelegramObject* = object of RootObj
 
   TeleBot* = ref object of TelegramObject

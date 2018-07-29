@@ -213,7 +213,7 @@ proc exportChatInviteLink*(b: TeleBot, chatId: string): Future[string] {.async.}
   let res = await makeRequest(endpoint % b.token, data)
   result = res.getStr
 
-proc setChatPhoto*(b: TeleBot, chatId: string, photo: InputFile): Future[bool] {.async.} =
+proc setChatPhoto*(b: TeleBot, chatId: string, photo: string): Future[bool] {.async.} =
   END_POINT("setChatPhoto")
   var data = newMultipartData()
   data["chat_id"] = chatId
@@ -307,7 +307,7 @@ proc getStickerSet*(b: TeleBot, name: string): Future[StickerSet] {.async.} =
   let res = await makeRequest(endpoint % b.token, data)
   result = unmarshal(res, StickerSet)
 
-proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: InputFile): Future[types.File] {.async.} =
+proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: string): Future[types.File] {.async.} =
   END_POINT("uploadStickerFile")
   var data = newMultipartData()
   data["user_id"] = $userId

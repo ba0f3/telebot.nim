@@ -183,9 +183,12 @@ proc newProcDef(name: string): NimNode {.compileTime.} =
      newStmtList()
    )
 
-proc addData*(p: var MultipartData, name: string, content: auto) {.inline.} =
-  when content is InputFile:
-    p.addFiles({name: content})
+proc addData*(p: var MultipartData, name: string, content: auto, fileCheck = false) {.inline.} =
+  when content is string:
+    if fileCheck and content.startsWith("file://"):
+      p.addFiles({name: content[7..content.len-1]})
+    else:
+      p.add(name, $content)
   else:
     p.add(name, $content)
 
@@ -250,12 +253,21 @@ macro magic*(head, body: untyped): untyped =
         node[0]
       ))
 
+      # dirty hack to determine if the field might be `InputFile`
+      # if  field is InputFile or string, `addData` will checks if it starts w/ file://
+      # and do file upload
+      var fileCheck = ident("false")
+      if toLowerAscii(fieldName) == toLowerAscii($objNameNode):
+        fileCheck = ident("true")
+
+
       objSendProcBody.add(
         newCall(
           ident("addData"),
           ident("data"),
           newStrLitNode(formatName(fieldName)),
-          newDotExpr(ident("m"), node[0])
+          newDotExpr(ident("m"), node[0]),
+          fileCheck
       ))
 
     of nnkPragmaExpr:
