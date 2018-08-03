@@ -6,34 +6,34 @@ addHandler(L)
 const API_KEY = slurp("secret.key")
 
 var updates: seq[Update]
-proc main() {.async.} =
-  let bot = newTeleBot(API_KEY, "nim_telebot")
-  while true:
-    updates = await bot.getUpdates(timeout=300)
-    for update in updates:
-      if update.message.isSome:
-        var response = update.message.get
-        if response.text.isNone:
-          continue
-        let
-          user = response.fromUser.get
-          text = response.text.get
 
-        var
-          message = newMessage(response.chat.id, text)
-          google = initInlineKeyboardButton("Google")
-          bing = initInlineKeyboardButton("Bing")
-          ddg = initInlineKeyboardButton("DuckDuckGo")
-          searx = initInlineKeyboardButton("searx.me")
 
-        google.url = "https://www.google.com/search?q=" & text
-        bing.url = "https://www.bing.com/search?q=" & text
-        ddg.url = "https://duckduckgo.com/?q=" & text
-        searx.url = "https://searx.me/?q=" & text
+proc handleUpdate(bot: TeleBot): UpdateCallback =
+  proc cb(e: Update) {.async.} =
+    var response = e.message.get
+    if response.text.isSome:
+      let
+        text = response.text.get
+      var
+        message = newMessage(response.chat.id, text)
+        google = initInlineKeyboardButton("Google")
+        bing = initInlineKeyboardButton("Bing")
+        ddg = initInlineKeyboardButton("DuckDuckGo")
+        searx = initInlineKeyboardButton("searx.me")
 
-        message.replyMarkup = newInlineKeyboardMarkup(@[google, bing], @[ddg, searx])
+      google.url = some("https://www.google.com/search?q=" & text)
+      bing.url = some("https://www.bing.com/search?q=" & text)
+      ddg.url = some("https://duckduckgo.com/?q=" & text)
+      searx.url = some("https://searx.me/?q=" & text)
 
-        discard await bot.send(message)
+      message.replyMarkup = newInlineKeyboardMarkup(@[google, bing], @[ddg, searx])
+      discard await bot.send(message)
+  result = cb
 
-asyncCheck main()
-runForever()
+when isMainModule:
+  let
+    bot = newTeleBot(API_KEY)
+    handler = handleUpdate(bot)
+
+  bot.onUpdate(handler)
+  bot.poll(300)

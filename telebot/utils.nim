@@ -170,6 +170,8 @@ proc getMessage*(n: JsonNode): Message {.inline.} =
 proc `%`*[T](o: Option[T]): JsonNode {.inline.} =
   if o.isSome:
     result = %o.get
+  else:
+    result = newJNull()
  
 proc newProcDef(name: string): NimNode {.compileTime.} =
    result = newNimNode(nnkProcDef)
