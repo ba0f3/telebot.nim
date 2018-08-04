@@ -88,6 +88,7 @@ magic Venue:
   title: string
   address: string
   foursquareId: string {.optional.}
+  foursquareType: string {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
@@ -97,6 +98,7 @@ magic Contact:
   phoneNumber: string
   firstName: string
   lastName: string {.optional.}
+  vcard: string {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
@@ -123,6 +125,19 @@ magic Invoice:
   sendEmailToProvider: bool {.optional.}
   isFlexible: bool {.optional.}
   disableNotification: bool {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
+
+magic Animation:
+  chatId: int
+  animation: string
+  duration: int {.optional.}
+  width: int {.optional.}
+  height: int {.optional.}
+  thumb: string {.optional.}
+  caption: string {.optional.}
+  parseMode: string {.optional.}
+  disableNotification: string {.optional.}
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
 
@@ -438,7 +453,9 @@ proc stopMessageLiveLocation*(b: TeleBot, chatId = "", messageId = 0, inlineMess
 proc sendMediaGroup*(b: TeleBot, chatId = "", media: seq[InputMedia], disableNotification = false, replyToMessageId = 0): Future[bool] {.async.} =
   END_POINT("sendMediaGroup")
   var data = newMultipartData()
-  data["chat_id"] = chat_id
+  data["chat_id"] = chatId
+  for m in media:
+    uploadInputMedia(data, m)
   var json  = ""
   marshal(media, json)
   data["media"] = json
@@ -446,6 +463,26 @@ proc sendMediaGroup*(b: TeleBot, chatId = "", media: seq[InputMedia], disableNot
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
+proc editMessageMedia*(b: TeleBot, media: InputMedia, chatId = "", messageId = 0, inlineMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[bool] {.async.} =
+  END_POINT("editMessageMedia")
+  var data = newMultipartData()
+  if chatId.len > 0:
+    data["chat_id"] = chat_id
+  if messageId != 0:
+    data["message_id"] = $messageId
+  if inlineMessageId != 0:
+    data["inline_message_id"] = $inlineMessageId
+
+  uploadInputMedia(data, media)
+  var json  = ""
+  marshal(media, json)
+  data["media"] = json
+  if replyMarkup != nil:
+    data["reply_markup"] = $replyMarkup
 
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval

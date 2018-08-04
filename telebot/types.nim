@@ -52,6 +52,7 @@ type
     title*: Option[string]
     mimeType*: Option[string]
     fileSize*: Option[int]
+    thumb*: Option[PhotoSize]
 
   Document* = object of TelegramObject
     fileId*: string
@@ -107,6 +108,7 @@ type
     firstName*: string
     lastName*: Option[string]
     userId*: Option[string]
+    vcard*: Option[string]
 
   Location* = object of TelegramObject
     longitude*: float
@@ -117,6 +119,7 @@ type
     title*: string
     address*: string
     foursquareId*: Option[string]
+    foursquareName*: Option[string]
 
   UserProfilePhotos* = object of TelegramObject
     totalCount*: int
@@ -196,6 +199,7 @@ type
     captionEntities*: Option[seq[MessageEntity]]
     audio*: Option[Audio]
     document*: Option[Document]
+    animation*: Option[Animation]
     game*: Option[Game]
     photo*: Option[seq[PhotoSize]]
     sticker*: Option[Sticker]
@@ -360,12 +364,14 @@ type
     longitude*: float
     title*: string
     address*: string
-    foursquareId*: string
+    foursquareId*: Option[string]
+    foursquareName*: Option[string]
 
   InputContactMessageContent* = object of InputMessageContent
     phoneNumber*: string
     firstName*: string
-    lastName*: string
+    lastName*: Option[string]
+    vcard*: Option[string]
 
   InlineQueryResultArticle* = object of InlineQueryResultWithThumb
     title*: string
@@ -441,12 +447,14 @@ type
     longitude*: float
     title*: string
     address*: string
-    foursquareId*: string
+    foursquareId*: Option[string]
+    foursquareName*: Option[string]
 
   InlineQueryResultContact* = object of InlineQueryResultWithThumb
     phoneNumber*: string
     firstName*: string
     lastName*: string
+    vcard*: Option[string]
 
   InlineQueryResultGame* = object of InlineQueryResult
     gameShortName*: string
@@ -511,13 +519,13 @@ type
   InputMedia* = ref object of TelegramObject
     kind*: string
     media*: string
+    thumb*: Option[string]
     caption*: Option[string]
     parseMode*: Option[string]
 
   InputMediaPhoto* = ref object of InputMedia
 
   InputMediaVideo* = ref object of InputMedia
-    thumb*: Option[string]
     width*: Option[int]
     height*: Option[int]
     duration*: Option[int]
@@ -534,5 +542,4 @@ type
     title*: Option[string]
 
   InputMediaDocument* = ref object of InputMedia
-    thumb*: Option[string]
 

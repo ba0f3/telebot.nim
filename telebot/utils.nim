@@ -1,5 +1,6 @@
+import macros, httpclient, asyncdispatch, json, strutils, types, options, logging, strtabs, random
 
-import macros, httpclient, asyncdispatch, json, strutils, types, options, logging, strtabs
+randomize()
 
 const
   API_URL* = "https://api.telegram.org/bot$#/"
@@ -193,6 +194,19 @@ proc addData*(p: var MultipartData, name: string, content: auto, fileCheck = fal
       p.add(name, $content)
   else:
     p.add(name, $content)
+
+proc uploadInputMedia*(p: var MultipartData, m: InputMedia) =
+  var name = "file_upload_" & $rand(high(int))
+  if m.media.startsWith("file://"):
+    m.media = "attach://" & name
+    p.addFiles({name: m.media[7..m.media.len-1]})
+
+  if m.thumb.isSome:
+    name = "file_upload_" & $rand(high(int))
+    m.thumb = some("attach://" & name)
+    p.addFiles({name: m.media[7..m.media.len-1]})
+
+
 
 
 macro magic*(head, body: untyped): untyped =
