@@ -254,7 +254,7 @@ type
     shippingQuery*: Option[ShippingQuery]
     preCheckoutQuery*: Option[PreCheckoutQuery]
 
-    #------------------
+  #------------------
   # Game
   #------------------
   Animation* = object of TelegramObject
@@ -503,3 +503,35 @@ type
     location*: Location
     inlineMessageId*: string
     query*: string
+
+  #------------------
+  # Input Media
+  #------------------
+  InputMedia* = ref object of TelegramObject
+    kind*: string
+    media*: string
+    caption*: Option[string]
+    parseMode*: Option[string]
+
+  InputMediaPhoto* = ref object of InputMedia
+
+  InputMediaVideo* = ref object of InputMedia
+    thumb*: Option[string]
+    width*: Option[int]
+    height*: Option[int]
+    duration*: Option[int]
+    supportsStreaming*: Option[bool]
+
+  InputMediaAnimation* = ref object of InputMedia
+    width*: Option[int]
+    height*: Option[int]
+    duration*: Option[int]
+
+  InputMediaAudio* = ref object of InputMedia
+    duration*: Option[int]
+    performer*: Option[string]
+    title*: Option[string]
+
+  InputMediaDocument* = ref object of InputMedia
+    thumb*: Option[string]
+

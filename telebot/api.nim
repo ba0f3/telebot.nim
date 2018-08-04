@@ -408,6 +408,24 @@ proc stopMessageLiveLocation*(b: TeleBot, chatId = "", messageId = 0, inlineMess
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval  
 
+proc sendMediaGroup*(b: TeleBot, chatId = "", media: seq[InputMedia], disableNotification = false, replyToMessageId = 0): Future[bool] {.async.} =
+  END_POINT("sendMediaGroup")
+  var data = newMultipartData()
+  data["chat_id"] = chat_id
+  if messageId != 0:
+    data["message_id"] = $messageId
+  if media
+  if disableNotification:
+    data["disable_notification"] = "true"
+  if replyToMessageId != 0:
+    data["reply_to_message_id"] = $replyToMessageId
+  if replyMarkup != nil:
+    data["reply_markup"] = $replyMarkup
+
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval  
+
+
 proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAlert = false, url = "",  cacheTime = 0): Future[bool] {.async.} =
   END_POINT("answerCallbackQuery")
   var data = newMultipartData()
