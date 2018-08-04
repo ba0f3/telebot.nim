@@ -73,8 +73,8 @@ magic VideoNote:
 
 magic Location:
   chatId: int
-  latitude: int
-  longitude: int
+  latitude: float
+  longitude: float
   livePeriod: int {.optional.}
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}

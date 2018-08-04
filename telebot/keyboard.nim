@@ -46,10 +46,10 @@ proc `$`*(k: KeyboardMarkup): string =
   of kReplyKeyboardMarkup:
 
     var kb = newJArray()
-    for x in k.keyboard:
+    for row in k.keyboard:
       var n = newJArray()
-      for y in x:
-        n.add(%y)
+      for button in row:
+        n.add(%button)
       kb.add(n)
     j["keyboard"] = kb
     if k.selective.isSome and k.selective.get:
@@ -59,11 +59,12 @@ proc `$`*(k: KeyboardMarkup): string =
     if k.oneTimeKeyboard.isSome and k.oneTimeKeyboard.get:
       j["one_time_keyboard"] = newJBool(true)
   of kInlineKeyboardMarkup:
+    echo "here ===================="
     var kb = newJArray()
-    for x in k.inlinekeyboard:
+    for row in k.inlineKeyboard:
       var n = newJArray()
-      for y in x:
-        n.add(%y)
+      for button in row:
+        n.add(%button)
       kb.add(n)
     j["inline_keyboard"] = kb
   of kReplyKeyboardRemove:
