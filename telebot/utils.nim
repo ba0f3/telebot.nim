@@ -93,8 +93,6 @@ proc unmarshal*(n: JsonNode, T: typedesc): T {.inline.} =
         value = @[]
         for item in n[formatName(name)].items:
           put(value, item)
-      #elif value.type is ref:
-      #  echo "unmarshal ref"
       else:
         value = to(n[formatName(name)], value.type)
   elif result is seq:
@@ -122,6 +120,8 @@ proc marshal*[T](t: T, s: var string) =
         s.add(',')
     s.removeSuffix(',')
     s.add "}"
+  #elif t is ref:
+  #  marshal(t[], s)
   elif t is seq or t is openarray:
     s.add "["
     for item in t:
@@ -172,7 +172,7 @@ proc `%`*[T](o: Option[T]): JsonNode {.inline.} =
     result = %o.get
   else:
     result = newJNull()
- 
+
 proc newProcDef(name: string): NimNode {.compileTime.} =
    result = newNimNode(nnkProcDef)
    result.add(postfix(ident(name), "*"))

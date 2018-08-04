@@ -1,7 +1,7 @@
 import asyncevents except off
 
-import telebot/[types, keyboard, webhook]
-export types, webhook, keyboard
+import telebot/[types, keyboard, webhook, inputmedia]
+export types, webhook, keyboard, inputmedia
 
 proc newTeleBot*(token: string): TeleBot =
   ## Init new Telegram Bot instance

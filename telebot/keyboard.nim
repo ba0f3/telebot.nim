@@ -59,7 +59,6 @@ proc `$`*(k: KeyboardMarkup): string =
     if k.oneTimeKeyboard.isSome and k.oneTimeKeyboard.get:
       j["one_time_keyboard"] = newJBool(true)
   of kInlineKeyboardMarkup:
-    echo "here ===================="
     var kb = newJArray()
     for row in k.inlineKeyboard:
       var n = newJArray()
