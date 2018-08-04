@@ -50,6 +50,7 @@ magic Video:
   width: int {.optional.}
   height: int {.optional.}
   caption: string {.optional.}
+  supportsStreaming: bool {.optional.}
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
 

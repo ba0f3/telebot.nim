@@ -215,6 +215,7 @@ type
     pinnedMessage*: Option[ref Message]
     invoice*: Option[Invoice]
     successfulPayment*: Option[SuccessfulPayment]
+    connectedWebsite*: Option[string]
 
   ChatPhoto* = object of TelegramObject
     smallFileId*: string
