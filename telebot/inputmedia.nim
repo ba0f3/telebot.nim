@@ -9,7 +9,15 @@ proc `$`*(m: InputMedia): string =
     elif m of InputMediaVideo:
         var video = InputMediaVideo(m)
         marshal(video[], result)
-
+    elif m of InputMediaAudio:
+        var audio = InputMediaAudio(m)
+        marshal(audio[], result)
+    elif m of InputMediaAnimation:
+        var animation = InputMediaAnimation(m)
+        marshal(animation[], result)
+    elif m of InputMediaDocument:
+        var document = InputMediaDocument(m)
+        marshal(document[], result)
 proc newInputMediaPhoto*(media: string, caption = "", parseMode = ""): InputMediaPhoto =
     new(result)
     result.kind = "photo"
