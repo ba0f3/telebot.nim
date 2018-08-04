@@ -5,35 +5,28 @@ addHandler(L)
 
 const API_KEY = slurp("secret.key")
 
-proc handleUpdate(bot: TeleBot): UpdateCallback =
-  proc cb(e: Update) {.async.} =
-    var response = e.message.get
-    if response.text.isSome:
-      let
-        text = response.text.get
-      var message = newMessage(response.chat.id, text)
-      message.disableNotification = true
-      message.replyToMessageId = response.messageId
-      message.parseMode = "markdown"
-      discard await bot.send(message)
-  result = cb
-
-proc greatingHandler(bot: Telebot): CommandCallback =
-  proc cb(e: Command) {.async.} =
-    var message = newMessage(e.message.chat.id, "hello " & e.message.fromUser.get().firstName)
+proc updateHandler(b: Telebot, u: Update) {.async.} =
+  var response = u.message.get
+  if response.text.isSome:
+    let
+      text = response.text.get
+    var message = newMessage(response.chat.id, text)
     message.disableNotification = true
-    message.replyToMessageId = e.message.messageId
+    message.replyToMessageId = response.messageId
     message.parseMode = "markdown"
-    discard bot.send(message)
+    discard await b.send(message)
 
-  result = cb
+
+proc greatingHandler(b: Telebot, c: Command) {.async.} =
+  var message = newMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstName)
+  message.disableNotification = true
+  message.replyToMessageId = c.message.messageId
+  message.parseMode = "markdown"
+  discard b.send(message)
 
 when isMainModule:
-  let
-    bot = newTeleBot(API_KEY)
-    handler = handleUpdate(bot)
-    greatingCb = greatingHandler(bot)
+  let bot = newTeleBot(API_KEY)
 
-  bot.onUpdate(handler)
-  bot.onCommand("hello", greatingCb)
+  bot.onUpdate(updateHandler)
+  bot.onCommand("hello", greatingHandler)
   bot.poll(300)

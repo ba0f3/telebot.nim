@@ -523,15 +523,23 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[str
     var update = unmarshal(item, Update)
     if update.updateId > b.lastUpdateId:
       b.lastUpdateId = update.updateId
-    await b.updateEmitter.emit("update", update)
 
-    if update.hasCommand():
+    if update.inlineQuery.isSome:
+      for cb in b.inlineQueryCallbacks:
+        await cb(b, update.inlineQuery.get)
+    elif update.hasCommand():
       var userCommands = update.getCommands()
-      for key in userCommands.keys():
-        var cmd: Command
-        cmd.message = update.message.get()
-        cmd.params = userCommands[key]
-        await b.commandEmitter.emit(key, cmd)
+      for command in userCommands.keys():
+        if b.commandCallbacks.hasKey(command):
+          var cmd: Command
+          cmd.message = update.message.get()
+          cmd.params = userCommands[command]
+
+          for cb in b.commandCallbacks[command]:
+            await cb(b, cmd)
+    else:
+      for cb in b.updateCallbacks:
+        await cb(b, update)
 
 
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =

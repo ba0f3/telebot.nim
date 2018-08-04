@@ -1,20 +1,16 @@
 import telebot, asyncdispatch, options, logging, os
 
 
-const API_KEY = ""  # Add your API Key here.
+const API_KEY = slurp("secret.key")
 
 
 addHandler(newConsoleLogger(fmtStr="$levelname, [$time] "))
 
-proc handleUpdate(bot: TeleBot): UpdateCallback =
-  proc cb(e: Update) {.async.} =
-    let message = newPhoto(e.message.get.chat.id, "file://" & getCurrentDir() & "/sample.jpg")
-    discard await bot.send(message)
-  result = cb
+proc updateHandler(bot: TeleBot, e: Update) {.async.} =
+  let message = newPhoto(e.message.get.chat.id, "file://" & getCurrentDir() & "/sample.jpg")
+  discard await bot.send(message)
 
-let
-  bot = newTeleBot(API_KEY)
-  handler = handleUpdate(bot)
+let bot = newTeleBot(API_KEY)
 
-bot.onUpdate(handler)
+bot.onUpdate(updateHandler)
 bot.poll(500)

@@ -12,55 +12,43 @@ Usage
 
 ## echo bot
 ```nim
-import telebot, asyncdispatch, options
+import telebot, asyncdispatch, logging, options
 
 const API_KEY = slurp("secret.key")
 
-proc handleUpdate(bot: TeleBot): UpdateCallback =
-  proc cb(e: Update) {.async.} =
-    var response = e.message.get
-    if response.text.isSome:
-      let
-        text = response.text.get
-      var message = newMessage(response.chat.id, text)
-      message.disableNotification = true
-      message.replyToMessageId = response.messageId
-      message.parseMode = "markdown"
-      discard bot.send(message)
-  result = cb
+proc updateHandler(b: Telebot, u: Update) {.async.} =
+  var response = u.message.get
+  if response.text.isSome:
+    let
+      text = response.text.get
+    var message = newMessage(response.chat.id, text)
+    message.disableNotification = true
+    message.replyToMessageId = response.messageId
+    message.parseMode = "markdown"
+    discard await b.send(message)
 
-let
-  bot = newTeleBot(API_KEY)
-  handler = handleUpdate(bot)
-bot.onUpdate(handler)
+let bot = newTeleBot(API_KEY)
+bot.onUpdate(updateHandler)
 bot.poll(300)
-
 ```
 
 ## send local photo
 ```nim
 import telebot, asyncdispatch, options, logging
 
-var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
-addHandler(L)
-
 const API_KEY = slurp("secret.key")
 
-proc handleUpdate(bot: TeleBot): UpdateCallback =
-  proc cb(e: Update) {.async.} =
-    var response = e.message.get
-    if response.text.isSome:
-      let
-        text = response.text.get
-      var message = newPhoto(response.chat.id, "file:///path/to/photo.jpg")
-      discard await bot.send(message)
-  result = cb
+proc updateHandler(bot: TeleBot, update: Update): UpdateCallback =
+  var response = update.message.get
+  if response.text.isSome:
+    let
+      text = response.text.get
+    var message = newPhoto(response.chat.id, "file:///path/to/photo.jpg")
+    discard await bot.send(message)
 
 let
   bot = newTeleBot(API_KEY)
-  handler = handleUpdate(bot)
-
-bot.onUpdate(handler)
+bot.onUpdate(updateHandler)
 bot.poll(300)
 ```
 For more information please refer to official [Telegram Bot API](https://core.telegram.org/bots/api) page

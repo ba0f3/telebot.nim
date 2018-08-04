@@ -5,12 +5,12 @@ addHandler(L)
 from cgi import encodeUrl
 const API_KEY = slurp("secret.key")
 
-proc fetchResults(query: string): Future[seq[InlineQueryResultPhoto]] {.async.} =
-  result = @[]
-  let url = "https://api.reddit.com/r/unixporn/search?limit=6&type=link&q=" & encodeUrl(query)
+proc queryHandler(b: TeleBot, q: InlineQuery) {.async.} =
+  let url = "https://api.reddit.com/r/unixporn/search?limit=6&type=link&q=" & encodeUrl(q.query)
   var
     client = newAsyncHttpClient()
     response = await client.get(url)
+    photos: seq[InlineQueryResultPhoto] = @[]
   if response.code == Http200:
     var data = parseJson(await response.body)
     for child in data["data"]["children"].items:
@@ -22,20 +22,12 @@ proc fetchResults(query: string): Future[seq[InlineQueryResultPhoto]] {.async.} 
       photo.photoUrl = child["data"]["url"].str
       photo.thumbUrl = child["data"]["thumbnail"].str
       photo.title = some($child["data"]["title"])
-      result.add(photo)
 
-var updates: seq[Update]
-proc main() {.async.} =
-  let bot = newTeleBot(API_KEY, "nim_telebot")
+      photos.add(photo)
 
-  while true:
-    updates = await bot.getUpdates(timeout=300)
-    for update in updates:
-      if update.inlineQuery.isNone:
-        continue
-      var
-        query = update.inlineQuery.get
-        results = await fetchResults(query.query)
-      discard await bot.answerInlineQuery(query.id, results)
-asyncCheck main()
-runForever()
+  discard await b.answerInlineQuery(q.id, photos)
+
+when isMainModule:
+  let bot = newTeleBot(API_KEY)
+  bot.onInlineQuery(queryHandler)
+  bot.poll(300)

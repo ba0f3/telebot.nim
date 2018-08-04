@@ -1,16 +1,18 @@
-import options, tables, asyncevents
+import asyncdispatch, options, tables
 
 type
   TelegramObject* = object of RootObj
 
+  UpdateCallback* = proc(bot: Telebot, update: Update): Future[void]
+  CommandCallback* = proc(bot: Telebot, command: Command): Future[void]
+  InlineQueryCallback* = proc(bot: Telebot, inlineQuery: InlineQuery): Future[void]
+
   TeleBot* = ref object of TelegramObject
     token*: string
     lastUpdateId*: BiggestInt
-    updateEmitter*: AsyncEventEmitter[Update, string]
-    commandEmitter*: AsyncEventEmitter[Command, string]
-
-  UpdateCallback* = EventProc[Update]
-  CommandCallback* = EventProc[Command]
+    updateCallbacks*: seq[UpdateCallBack]
+    commandCallbacks*: TableRef[string, seq[CommandCallback]]
+    inlineQueryCallbacks*: seq[InlineQueryCallback]
 
   Command* = object of TelegramObject
     message*: Message
