@@ -503,7 +503,7 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
-proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[string] = nil): Future[void] {.async.} =
+proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[string] = @[]): Future[void] {.async.} =
   END_POINT("getUpdates")
   var data = newMultipartData()
 
@@ -515,7 +515,7 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[str
     data["limit"] = $limit
   if timeout > 0:
     data["timeout"] = $timeout
-  if allowedUpdates != nil:
+  if allowedUpdates.len > 0:
     data["allowed_updates"] = $allowedUpdates
 
   let res = await makeRequest(endpoint % b.token, data)
