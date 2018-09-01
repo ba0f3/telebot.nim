@@ -27,12 +27,16 @@ proc getCommands*(update: Update): StringTableRef =
       var entities = message.entities.get()
       for entity in entities:
         if entity.kind == "bot_command":
-          var messageText = message.text.get()
-          var command = message_text[(entity.offset + 1)..<entity.length].strip()
+          var 
+            messageText = message.text.get()
+            offset = entity.offset
+            length = entity.length
+            command = message_text[(offset + 1)..<(offset + length)].strip()
+
           if '@' in command:
             command = command.split('@')[0]
 
-          var param = message_text[(entity.offset + entity.length)..^1]
+          var param = message_text[(offset + length)..^1]
           param = param.split(Whitespace, 0).join().strip()
           result[command] = param
 
