@@ -467,7 +467,7 @@ proc sendMediaGroup*(b: TeleBot, chatId = "", media: seq[InputMedia], disableNot
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
-proc editMessageMedia*(b: TeleBot, media: InputMedia, chatId = "", messageId = 0, inlineMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[bool] {.async.} =
+proc editMessageMedia*(b: TeleBot, media: InputMedia, chatId = "", messageId = 0, inlineMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
   END_POINT("editMessageMedia")
   var data = newMultipartData()
   if chatId.len > 0:
@@ -483,6 +483,82 @@ proc editMessageMedia*(b: TeleBot, media: InputMedia, chatId = "", messageId = 0
   data["media"] = json
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
+
+  let res = await makeRequest(endpoint % b.token, data)
+  if res.kind == JBool:
+    result = none(Message)
+  else:
+    result = some(unmarshal(res, Message))
+
+proc editMessageText*(b: TeleBot, text: string, chatId = "", messageId = 0, inlineMessageId = 0, parseMode="", replyMarkup: KeyboardMarkup = nil, disableWebPagePreview=false): Future[Option[Message]] {.async.} =
+  END_POINT("editMessageText")
+  var data = newMultipartData()
+  if chatId.len > 0:
+    data["chat_id"] = chat_id
+  if messageId != 0:
+    data["message_id"] = $messageId
+  if inlineMessageId != 0:
+    data["inline_message_id"] = $inlineMessageId
+  if replyMarkup != nil:
+    data["reply_markup"] = $replyMarkup
+  if parseMode != "":
+    data["parse_mode"] = parseMode
+  if disableWebPagePreview == true:
+    data["disable_web_page_preview"] = "true"
+
+  data["text"] = text
+
+  let res = await makeRequest(endpoint % b.token, data)
+  if res.kind == JBool:
+    result = none(Message)
+  else:
+    result = some(unmarshal(res, Message))
+
+proc editMessageCaption*(b: TeleBot, caption = "", chatId = "", messageId = 0, inlineMessageId = 0, parseMode="", replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
+  END_POINT("editMessageCaption")
+  var data = newMultipartData()
+  if chatId.len > 0:
+    data["chat_id"] = chat_id
+  if messageId != 0:
+    data["message_id"] = $messageId
+  if inlineMessageId != 0:
+    data["inline_message_id"] = $inlineMessageId
+  if replyMarkup != nil:
+    data["reply_markup"] = $replyMarkup
+  if parseMode != "":
+    data["parse_mode"] = parseMode
+
+  data["caption"] = caption
+
+  let res = await makeRequest(endpoint % b.token, data)
+  if res.kind == JBool:
+    result = none(Message)
+  else:
+    result = some(unmarshal(res, Message))
+
+proc editMessageReplyMarkup*(b: TeleBot, chatId = "", messageId = 0, inlineMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
+  END_POINT("editMessageReplyMarkup")
+  var data = newMultipartData()
+  if chatId.len > 0:
+    data["chat_id"] = chat_id
+  if messageId != 0:
+    data["message_id"] = $messageId
+  if inlineMessageId != 0:
+    data["inline_message_id"] = $inlineMessageId
+  if replyMarkup != nil:
+    data["reply_markup"] = $replyMarkup
+
+  let res = await makeRequest(endpoint % b.token, data)
+  if res.kind == JBool:
+    result = none(Message)
+  else:
+    result = some(unmarshal(res, Message))
+
+proc deleteMessage*(b: Telebot, chatId: string, messageId: int): Future[bool] {.async.} =
+  END_POINT("deleteMessage")
+  var data = newMultipartData()
+  data["chat_id"] = chat_id
+  data["message_id"] = $messageId
 
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
