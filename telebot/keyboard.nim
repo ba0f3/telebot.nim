@@ -1,4 +1,4 @@
-import types, json, strutils, utils, options
+import types, json, strutils, utils, options, tables
 
 proc initKeyBoardButton*(text: string): KeyboardButton =
   result.text = text
@@ -63,7 +63,15 @@ proc `$`*(k: KeyboardMarkup): string =
     for row in k.inlineKeyboard:
       var n = newJArray()
       for button in row:
-        n.add(%button)
+        var b = %button
+        for key in b.getFields.keys:
+          var new_key = formatName(key)
+          if b[key].kind == JNull:
+            b.delete(key)
+          elif new_key != key:
+            b[new_key] = b[key]
+            b.delete(key)
+        n.add(b)
       kb.add(n)
     j["inline_keyboard"] = kb
   of kReplyKeyboardRemove:

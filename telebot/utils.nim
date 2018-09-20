@@ -72,7 +72,7 @@ proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode]
     raise newException(IOError, r.status)
   client.close()
 
-proc formatName(s: string): string {.compileTime.} =
+proc formatName*(s: string): string =
   if s == "kind":
     return "type"
   if s == "fromUser":
