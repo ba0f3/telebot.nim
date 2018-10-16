@@ -29,4 +29,4 @@ when isMainModule:
 
   bot.onUpdate(updateHandler)
   bot.onCommand("hello", greatingHandler)
-  bot.poll(300)
+  bot.poll(timeout=300)

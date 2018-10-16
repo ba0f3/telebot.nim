@@ -29,7 +29,7 @@ proc updateHandler(b: Telebot, u: Update) {.async.} =
 
 let bot = newTeleBot(API_KEY)
 bot.onUpdate(updateHandler)
-bot.poll(300)
+bot.poll(timeout=300)
 ```
 
 ## send local photo
@@ -49,6 +49,6 @@ proc updateHandler(bot: TeleBot, update: Update): UpdateCallback =
 let
   bot = newTeleBot(API_KEY)
 bot.onUpdate(updateHandler)
-bot.poll(300)
+bot.poll(timeout=300)
 ```
 For more information please refer to official [Telegram Bot API](https://core.telegram.org/bots/api) page

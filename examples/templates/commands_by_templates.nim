@@ -78,4 +78,4 @@ bot.onCommand("text", textHandler(bot))          # /text
 bot.onCommand("photo", photoHandler(bot))        # /photo
 bot.onCommand("location", locationHandler(bot))  # /location
 bot.onCommand("document", documentHandler(bot))  # /document
-bot.poll(666)
+bot.poll(timeout=666)

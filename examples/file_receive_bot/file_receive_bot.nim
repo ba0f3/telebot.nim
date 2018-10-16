@@ -32,4 +32,4 @@ proc updateHandler(bot: TeleBot, e: Update) {.async.} =
 let bot = newTeleBot(API_KEY)
 
 bot.onUpdate(updateHandler)
-bot.poll(666)
+bot.poll(timeout=666)

@@ -8,4 +8,4 @@ proc geoHandler(bot: TeleBot, e: Command) {.async.} =
 
 let bot = newTeleBot(API_KEY)
 bot.onCommand("geo", geoHandler)  # Use /geo on Telegram chat to trigger.
-bot.poll(666)
+bot.poll(timeout=666)
