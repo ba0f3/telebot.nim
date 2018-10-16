@@ -210,8 +210,23 @@ proc uploadInputMedia*(p: var MultipartData, m: InputMedia) =
     m.thumb = some("attach://" & name)
     p.addFiles({name: m.media[7..m.media.len-1]})
 
+macro genInputMedia*(mediaType: string): untyped =
+  let
+    media = $mediaType
+    kind = media.toLowerAscii()
+    objName = "InputMedia" & media
+    funcName = "new" & objName
 
-
+  result = parseStmt("""
+proc $1*(media: string; caption=""; parseMode=""): $2 =
+  new(result)
+  result.kind = "$3"
+  result.media = media
+  if caption.len > 0:
+    result.caption = some(caption)
+  if parseMode.len > 0:
+    result.parseMode = some(parseMode)
+""".format(funcName, objName, kind))
 
 macro magic*(head, body: untyped): untyped =
   result = newStmtList()
