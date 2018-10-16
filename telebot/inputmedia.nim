@@ -1,4 +1,4 @@
-import types, json, strutils, utils, options
+import types, json, strutils, utils, options, macros
 
 proc `$`*(m: InputMedia): string =
     result = ""
@@ -18,20 +18,9 @@ proc `$`*(m: InputMedia): string =
     elif m of InputMediaDocument:
         var document = InputMediaDocument(m)
         marshal(document[], result)
-proc newInputMediaPhoto*(media: string, caption = "", parseMode = ""): InputMediaPhoto =
-    new(result)
-    result.kind = "photo"
-    result.media = media
-    if caption.len > 0:
-        result.caption = some(caption)
-    if parseMode.len > 0:
-        result.parseMode = some(parseMode)
 
-proc newInputMediaVideo*(media: string, caption = "", parseMode = ""): InputMediaVideo =
-    new(result)
-    result.kind = "video"
-    result.media = media
-    if caption.len > 0:
-        result.caption = some(caption)
-    if parseMode.len > 0:
-        result.parseMode = some(parseMode)
+genInputMedia("Photo")
+genInputMedia("Video")
+genInputMedia("Animation")
+genInputMedia("Audio")
+genInputMedia("Document")
