@@ -171,12 +171,12 @@ proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
 proc getMessage*(n: JsonNode): Message {.inline.} =
   result = unmarshal(n, Message)
 
-
-proc `%`*[T](o: Option[T]): JsonNode {.inline.} =
-  if o.isSome:
-    result = %o.get
-  else:
-    result = newJNull()
+when (NimMajor, NimMinor, NimPatch) < (0, 19, 9):
+  proc `%`*[T](o: Option[T]): JsonNode {.inline.} =
+    if o.isSome:
+      result = %o.get
+    else:
+      result = newJNull()
 
 proc newProcDef(name: string): NimNode {.compileTime.} =
    result = newNimNode(nnkProcDef)
