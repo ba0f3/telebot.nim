@@ -579,6 +579,23 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
+proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
+  const endpoint = API_URL & "answerInlineQuery"
+
+  if results.isNil or results.len == 0:
+    return false
+
+  var data = newMultipartData()
+  d("inline_query_id", id)
+  data["inline_query_id"] = id
+  var s = ""
+  marshal(results, s)
+  d("results", s)
+  data["results"] = s
+
+  let res = await makeRequest(endpoint % b.token, data)
+  result = res.bval
+
 proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[string] = @[]): Future[JsonNode] {.async.} =
   END_POINT("getUpdates")
   var data = newMultipartData()
@@ -624,23 +641,6 @@ proc cleanUpdates*(b: TeleBot) {.async.} =
   var updates = await b.getUpdates()
   while updates.len >= 100:
     updates = await b.getUpdates()
-
-proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
-  const endpoint = API_URL & "answerInlineQuery"
-
-  if results.isNil or results.len == 0:
-    return false
-
-  var data = newMultipartData()
-  d("inline_query_id", id)
-  data["inline_query_id"] = id
-  var s = ""
-  marshal(results, s)
-  d("results", s)
-  data["results"] = s
-
-  let res = await makeRequest(endpoint % b.token, data)
-  result = res.bval
 
 proc poll*(b: TeleBot, timeout, offset, limit = 0, clean = false) =
   if clean:
