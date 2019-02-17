@@ -579,7 +579,7 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
-proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[string] = @[]): Future[void] {.async.} =
+proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[string] = @[]): Future[JsonNode] {.async.} =
   END_POINT("getUpdates")
   var data = newMultipartData()
 
@@ -594,29 +594,36 @@ proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[str
   if allowedUpdates.len > 0:
     data["allowed_updates"] = $allowedUpdates
 
-  let res = await makeRequest(endpoint % b.token, data)
-  for item in res.items:
-    var update = unmarshal(item, Update)
-    if update.updateId > b.lastUpdateId:
-      b.lastUpdateId = update.updateId
+  result = await makeRequest(endpoint % b.token, data)
 
-    if update.inlineQuery.isSome:
-      for cb in b.inlineQueryCallbacks:
-        await cb(b, update.inlineQuery.get)
-    elif update.hasCommand():
-      var userCommands = update.getCommands()
-      for command in userCommands.keys():
-        if b.commandCallbacks.hasKey(command):
-          var cmd: Command
-          cmd.message = update.message.get()
-          cmd.params = userCommands[command]
+  if result.len > 0:
+    b.lastUpdateId = result[result.len - 1]{"update_id"}.to(int)
 
-          for cb in b.commandCallbacks[command]:
-            await cb(b, cmd)
-    else:
-      for cb in b.updateCallbacks:
-        await cb(b, update)
+proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
+  if update.updateId > b.lastUpdateId:
+    b.lastUpdateId = update.updateId
 
+  if update.inlineQuery.isSome:
+    for cb in b.inlineQueryCallbacks:
+      await cb(b, update.inlineQuery.get)
+  elif update.hasCommand():
+    var userCommands = update.getCommands()
+    for command in userCommands.keys():
+      if b.commandCallbacks.hasKey(command):
+        var cmd: Command
+        cmd.message = update.message.get()
+        cmd.params = userCommands[command]
+
+        for cb in b.commandCallbacks[command]:
+          await cb(b, cmd)
+  else:
+    for cb in b.updateCallbacks:
+      await cb(b, update)
+
+proc cleanUpdates*(b: TeleBot) {.async.} =
+  var updates = await b.getUpdates()
+  while updates.len >= 100:
+    updates = await b.getUpdates()
 
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   const endpoint = API_URL & "answerInlineQuery"
@@ -635,6 +642,12 @@ proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
-proc poll*(b: TeleBot, timeout, offset, limit = 0) =
+proc poll*(b: TeleBot, timeout, offset, limit = 0, clean = false) =
+  if clean:
+    waitFor b.cleanUpdates()
+
   while true:
-    waitFor b.getUpdates(timeout=timeout, offset=offset, limit=limit)
+    let updates = waitFor b.getUpdates(timeout=timeout, offset=offset, limit=limit)
+    for item in updates.items:
+      let update = unmarshal(item, Update)
+      waitFor b.handleUpdate(update)
