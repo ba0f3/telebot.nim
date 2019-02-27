@@ -1,7 +1,7 @@
 import httpclient, json, asyncdispatch, utils, strutils, options, strtabs
 
 magic Message:
-  chatId: int
+  chatId: int64
   text: string
   parseMode: string {.optional.}
   disableWebPagePreview: bool {.optional.}

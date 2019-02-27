@@ -27,7 +27,7 @@ type
     languageCode*: Option[string]
 
   Chat* = object of TelegramObject
-    id*: int
+    id*: int64
     kind*: string
     title*: Option[string]
     username*: Option[string]
@@ -216,8 +216,8 @@ type
     leftChatMember*: Option[User]
     newChatTitle*: Option[string]
     newChatPhoto*: Option[seq[PhotoSize]]
-    migrateToChatId*: Option[int]
-    migrateFromChatId*: Option[int]
+    migrateToChatId*: Option[int64]
+    migrateFromChatId*: Option[int64]
     pinnedMessage*: Option[ref Message]
     invoice*: Option[Invoice]
     successfulPayment*: Option[SuccessfulPayment]
@@ -246,7 +246,7 @@ type
     canAddWebPagePreviews*: Option[bool]
 
   ResponseParameters* = object of TelegramObject
-    migrateToChatId*: Option[int]
+    migrateToChatId*: Option[int64]
     retryAfter*: Option[int]
 
   Update* = object of TelegramObject
