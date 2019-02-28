@@ -10,7 +10,7 @@ magic Message:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Photo:
-  chatId: int
+  chatId: int64
   photo: string
   caption: string {.optional.}
   disableNotification: bool {.optional.}
@@ -18,7 +18,7 @@ magic Photo:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Audio:
-  chatId: int
+  chatId: int64
   audio: string
   caption: string {.optional.}
   duration: int {.optional.}
@@ -29,7 +29,7 @@ magic Audio:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Document:
-  chatId: int
+  chatId: int64
   document: string
   caption: string {.optional.}
   disableNotification: bool {.optional.}
@@ -37,14 +37,14 @@ magic Document:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Sticker:
-  chatId: int
+  chatId: int64
   sticker: string
   disableNotification: bool {.optional.}
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Video:
-  chatId: int
+  chatId: int64
   video: string
   duration: int {.optional.}
   width: int {.optional.}
@@ -55,7 +55,7 @@ magic Video:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Voice:
-  chatId: int
+  chatId: int64
   voice: string
   caption: string {.optional.}
   duration: int {.optional.}
@@ -64,7 +64,7 @@ magic Voice:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic VideoNote:
-  chatId: int
+  chatId: int64
   videoNote: string
   duration: int {.optional.}
   length: int {.optional.}
@@ -73,7 +73,7 @@ magic VideoNote:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Location:
-  chatId: int
+  chatId: int64
   latitude: float
   longitude: float
   livePeriod: int {.optional.}
@@ -82,7 +82,7 @@ magic Location:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Venue:
-  chatId: int
+  chatId: int64
   latitude: int
   longitude: int
   title: string
@@ -94,7 +94,7 @@ magic Venue:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Contact:
-  chatId: int
+  chatId: int64
   phoneNumber: string
   firstName: string
   lastName: string {.optional.}
@@ -104,7 +104,7 @@ magic Contact:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Invoice:
-  chatId: int
+  chatId: int64
   title: string
   description: string
   payload: string
@@ -129,7 +129,7 @@ magic Invoice:
   replyMarkup: KeyboardMarkup {.optional.}
 
 magic Animation:
-  chatId: int
+  chatId: int64
   animation: string
   duration: int {.optional.}
   width: int {.optional.}
