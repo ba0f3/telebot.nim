@@ -51,6 +51,8 @@ proc isSet*(value: any): bool {.inline.} =
     result = true
   elif value is float:
     result = value != 0
+  elif value is enum:
+      result = true
   else:
     result = not value.isNil
 
@@ -114,19 +116,21 @@ proc marshal*[T](t: T, s: var string) =
   elif t is object:
     s.add "{"
     for name, value in t.fieldPairs:
-      when value is Option:
-        if value.isSome:
+      # DIRTY hack to make internal fields invisible
+      if name != "type":
+        when value is Option:
+          if value.isSome:
+            s.add("\"" & formatName(name) & "\":")
+            marshal(value, s)
+            s.add(',')
+        else:
           s.add("\"" & formatName(name) & "\":")
           marshal(value, s)
           s.add(',')
-      else:
-        s.add("\"" & formatName(name) & "\":")
-        marshal(value, s)
-        s.add(',')
     s.removeSuffix(',')
     s.add "}"
-  #elif t is ref:
-  #  marshal(t[], s)
+  elif t is ref:
+    marshal(t[], s)
   elif t is seq or t is openarray:
     s.add "["
     for item in t:

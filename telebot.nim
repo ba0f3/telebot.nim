@@ -1,7 +1,7 @@
 import tables
 
-import telebot/[types, keyboard, webhook, inputmedia]
-export types, webhook, keyboard, inputmedia
+import telebot/[types, keyboard, webhook, inputmedia, helpers]
+export types, webhook, keyboard, inputmedia, helpers
 
 proc newTeleBot*(token: string): TeleBot =
   ## Init new Telegram Bot instance

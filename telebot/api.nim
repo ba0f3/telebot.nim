@@ -582,7 +582,7 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   const endpoint = API_URL & "answerInlineQuery"
 
-  if results.isNil or results.len == 0:
+  if results.len == 0:
     return false
 
   var data = newMultipartData()

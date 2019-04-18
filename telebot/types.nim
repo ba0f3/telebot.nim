@@ -339,6 +339,35 @@ type
   #------------------
   # Inline Query
   #------------------
+  InputMessageContentKind* = enum
+    TextMessage
+    LocationMessage
+    VenueMessage
+    ContactMessage
+
+  InputMessageContent* = ref object of TelegramObject
+    case `type`*: InputMessageContentKind
+    of TextMessage:
+      messageText*: string
+      parseMode*: Option[string]
+      disableWebPagePreview*: Option[bool]
+    of LocationMessage:
+      latitude*: float
+      longitude*: float
+      livePeriod*: Option[int]
+    of VenueMessage:
+      venueLatitude*: float
+      venueLongitude*: float
+      venueTitle*: string
+      venueAddress*: string
+      foursquareId*: Option[string]
+      foursquareName*: Option[string]
+    of ContactMessage:
+      phoneNumber*: string
+      firstName*: string
+      lastName*: Option[string]
+      vcard*: Option[string]
+
   InlineQueryResult* = object of TelegramObject
     kind*: string
     id*: string
@@ -346,40 +375,15 @@ type
     replyMarkup*: Option[KeyboardMarkup]
 
   InlineQueryResultWithThumb* = object of InlineQueryResult
-    thumbUrl*: string
-    thumbWidth*: int
-    thumbHeight*: int
-
-  InputMessageContent = object of RootObj
-
-  InputTextMessageContent* = object of InputMessageContent
-    messageText*: string
-    parseMode*: string
-    disableWebPagePreview*: bool
-
-  InputLocationMessageContent* = object of InputMessageContent
-    latitude*: float
-    longitude*: float
-
-  InputVenueMessageContent* = object of InputMessageContent
-    llatitude*: float
-    longitude*: float
-    title*: string
-    address*: string
-    foursquareId*: Option[string]
-    foursquareName*: Option[string]
-
-  InputContactMessageContent* = object of InputMessageContent
-    phoneNumber*: string
-    firstName*: string
-    lastName*: Option[string]
-    vcard*: Option[string]
+    thumbUrl*: Option[string]
+    thumbWidth*: Option[int]
+    thumbHeight*: Option[int]
 
   InlineQueryResultArticle* = object of InlineQueryResultWithThumb
     title*: string
-    url*: string
-    hideUrl*: bool
-    description*: string
+    url*: Option[string]
+    hideUrl*: Option[bool]
+    description*: Option[string]
 
   InlineQueryResultPhoto* = object of InlineQueryResult
     photoUrl*: string
@@ -392,57 +396,58 @@ type
 
   InlineQueryResultGif* = object of InlineQueryResult
     gifUrl*: string
-    gifWidth*: int
-    gifHeight*: int
-    gifDuration*: int
+    gifWidth*: Option[int]
+    gifHeight*: Option[int]
+    gifDuration*: Option[int]
     thumbUrl*: string
-    title*: string
-    caption*: string
+    title*: Option[string]
+    caption*: Option[string]
 
   InlineQueryResultMpeg4Gif* = object of InlineQueryResult
     mpeg4Url*: string
-    mpeg4Width*: int
-    mpeg4Height*: int
-    mpeg4Duration*: int
+    mpeg4Width*: Option[int]
+    mpeg4Height*: Option[int]
+    mpeg4Duration*: Option[int]
     thumbUrl*: string
-    title*: string
-    caption*: string
+    title*: Option[string]
+    caption*: Option[string]
 
   InlineQueryResultVideo* = object of InlineQueryResult
     videoUrl*: string
     mimeType*: string
     thumbUrl*: string
     title*: string
-    caption*: string
-    videoWidth*: int
-    videoHeight*: int
-    videoDuration*: int
-    description*: string
+    caption*: Option[string]
+    videoWidth*: Option[int]
+    videoHeight*: Option[int]
+    videoDuration*: Option[int]
+    description*: Option[string]
 
   InlineQueryResultAudio* = object of InlineQueryResult
     audioUrl*: string
     title*: string
-    caption*: string
-    performer*: string
-    audioDuration*: int
+    caption*: Option[string]
+    performer*: Option[string]
+    audioDuration*: Option[int]
 
   InlineQueryResultVoice* = object of InlineQueryResult
     voiceUrl*: string
     title*: string
-    caption*: string
-    voiceDuration*: int
+    caption*: Option[string]
+    voiceDuration*: Option[int]
 
   InlineQueryResultDocument* = object of InlineQueryResultWithThumb
     title*: string
-    caption*: string
+    caption*: Option[string]
     documentUrl*: string
     mimeType*: string
-    description*: string
+    description*: Option[string]
 
   InlineQueryResultLocation* = object of InlineQueryResultWithThumb
     latitude*: float
     longitude*: float
     title*: string
+    livePeriod*: Option[int]
 
   InlineQueryResultVenue* = object of InlineQueryResultWithThumb
     latitude*: float
@@ -455,7 +460,7 @@ type
   InlineQueryResultContact* = object of InlineQueryResultWithThumb
     phoneNumber*: string
     firstName*: string
-    lastName*: string
+    lastName*: Option[string]
     vcard*: Option[string]
 
   InlineQueryResultGame* = object of InlineQueryResult
@@ -463,19 +468,19 @@ type
 
   InlineQueryResultCachedPhoto* = object of InlineQueryResult
     photoFileId*: string
-    title*: string
-    description*: string
-    caption*: string
+    title*: Option[string]
+    description*: Option[string]
+    caption*: Option[string]
 
   InlineQueryResultCachedGif* = object of InlineQueryResult
     gifFileId*: string
-    title*: string
-    caption*: string
+    title*: Option[string]
+    caption*: Option[string]
 
   InlineQueryResultCachedMpeg4Gif* = object of InlineQueryResult
     mpeg4FileId*: string
-    title*: string
-    caption*: string
+    title*: Option[string]
+    caption*: Option[string]
 
   InlineQueryResultCachedSticker* = object of InlineQueryResult
     stickerFileId*: string
@@ -483,23 +488,23 @@ type
   InlineQueryResultCachedVideo* = object of InlineQueryResult
     videoFileId*: string
     title*: string
-    caption*: string
-    description*: string
+    caption*: Option[string]
+    description*: Option[string]
 
   InlineQueryResultCachedAudio* = object of InlineQueryResult
     audioFileId*: string
-    caption*: string
+    caption*: Option[string]
 
   InlineQueryResultCachedVoice* = object of InlineQueryResult
     voiceFileId*: string
     title*: string
-    caption*: string
+    caption*: Option[string]
 
   InlineQueryResultCacchedDocument* = object of InlineQueryResult
     title*: string
-    caption*: string
+    caption*: Option[string]
     documentFileId*: string
-    description*: string
+    description*: Option[string]
 
   InlineQuery* = object of TelegramObject
     id*: string

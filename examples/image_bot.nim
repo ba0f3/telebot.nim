@@ -10,7 +10,7 @@ proc queryHandler(b: TeleBot, q: InlineQuery) {.async.} =
   var
     client = newAsyncHttpClient()
     response = await client.get(url)
-    photos: seq[InlineQueryResultPhoto] = @[]
+    photos: seq[InlineQueryResultPhoto]
   if response.code == Http200:
     var data = parseJson(await response.body)
     for child in data["data"]["children"].items:
