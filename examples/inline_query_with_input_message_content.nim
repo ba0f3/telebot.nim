@@ -8,7 +8,7 @@ const API_KEY = slurp("secret.key")
 proc inlineHandler(b: Telebot, u: InlineQuery) {.async.} =
   var res: InlineQueryResultArticle
   res.kind = "article"
-  res.title = "Test Article"
+  res.title = "тест\""
   res.id = "1"
   res.inputMessageContent = InputTextMessageContent("test").some
 

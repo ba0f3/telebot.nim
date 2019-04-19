@@ -88,6 +88,19 @@ proc formatName*(s: string): string =
     else:
       result.add(c)
 
+proc addslashes(s: string, prefix = "\"", suffix = "\""): string {.noSideEffect, extern: "nsuEscape".} =
+  ## A modified version of `strutils.escape` <strutils.html#escape,string,string,string>`_
+  result = newStringOfCap(s.len + s.len shr 2)
+  result.add(prefix)
+  for c in items(s):
+    case c
+    of '\\': add(result, "\\\\")
+    of '\'': add(result, "\\'")
+    of '\"': add(result, "\\\"")
+    else: add(result, c)
+  add(result, suffix)
+
+
 proc unmarshal*(n: JsonNode, T: typedesc): T {.inline.} =
   when result is object:
     for name, value in result.fieldPairs:
@@ -141,7 +154,7 @@ proc marshal*[T](t: T, s: var string) =
   else:
     if t.isSet:
       when t is string:
-        s.add(escape(t))
+        s.add(addslashes(t))
       else:
         s.add($t)
     else:
