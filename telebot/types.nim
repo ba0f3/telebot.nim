@@ -516,8 +516,8 @@ type
   ChosenInlineResult* = object of TelegramObject
     resultId*: string
     fromUser*: User
-    location*: Location
-    inlineMessageId*: string
+    location*: Option[Location]
+    inlineMessageId*: Option[string]
     query*: string
 
   #------------------
