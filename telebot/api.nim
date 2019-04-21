@@ -259,7 +259,7 @@ proc setChatPhoto*(b: TeleBot, chatId: string, photo: string): Future[bool] {.as
   END_POINT("setChatPhoto")
   var data = newMultipartData()
   data["chat_id"] = chatId
-  data.addFiles({"name": "photo", "file": photo.string})
+  data.addFiles({"name": "photo", "file": photo})
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
@@ -353,7 +353,7 @@ proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: string): Future[typ
   END_POINT("uploadStickerFile")
   var data = newMultipartData()
   data["user_id"] = $userId
-  data.addFiles({"name": "png_sticker", "file": pngSticker.string})
+  data.addFiles({"name": "png_sticker", "file": pngSticker})
   let res = await makeRequest(endpoint % b.token, data)
   result = unmarshal(res, types.File)
 
@@ -581,7 +581,6 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
 
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   const endpoint = API_URL & "answerInlineQuery"
-
   if results.len == 0:
     return false
 
@@ -592,6 +591,16 @@ proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 
   marshal(results, s)
   d("results", s)
   data["results"] = s
+  if cacheTime != 0:
+    data["cache_time"] = $cacheTime
+  if isPersonal:
+    data["is_personal"] = true
+  if nextOffset.len > 0:
+    data["next_offset"] = nextOffset
+  if switchPmText.len > 0:
+    data["switch_pm_text"] = switchPmText
+  if switchPmParameter.len > 0:
+    data["switch_pm_parameter"] = switchPmParameter
 
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
