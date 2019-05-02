@@ -594,7 +594,7 @@ proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 
   if cacheTime != 0:
     data["cache_time"] = $cacheTime
   if isPersonal:
-    data["is_personal"] = true
+    data["is_personal"] = "true"
   if nextOffset.len > 0:
     data["next_offset"] = nextOffset
   if switchPmText.len > 0:
