@@ -121,7 +121,17 @@ type
     title*: string
     address*: string
     foursquareId*: Option[string]
-    foursquareName*: Option[string]
+    foursquareType*: Option[string]
+
+  PollOption* = object of TelegramObject
+    text*: string
+    voterCount*: int
+
+  Poll* = object of TelegramObject
+    id*: string
+    question*: string
+    options*: seq[PollOption]
+    isClosed*: bool
 
   UserProfilePhotos* = object of TelegramObject
     totalCount*: int
@@ -191,6 +201,7 @@ type
     forwardFromChat*: Option[Chat]
     forwardFromMessageId*: Option[int]
     forwardSignature*: Option[string]
+    forwardSenderName*: Option[string]
     forwardDate*: Option[int]
     replyToMessage*: Option[ref Message]
     editDate*: Option[int]
@@ -211,6 +222,7 @@ type
     contact*: Option[Contact]
     location*: Option[Location]
     venue*: Option[Venue]
+    poll*: Option[Poll]
     newChatMembers*: Option[seq[User]]
     newChatMember*: Option[User]
     leftChatMember*: Option[User]
@@ -240,6 +252,7 @@ type
     canRestrictMembers*: Option[bool]
     canPinMessages*: Option[bool]
     canPromoteMebers*: Option[bool]
+    isMember*: Option[bool]
     canSendMessages*: Option[bool]
     canSendMediaMessages*: Option[bool]
     canSendOtherMessages*: Option[bool]
@@ -260,6 +273,7 @@ type
     callbackQuery*: Option[CallbackQuery]
     shippingQuery*: Option[ShippingQuery]
     preCheckoutQuery*: Option[PreCheckoutQuery]
+    poll*: Option[Poll]
 
   #------------------
   # Game
@@ -361,7 +375,7 @@ type
       venueTitle*: string
       venueAddress*: string
       foursquareId*: Option[string]
-      foursquareName*: Option[string]
+      foursquareType*: Option[string]
     of ContactMessage:
       phoneNumber*: string
       firstName*: string
@@ -455,7 +469,7 @@ type
     title*: string
     address*: string
     foursquareId*: Option[string]
-    foursquareName*: Option[string]
+    foursquareType*: Option[string]
 
   InlineQueryResultContact* = object of InlineQueryResultWithThumb
     phoneNumber*: string
@@ -549,3 +563,65 @@ type
     title*: Option[string]
 
   InputMediaDocument* = ref object of InputMedia
+
+  #------------------
+  # Passport
+  #------------------
+  PassportFile* = object of TelegramObject
+    fileId*: string
+    fileSize*: int
+    fileDate*: int
+
+  EncryptedPassportElement* = object of TelegramObject
+    kind*: string
+    data*: string
+    phoneNumber*: Option[string]
+    email*: Option[string]
+    files*: Option[seq[PassportFile]]
+    frontSide*: Option[PassportFile]
+    reverseSide*: Option[PassportFile]
+    selfie*: Option[PassportFile]
+    translation*: Option[seq[PassportFile]]
+    hash*: string
+
+  EncryptedCredentials* = object of TelegramObject
+    data*: string
+    hash*: string
+    secret*: string
+
+  PassportData* = object of TelegramObject
+    data: seq[EncryptedPassportElement]
+    credentials: EncryptedCredentials
+
+  PassportElementError = ref object of TelegramObject
+    source*: string
+    kind*: string
+    message*: string
+
+  PassportElementErrorDataField* = ref object of PassportElementError
+    fieldName*: string
+    dataHash*: string
+
+  PassportElementErrorFrontSide* = ref object of PassportElementError
+    fileHash*: string
+
+  PassportElementErrorReverseSide* = ref object of PassportElementError
+    fileHash*: string
+
+  PassportElementErrorSelfie* = ref object of PassportElementError
+    fileHash*: string
+
+  PassportElementErrorFile* = ref object of PassportElementError
+    fileHash*: string
+
+  PassportElementErrorFiles* = ref object of PassportElementError
+    fileHashes*: seq[string]
+
+  PassportElementErrorTranslationFile* = ref object of PassportElementError
+    fileHash*: string
+
+  PassportElementErrorTranslationFiles* = ref object of PassportElementError
+    fileHashes*: seq[string]
+
+  PassportElementErrorUnspecified* = ref object of PassportElementError
+    elementHash*: string

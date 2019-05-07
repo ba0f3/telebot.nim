@@ -141,6 +141,13 @@ magic Animation:
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
 
+magic Poll:
+  chatId: int64
+  question: string
+  options: seq[string]
+  disableNotification: string {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
 
 proc getMe*(b: TeleBot): Future[User] {.async.} =
   ## Returns basic information about the bot in form of a ``User`` object.
@@ -553,6 +560,24 @@ proc editMessageReplyMarkup*(b: TeleBot, chatId = "", messageId = 0, inlineMessa
     result = none(Message)
   else:
     result = some(unmarshal(res, Message))
+
+proc stopPoll*(b: TeleBot, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[Poll]] {.async.} =
+  END_POINT("stopPool")
+  var data = newMultipartData()
+  if chatId.len > 0:
+    data["chat_id"] = chat_id
+  if messageId != 0:
+    data["message_id"] = $messageId
+  if inlineMessageId.len != 0:
+    data["inline_message_id"] = inlineMessageId
+  if replyMarkup != nil:
+    data["reply_markup"] = $replyMarkup
+
+  let res = await makeRequest(endpoint % b.token, data)
+  if res.kind == JBool:
+    result = none(Poll)
+  else:
+    result = some(unmarshal(res, Poll))
 
 proc deleteMessage*(b: Telebot, chatId: string, messageId: int): Future[bool] {.async.} =
   END_POINT("deleteMessage")
