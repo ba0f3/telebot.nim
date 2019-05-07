@@ -234,6 +234,7 @@ type
     invoice*: Option[Invoice]
     successfulPayment*: Option[SuccessfulPayment]
     connectedWebsite*: Option[string]
+    passportData*: Option[PassportData]
 
   ChatPhoto* = object of TelegramObject
     smallFileId*: string
