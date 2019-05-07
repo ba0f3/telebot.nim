@@ -5,7 +5,7 @@ proc initKeyBoardButton*(text: string): KeyboardButton =
 
 proc newReplyKeyboardMarkup*(keyboards: varargs[seq[KeyboardButton]]): KeyboardMarkup =
   new(result)
-  result.kind = kReplyKeyboardMarkup
+  result.`type` = kReplyKeyboardMarkup
   result.keyboard = @[]
   for keyboard in keyboards:
     result.keyboard.add(keyboard)
@@ -15,19 +15,19 @@ proc initInlineKeyBoardButton*(text: string): InlineKeyboardButton =
 
 proc newInlineKeyboardMarkup*(keyboards: varargs[seq[InlineKeyBoardButton]]): KeyboardMarkup =
   new(result)
-  result.kind = kInlineKeyboardMarkup
+  result.`type` = kInlineKeyboardMarkup
   result.inlineKeyboard = @[]
   for keyboard in keyboards:
     result.inlineKeyboard.add(keyboard)
 
 proc newReplyKeyboardRemove*(selective: bool): KeyboardMarkup =
     new(result)
-    result.kind = kReplyKeyboardRemove
+    result.`type` = kReplyKeyboardRemove
     result.selective = some(selective)
 
 proc newForceReply*(selective: bool): KeyboardMarkup =
   new(result)
-  result.kind = kForceReply
+  result.`type` = kForceReply
   result.selective = some(selective)
 
 proc `$`*(k: KeyboardButton): string =
@@ -42,9 +42,8 @@ proc `$`*(k: KeyboardButton): string =
 
 proc `$`*(k: KeyboardMarkup): string =
   var j = newJObject()
-  case k.kind
+  case k.`type`
   of kReplyKeyboardMarkup:
-
     var kb = newJArray()
     for row in k.keyboard:
       var n = newJArray()

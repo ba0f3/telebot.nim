@@ -154,7 +154,7 @@ type
 
   KeyboardMarkup* = ref object of TelegramObject
     selective*: Option[bool]
-    case kind*: KeyboardKind
+    case `type`*: KeyboardKind
     of kReplyKeyboardMarkup:
       keyboard*: seq[seq[KeyboardButton]]
       resizeKeyboard*: Option[bool]
@@ -549,4 +549,3 @@ type
     title*: Option[string]
 
   InputMediaDocument* = ref object of InputMedia
-
