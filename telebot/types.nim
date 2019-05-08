@@ -243,7 +243,7 @@ type
   ChatMember* = object of TelegramObject
     user*: User
     status*: string
-    untilDate*: int
+    untilDate*: Option[int]
     canBeEdited*: Option[bool]
     canChangeInfo*: Option[bool]
     canPostMessages*: Option[bool]
