@@ -6,7 +6,6 @@ proc initKeyBoardButton*(text: string): KeyboardButton =
 proc newReplyKeyboardMarkup*(keyboards: varargs[seq[KeyboardButton]]): KeyboardMarkup =
   new(result)
   result.`type` = kReplyKeyboardMarkup
-  result.keyboard = @[]
   for keyboard in keyboards:
     result.keyboard.add(keyboard)
 
@@ -16,7 +15,6 @@ proc initInlineKeyBoardButton*(text: string): InlineKeyboardButton =
 proc newInlineKeyboardMarkup*(keyboards: varargs[seq[InlineKeyBoardButton]]): KeyboardMarkup =
   new(result)
   result.`type` = kInlineKeyboardMarkup
-  result.inlineKeyboard = @[]
   for keyboard in keyboards:
     result.inlineKeyboard.add(keyboard)
 

@@ -114,21 +114,17 @@ proc unmarshal*(n: JsonNode, T: typedesc): T {.inline.} =
       elif value.type is TelegramObject:
         value = unmarshal(n[formatName(name)], value.type)
       elif value.type is seq:
-        value = @[]
         for item in n[formatName(name)].items:
           put(value, item)
       else:
         value = to(n[formatName(name)], value.type)
   elif result is seq:
-    result = @[]
     for item in n.items:
       result.put(item)
 
 proc marshal*[T](t: T, s: var string) =
   when t is Option:
-    if t.isNone:
-      s.add "null"
-    else:
+    if t.isSome:
       marshal(t.get, s)
   elif t is object:
     s.add "{"
@@ -216,7 +212,7 @@ proc addData*(p: var MultipartData, name: string, content: auto, fileCheck = fal
     if fileCheck and content.startsWith("file://"):
       p.addFiles({name: content[7..content.len-1]})
     else:
-      p.add(name, $content)
+      p.add(name, content)
   else:
     p.add(name, $content)
 
