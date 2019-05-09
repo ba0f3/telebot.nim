@@ -630,7 +630,7 @@ proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 
   let res = await makeRequest(endpoint % b.token, data)
   result = res.bval
 
-proc getUpdates*(b: TeleBot, offset, limit, timeout = 0, allowedUpdates: seq[string] = @[]): Future[JsonNode] {.async.} =
+proc getUpdates*(b: TeleBot, offset, limit = 0, timeout = 50, allowedUpdates: seq[string] = @[]): Future[JsonNode] {.async.} =
   END_POINT("getUpdates")
   var data = newMultipartData()
 
@@ -682,7 +682,7 @@ proc cleanUpdates*(b: TeleBot) {.async.} =
   while updates.len >= 100:
     updates = await b.getUpdates()
 
-proc poll*(b: TeleBot, timeout, offset, limit = 0, clean = false) =
+proc poll*(b: TeleBot, timeout = 50, offset, limit = 0, clean = false) =
   if clean:
     waitFor b.cleanUpdates()
 

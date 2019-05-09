@@ -9,6 +9,12 @@ const
 macro END_POINT*(s: string): typed =
   result = parseStmt("const endpoint = \"" & API_URL & s.strVal & "\"")
 
+var client = newAsyncHttpClient(userAgent="telebot.nim/0.5.7")
+client.headers = newHttpHeaders({
+  "Connection": "Keep-Alive",
+  "Keep-Alive": "timeout=50"
+})
+
 proc hasCommand*(update: Update): bool =
   result = false
   if update.message.isSome:
@@ -60,7 +66,6 @@ template d*(args: varargs[string, `$`]) =
   debug(args)
 
 proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
-  let client = newAsyncHttpClient()
   d("Making request to ", endpoint)
   let r = await client.post(endpoint, multipart=data)
   if r.code == Http200 or r.code == Http400:
@@ -72,7 +77,6 @@ proc makeRequest*(endpoint: string, data: MultipartData = nil): Future[JsonNode]
       raise newException(IOError, obj["description"].getStr(r.status))
   else:
     raise newException(IOError, r.status)
-  client.close()
 
 proc formatName*(s: string): string =
   if s == "kind":
