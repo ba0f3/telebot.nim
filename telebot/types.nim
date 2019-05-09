@@ -575,7 +575,7 @@ type
 
   EncryptedPassportElement* = object of TelegramObject
     kind*: string
-    data*: string
+    data*: Option[string]
     phoneNumber*: Option[string]
     email*: Option[string]
     files*: Option[seq[PassportFile]]
