@@ -591,8 +591,8 @@ type
     secret*: string
 
   PassportData* = object of TelegramObject
-    data: seq[EncryptedPassportElement]
-    credentials: EncryptedCredentials
+    data*: seq[EncryptedPassportElement]
+    credentials*: EncryptedCredentials
 
   PassportElementError = ref object of TelegramObject
     source*: string

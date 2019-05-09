@@ -27,7 +27,7 @@ proc getCommands*(update: Update): StringTableRef =
       var entities = message.entities.get()
       for entity in entities:
         if entity.kind == "bot_command":
-          var 
+          var
             messageText = message.text.get()
             offset = entity.offset
             length = entity.length
@@ -236,13 +236,14 @@ macro genInputMedia*(mediaType: untyped): untyped =
 
   result = quote do:
     proc `funcName`*(media: string; caption=""; parseMode=""): `objName` =
-      new(result)
-      result.kind = `kind`
-      result.media = media
+      var inputMedia = new(`objName`)
+      inputMedia.kind = `kind`
+      inputMedia.media = media
       if caption.len > 0:
-        result.caption = some(caption)
+        inputMedia.caption = some(caption)
       if parseMode.len > 0:
-        result.parseMode = some(parseMode)
+        inputMedia.parseMode = some(parseMode)
+      return inputMedia
 
 macro magic*(head, body: untyped): untyped =
   result = newStmtList()
