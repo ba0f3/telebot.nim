@@ -5,6 +5,7 @@ type
 
   UpdateCallback* = proc(bot: Telebot, update: Update): Future[void]
   CommandCallback* = proc(bot: Telebot, command: Command): Future[void]
+  CatchallCommandCallback* = proc(bot: Telebot, command: CatchallCommand): Future[void]
   InlineQueryCallback* = proc(bot: Telebot, inlineQuery: InlineQuery): Future[void]
 
   TeleBot* = ref object of TelegramObject
@@ -12,7 +13,13 @@ type
     lastUpdateId*: BiggestInt
     updateCallbacks*: seq[UpdateCallBack]
     commandCallbacks*: TableRef[string, seq[CommandCallback]]
+    catchallCommandCallback*: CatchallCommandCallback
     inlineQueryCallbacks*: seq[InlineQueryCallback]
+
+  CatchallCommand* = object of TelegramObject
+    command*: string
+    message*: Message
+    params*: string
 
   Command* = object of TelegramObject
     message*: Message
