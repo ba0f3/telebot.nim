@@ -39,14 +39,14 @@ proc setWebhook*(b: TeleBot, url: string, certificate: string = "", maxConnectio
   if allowedUpdates.len > 0:
     data["allowed_updates"] = $allowedUpdates
 
-  discard await makeRequest(endpoint % b.token, data)
+  discard await makeRequest(b, endpoint % b.token, data)
 
 proc deleteWebhook*(b: TeleBot): Future[bool] {.async.} =
   END_POINT("deleteWebhook")
-  let res = await makeRequest(endpoint % b.token)
+  let res = await makeRequest(b, endpoint % b.token)
   result = res.getBool()
 
 proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =
   END_POINT("getWebhookInfo")
-  let res = await makeRequest(endpoint % b.token)
+  let res = await makeRequest(b, endpoint % b.token)
   result = getWebhookInfo(res)

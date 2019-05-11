@@ -1,4 +1,4 @@
-import asyncdispatch, options, tables
+import asyncdispatch, options, tables, httpclient
 
 type
   TelegramObject* = object of RootObj
@@ -10,6 +10,7 @@ type
 
   TeleBot* = ref object of TelegramObject
     token*: string
+    httpClient*: AsyncHttpClient
     lastUpdateId*: BiggestInt
     updateCallbacks*: seq[UpdateCallBack]
     commandCallbacks*: TableRef[string, seq[CommandCallback]]
