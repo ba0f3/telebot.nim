@@ -78,9 +78,9 @@ proc formatName*(s: string): string =
   if s == "fromUser":
     return "from"
 
-  result = ""
+  result = newStringOfCap(s.len + 5)
   for c in s:
-    if c.isUpperAscii():
+    if c in {'A'..'Z'}:
       result.add("_")
       result.add(c.toLowerAscii)
     else:
@@ -99,19 +99,20 @@ proc addslashes(s: string, prefix = "\"", suffix = "\""): string {.noSideEffect,
   add(result, suffix)
 
 
-proc unmarshal*(n: JsonNode, T: typedesc): T {.inline.} =
+proc unmarshal*(n: JsonNode, T: typedesc): T =
   when result is object:
     for name, value in result.fieldPairs:
+      const jsonKey = formatName(name)
       when value.type is Option:
-        if n.hasKey(formatName(name)):
-          toOption(value, n[formatName(name)])
+        if n.hasKey(jsonKey):
+          toOption(value, n[jsonKey])
       elif value.type is TelegramObject:
-        value = unmarshal(n[formatName(name)], value.type)
+        value = unmarshal(n[jsonKey], value.type)
       elif value.type is seq:
-        for item in n[formatName(name)].items:
+        for item in n[jsonKey].items:
           put(value, item)
       else:
-        value = to(n[formatName(name)], value.type)
+        value = to(n[jsonKey], value.type)
   elif result is seq:
     for item in n.items:
       result.put(item)
@@ -123,15 +124,16 @@ proc marshal*[T](t: T, s: var string) =
   elif t is object:
     s.add "{"
     for name, value in t.fieldPairs:
+      const jsonKey = formatName(name)
       # DIRTY hack to make internal fields invisible
       if name != "type":
         when value is Option:
           if value.isSome:
-            s.add("\"" & formatName(name) & "\":")
+            s.add("\"" & jsonKey & "\":")
             marshal(value, s)
             s.add(',')
         else:
-          s.add("\"" & formatName(name) & "\":")
+          s.add("\"" & jsonKey & "\":")
           marshal(value, s)
           s.add(',')
     s.removeSuffix(',')
