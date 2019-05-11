@@ -1,4 +1,4 @@
-import types, json, strutils, utils, options, macros
+import types, strutils, utils, options, macros
 
 proc `$`*(m: InputMedia): string =
     result = ""

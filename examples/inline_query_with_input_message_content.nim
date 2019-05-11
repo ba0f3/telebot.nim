@@ -1,9 +1,11 @@
 import ../telebot, asyncdispatch, json, httpclient, logging, options
-var L = newConsoleLogger()
+from strutils import strip
+
+var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
 addHandler(L)
 
 from cgi import encodeUrl
-const API_KEY = slurp("secret.key")
+const API_KEY = slurp("secret.key").strip()
 
 proc inlineHandler(b: Telebot, u: InlineQuery) {.async.} =
   var res: InlineQueryResultArticle

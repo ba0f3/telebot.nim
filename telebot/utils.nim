@@ -1,4 +1,5 @@
-import macros, httpclient, asyncdispatch, json, strutils, types, options, logging, strtabs, random
+import macros, httpclient, asyncdispatch, sam, strutils, types, options, logging, strtabs, random
+from json import escapeJson
 
 randomize()
 
@@ -59,19 +60,6 @@ proc isSet*(value: any): bool {.inline.} =
 template d*(args: varargs[string, `$`]) =
   debug(args)
 
-proc makeRequest*(b: Telebot, endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
-  d("Making request to ", endpoint)
-  let r = await b.httpClient.post(endpoint, multipart=data)
-  if r.code == Http200 or r.code == Http400:
-    var obj = parseJson(await r.body)
-    if obj["ok"].bval == true:
-      result = obj["result"]
-      d("Result: ", pretty(result))
-    else:
-      raise newException(IOError, obj["description"].getStr(r.status))
-  else:
-    raise newException(IOError, r.status)
-
 proc formatName*(s: string): string =
   if s == "kind":
     return "type"
@@ -86,19 +74,6 @@ proc formatName*(s: string): string =
     else:
       result.add(c)
 
-proc addslashes(s: string, prefix = "\"", suffix = "\""): string {.noSideEffect, extern: "nsuEscape".} =
-  ## A modified version of `strutils.escape` <strutils.html#escape,string,string,string>`_
-  result = newStringOfCap(s.len + s.len shr 2)
-  result.add(prefix)
-  for c in items(s):
-    case c
-    of '\\': add(result, "\\\\")
-    of '\'': add(result, "\\'")
-    of '\"': add(result, "\\\"")
-    else: add(result, c)
-  add(result, suffix)
-
-
 proc unmarshal*(n: JsonNode, T: typedesc): T =
   when result is object:
     for name, value in result.fieldPairs:
@@ -109,12 +84,12 @@ proc unmarshal*(n: JsonNode, T: typedesc): T =
       elif value.type is TelegramObject:
         value = unmarshal(n[jsonKey], value.type)
       elif value.type is seq:
-        for item in n[jsonKey].items:
+        for item in n[jsonKey]:
           put(value, item)
       else:
-        value = to(n[jsonKey], value.type)
+        value = to[value.type](n[jsonKey])
   elif result is seq:
-    for item in n.items:
+    for item in n:
       result.put(item)
 
 proc marshal*[T](t: T, s: var string) =
@@ -150,7 +125,7 @@ proc marshal*[T](t: T, s: var string) =
   else:
     if t.isSet:
       when t is string:
-        s.add(addslashes(t))
+        s.add(escapeJson(t))
       else:
         s.add($t)
     else:
@@ -167,19 +142,33 @@ proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
   when T is TelegramObject:
     o = some(unmarshal(n, T))
   elif T is int:
-    o = some(n.num.int)
+    o = some(n.toInt)
   elif T is string:
-    o = some(n.str)
+    o = some(n.toStr)
   elif T is bool:
-    o = some(n.bval)
+    o = some(n.toBool)
   elif T is seq:
     var arr: T = @[]
-    for item in n.items:
+    for item in n:
       arr.put(item)
     o = some(arr)
   elif T is ref:
     var res: T
     o = some(unref(res, n))
+
+proc makeRequest*(b: Telebot, endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
+  d("Making request to ", endpoint)
+  let r = await b.httpClient.post(endpoint, multipart=data)
+  if r.code == Http200 or r.code == Http400:
+    var obj = parse(await r.body)
+    if obj["ok"].toBool:
+      result = obj["result"]
+      d("Result: ", $result)
+    else:
+      raise newException(IOError, obj["description"].toStr)
+  else:
+    raise newException(IOError, r.status)
+
 
 proc getMessage*(n: JsonNode): Message {.inline.} =
   result = unmarshal(n, Message)
@@ -285,7 +274,7 @@ macro magic*(head, body: untyped): untyped =
       newCall(ident("newMultipartData"))
   ))
 
-  for node in body.items:
+  for node in body:
     let fieldName = $node[0]
 
     case node[1][0].kind

@@ -1,4 +1,4 @@
-import asyncdispatch, httpclient, strutils, json
+import asyncdispatch, httpclient, strutils, sam
 import utils, types
 
 type
@@ -13,14 +13,14 @@ type
 
 proc getWebhookInfo(n: JsonNode): WebhookInfo =
   result.url = $n["url"]
-  result.hasCustomCertificate = n["has_custom_certificate"].getBool
-  result.pendingUpdateCount = n["pending_update_count"].num.int
+  result.hasCustomCertificate = n["has_custom_certificate"].toBool
+  result.pendingUpdateCount = n["pending_update_count"].toInt
   if n.hasKey("last_error_date"):
-    result.lastErrorDate = n["last_error_date"].num.int
+    result.lastErrorDate = n["last_error_date"].toInt
   if n.hasKey("last_error_message"):
     result.lastErrorMessage = $n["last_error_message"]
   if n.hasKey("max_connections"):
-    result.maxConnections = n["max_connections"].num.int
+    result.maxConnections = n["max_connections"].toInt
   else:
     result.maxConnections = 40
   if n.hasKey("allowed_updates"):
@@ -44,7 +44,7 @@ proc setWebhook*(b: TeleBot, url: string, certificate: string = "", maxConnectio
 proc deleteWebhook*(b: TeleBot): Future[bool] {.async.} =
   END_POINT("deleteWebhook")
   let res = await makeRequest(b, endpoint % b.token)
-  result = res.getBool()
+  result = res.toBool
 
 proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =
   END_POINT("getWebhookInfo")

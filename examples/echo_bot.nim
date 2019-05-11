@@ -1,4 +1,4 @@
-import ../telebot, asyncdispatch, logging, options
+import ../telebot, asyncdispatch, logging, options, sam
 from strutils import strip
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
@@ -9,8 +9,7 @@ const API_KEY = slurp("secret.key").strip()
 proc updateHandler(b: Telebot, u: Update) {.async.} =
   var response = u.message.get
   if response.text.isSome:
-    let
-      text = response.text.get
+    let text = response.text.get
     var message = newMessage(response.chat.id, text)
     message.disableNotification = true
     message.replyToMessageId = response.messageId

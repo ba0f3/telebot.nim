@@ -27,7 +27,7 @@ proc greatingHandler(b: Telebot, c: Command) {.async.} =
 
 when isMainModule:
   let bot = newTeleBot(API_KEY)
-  bot.setProxy("http://10.8.11.7:8888")
+  bot.setProxy("http://localhost:8080")
 
   bot.onUpdate(updateHandler)
   bot.onCommand("hello", greatingHandler)
