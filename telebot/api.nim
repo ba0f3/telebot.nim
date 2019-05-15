@@ -682,12 +682,16 @@ proc cleanUpdates*(b: TeleBot) {.async.} =
   while updates.len >= 100:
     updates = await b.getUpdates()
 
+
+proc loop(b: TeleBot, timeout = 50, offset, limit = 0) {.async.} =
+  while true:
+    let updates = await b.getUpdates(timeout=timeout, offset=offset, limit=limit)
+    for item in updates:
+      let update = unmarshal(item, Update)
+      asyncCheck b.handleUpdate(update)
+
 proc poll*(b: TeleBot, timeout = 50, offset, limit = 0, clean = false) =
   if clean:
     waitFor b.cleanUpdates()
 
-  while true:
-    let updates = waitFor b.getUpdates(timeout=timeout, offset=offset, limit=limit)
-    for item in updates:
-      let update = unmarshal(item, Update)
-      waitFor b.handleUpdate(update)
+  waitFor loop(b, timeout, offset, limit)

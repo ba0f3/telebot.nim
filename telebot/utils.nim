@@ -156,9 +156,14 @@ proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
     var res: T
     o = some(unref(res, n))
 
+proc initHttpClient(b: Telebot): AsyncHttpClient =
+  result = newAsyncHttpClient(userAgent="telebot.nim/0.5.7", proxy=b.proxy)
+
 proc makeRequest*(b: Telebot, endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
   d("Making request to ", endpoint)
-  let r = await b.httpClient.post(endpoint, multipart=data)
+  let client = initHttpClient(b)
+
+  let r = await client.post(endpoint, multipart=data)
   if r.code == Http200 or r.code == Http400:
     var obj = parse(await r.body)
     if obj["ok"].toBool:
@@ -168,6 +173,7 @@ proc makeRequest*(b: Telebot, endpoint: string, data: MultipartData = nil): Futu
       raise newException(IOError, obj["description"].toStr)
   else:
     raise newException(IOError, r.status)
+  client.close()
 
 
 proc getMessage*(n: JsonNode): Message {.inline.} =

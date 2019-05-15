@@ -10,12 +10,12 @@ type
 
   TeleBot* = ref object of TelegramObject
     token*: string
-    httpClient*: AsyncHttpClient
     lastUpdateId*: BiggestInt
     updateCallbacks*: seq[UpdateCallBack]
     commandCallbacks*: TableRef[string, seq[CommandCallback]]
     catchallCommandCallback*: CatchallCommandCallback
     inlineQueryCallbacks*: seq[InlineQueryCallback]
+    proxy*: Proxy
 
   CatchallCommand* = object of TelegramObject
     command*: string
