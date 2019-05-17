@@ -678,10 +678,9 @@ proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
       await cb(b, update)
 
 proc cleanUpdates*(b: TeleBot) {.async.} =
-  var updates = await b.getUpdates()
+  var updates = await b.getUpdates(timeout=0)
   while updates.len >= 100:
     updates = await b.getUpdates()
-
 
 proc loop(b: TeleBot, timeout = 50, offset, limit = 0) {.async.} =
   while true:
