@@ -1,5 +1,5 @@
 import macros, httpclient, asyncdispatch, sam, strutils, types, options, logging, strtabs, random
-from json import escapeJson
+from json import escapeJson, newJNull
 
 randomize()
 
