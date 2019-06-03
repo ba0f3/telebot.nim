@@ -1,4 +1,4 @@
-version       = "0.5.9"
+version       = "0.6.0"
 author        = "Huy Doan"
 description   = "Async Telegram Bot API Client"
 license       = "MIT"
