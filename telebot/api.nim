@@ -231,7 +231,7 @@ proc restrictChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0,
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
-proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, canChangeInfo = false, canPostMessages = false, canEditMessages = false, canDeleteMessages = false, canInviteUsers = false, canRestrictMembers = false, canPinMessages = false, canPromoteMebers = false): Future[bool] {.async.} =
+proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, canChangeInfo = false, canPostMessages = false, canEditMessages = false, canDeleteMessages = false, canInviteUsers = false, canRestrictMembers = false, canPinMessages = false, canPromoteMembers = false): Future[bool] {.async.} =
   END_POINT("promoteChatMember")
   var data = newMultipartData()
   data["chat_id"] = chatId
@@ -250,7 +250,7 @@ proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, canChangeInfo =
     data["can_restrict_members"] = "true"
   if canPinMessages:
     data["can_pin_messages"] = "true"
-  if canPromoteMebers:
+  if canPromoteMembers:
     data["can_promote_members"] = "true"
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool

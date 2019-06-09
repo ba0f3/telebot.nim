@@ -260,7 +260,7 @@ type
     canInviteUsers*: Option[bool]
     canRestrictMembers*: Option[bool]
     canPinMessages*: Option[bool]
-    canPromoteMebers*: Option[bool]
+    canPromoteMembers*: Option[bool]
     isMember*: Option[bool]
     canSendMessages*: Option[bool]
     canSendMediaMessages*: Option[bool]
