@@ -179,13 +179,6 @@ proc makeRequest*(b: Telebot, endpoint: string, data: MultipartData = nil): Futu
 proc getMessage*(n: JsonNode): Message {.inline.} =
   result = unmarshal(n, Message)
 
-when (NimMajor, NimMinor, NimPatch) < (0, 19, 9):
-  proc `%`*[T](o: Option[T]): JsonNode {.inline.} =
-    if o.isSome:
-      result = %o.get
-    else:
-      result = newJNull()
-
 proc newProcDef(name: string): NimNode {.compileTime.} =
    result = newNimNode(nnkProcDef)
    result.add(postfix(ident(name), "*"))
