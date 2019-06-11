@@ -3,42 +3,54 @@ import types, sam, strutils, utils, options, tables
 proc initKeyBoardButton*(text: string): KeyboardButton =
   result.text = text
 
-proc newReplyKeyboardMarkup*(keyboards: varargs[seq[KeyboardButton]]): KeyboardMarkup =
+proc newReplyKeyboardMarkup*(keyboards: varargs[seq[KeyboardButton]]): ReplyKeyboardMarkup =
   new(result)
-  result.`type` = kReplyKeyboardMarkup
+  result.type = kReplyKeyboardMarkup
   for keyboard in keyboards:
     result.keyboard.add(keyboard)
 
 proc initInlineKeyBoardButton*(text: string): InlineKeyboardButton =
   result.text = text
 
-proc newInlineKeyboardMarkup*(keyboards: varargs[seq[InlineKeyBoardButton]]): KeyboardMarkup =
+proc newInlineKeyboardMarkup*(keyboards: varargs[seq[InlineKeyBoardButton]]): InlineKeyboardMarkup =
   new(result)
-  result.`type` = kInlineKeyboardMarkup
+  result.type = kInlineKeyboardMarkup
   for keyboard in keyboards:
     result.inlineKeyboard.add(keyboard)
 
-proc newReplyKeyboardRemove*(selective: bool): KeyboardMarkup =
-    new(result)
-    result.`type` = kReplyKeyboardRemove
-    result.selective = some(selective)
-
-proc newForceReply*(selective: bool): KeyboardMarkup =
+proc newReplyKeyboardRemove*(selective: bool): ReplyKeyboardRemove =
   new(result)
-  result.`type` = kForceReply
+  result.type = kReplyKeyboardRemove
+  result.selective = some(selective)
+
+proc newForceReply*(selective: bool): ForceReply =
+  new(result)
+  result.type = kForceReply
   result.selective = some(selective)
 
 proc `$`*(k: KeyboardMarkup): string =
-  case k.`type`
-  of kReplyKeyboardMarkup, kInlineKeyboardMarkup:
-    marshal(k, result)
+  case k.type:
+  of kInlineKeyboardMarkup:
+    marshal(InlineKeyboardMarkup(k), result)
+  of kReplyKeyboardMarkup:
+    marshal(ReplyKeyboardMarkup(k), result)
   of kReplyKeyboardRemove:
     if k.selective.get(false):
-      return "{'remove_keyboard': true, 'selective': true}"
+      result = "{'remove_keyboard': true, 'selective': true}"
     else:
-      return "{'remove_keyboard': true}"
+      result = "{'remove_keyboard': true}"
   of kForceReply:
-    if k.selective.get(false):
-      return "{'force_reply': true, 'selective': true}"
-    else:
-      return "{'force_reply': true}"
+      if k.selective.get(false):
+        result = "{'force_reply': true, 'selective': true}"
+      else:
+        result = "{'force_reply': true}"
+
+proc newLoginUrl*(url: string, forwardText = "", botUsername = "", requestWriteAccess = false): LoginUrl =
+  new(result)
+  result.url = url
+  if forwardText.len > 0:
+    result.forwardText = forwardText.some
+  if botUsername.len > 0:
+    result.botUsername = botUsername.some
+  if requestWriteAccess:
+    result.requestWriteAccess = requestWriteAccess.some

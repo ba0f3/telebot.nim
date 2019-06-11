@@ -158,6 +158,7 @@ type
   InlineKeyboardButton* = object
     text*: string
     url*: Option[string]
+    loginUrl*: Option[LoginUrl]
     callbackData*: Option[string]
     switchInlineQuery*: Option[string]
     switchInlineQueryCurrentChat*: Option[string]
@@ -172,15 +173,24 @@ type
 
   KeyboardMarkup* = ref object of TelegramObject
     selective*: Option[bool]
-    case `type`*: KeyboardKind
-    of kReplyKeyboardMarkup:
-      keyboard*: seq[seq[KeyboardButton]]
-      resizeKeyboard*: Option[bool]
-      oneTimeKeyboard*: Option[bool]
-    of kInlineKeyboardMarkup:
-      inlineKeyboard*: seq[seq[InlineKeyboardButton]]
-    else:
-      discard
+    `type`*: KeyboardKind
+
+  ReplyKeyboardMarkUp* = ref object of KeyboardMarkup
+    keyboard*: seq[seq[KeyboardButton]]
+    resizeKeyboard*: Option[bool]
+    oneTimeKeyboard*: Option[bool]
+
+  ReplyKeyboardRemove* = ref object of KeyboardMarkup
+  ForceReply* = ref object of KeyboardMarkup
+
+  InlineKeyboardMarkup* = ref object of KeyboardMarkup
+    inlineKeyboard*: seq[seq[InlineKeyboardButton]]
+
+  LoginUrl* = ref object of TelegramObject
+    url*: string
+    forwardText*: Option[string]
+    botUsername*: Option[string]
+    requestWriteAccess*: Option[bool]
 
   CallbackGame* = object of TelegramObject
 
@@ -243,6 +253,7 @@ type
     successfulPayment*: Option[SuccessfulPayment]
     connectedWebsite*: Option[string]
     passportData*: Option[PassportData]
+    replyMarkup*: Option[KeyboardMarkup]
 
   ChatPhoto* = object of TelegramObject
     smallFileId*: string

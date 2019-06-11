@@ -7,7 +7,7 @@ const
   API_URL* = "https://api.telegram.org/bot$#/"
   FILE_URL* = "https://api.telegram.org/file/bot$#/$#"
 
-macro END_POINT*(s: string): typed =
+macro END_POINT*(s: string) =
   result = parseStmt("const endpoint = \"" & API_URL & s.strVal & "\"")
 
 proc hasCommand*(update: Update): bool =
