@@ -172,10 +172,11 @@ type
     kInlineKeyboardMarkup
 
   KeyboardMarkup* = ref object of TelegramObject
-    selective*: Option[bool]
     `type`*: KeyboardKind
+    selective*: Option[bool]
 
-  ReplyKeyboardMarkUp* = ref object of KeyboardMarkup
+
+  ReplyKeyboardMarkup* = ref object of KeyboardMarkup
     keyboard*: seq[seq[KeyboardButton]]
     resizeKeyboard*: Option[bool]
     oneTimeKeyboard*: Option[bool]
@@ -253,7 +254,7 @@ type
     successfulPayment*: Option[SuccessfulPayment]
     connectedWebsite*: Option[string]
     passportData*: Option[PassportData]
-    replyMarkup*: Option[KeyboardMarkup]
+    replyMarkup*: Option[InlineKeyboardMarkup]
 
   ChatPhoto* = object of TelegramObject
     smallFileId*: string

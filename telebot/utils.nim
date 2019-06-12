@@ -138,6 +138,17 @@ proc unref*[T: TelegramObject](r: ref T, n: JsonNode ): ref T {.inline.} =
   new(result)
   result[] =  unmarshal(n, T)
 
+  # DIRTY hack to unmarshal keyboard markups
+  when result is InlineKeyboardMarkup:
+    result.type = kInlineKeyboardMarkup
+  elif result is ReplyKeyboardMarkup:
+    result.type = kReplyKeyboardMarkup
+  elif result is ReplyKeyboardRemove:
+    result.type = kReplyKeyboardRemove
+  elif result is ForceReply:
+    result.type = kForceReply
+
+
 proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
   when T is TelegramObject:
     o = some(unmarshal(n, T))

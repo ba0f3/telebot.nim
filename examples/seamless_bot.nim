@@ -16,13 +16,8 @@ proc loginHandler(b: Telebot, c: Command) {.async.} =
       message = newMessage(c.message.chat.id, "Welcome to Seamless Web Bots")
       loginButton = initInlineKeyBoardButton("Login")
     loginButton.loginUrl = some(newLoginUrl("https://huy.im"))
-    var json = newStringOfCap(1024)
-    marshal[LoginUrl](loginButton.loginUrl.get, json)
-
-    echo json
-
     message.replyMarkup = newInlineKeyboardMarkup(@[loginButton])
-    discard b.send(message)
+    discard await b.send(message)
 
 
 when isMainModule:
