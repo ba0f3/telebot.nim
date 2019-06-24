@@ -1,5 +1,6 @@
 import macros, httpclient, asyncdispatch, sam, strutils, types, options, logging, strtabs, random
 from json import escapeJson
+from streams import Stream, readAll
 
 randomize()
 
@@ -210,6 +211,9 @@ proc addData*(p: var MultipartData, name: string, content: auto, fileCheck = fal
       p.add(name, content)
   else:
     p.add(name, $content)
+
+proc addData*(p: var MultipartData, name: string, content: Stream, fileName = "", contentType = "") {.inline.} =
+  p.add(name, content.readAll(), fileName, contentType)
 
 proc uploadInputMedia*(p: var MultipartData, m: InputMedia) =
   var name = "file_upload_" & $rand(high(int))
