@@ -87,6 +87,8 @@ proc unmarshal*(n: JsonNode, T: typedesc): T =
       elif value.type is seq:
         for item in n[jsonKey]:
           put(value, item)
+      elif value.type is string:
+        value = escapeJson(n[jsonKey].toStr)
       else:
         value = to[value.type](n[jsonKey])
   elif result is seq:

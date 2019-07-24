@@ -22,4 +22,4 @@ proc inlineHandler(b: Telebot, u: InlineQuery) {.async.} =
 when isMainModule:
   let bot = newTeleBot(API_KEY)
   bot.onInlineQuery(inlineHandler)
-  bot.poll(timeout=300)
+  bot.poll(timeout=300, clean=true)
