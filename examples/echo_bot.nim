@@ -7,6 +7,8 @@ addHandler(L)
 const API_KEY = slurp("secret.key").strip()
 
 proc updateHandler(b: Telebot, u: Update) {.async.} =
+  if not u.message.isSome:
+    return
   var response = u.message.get
   if response.text.isSome:
     let text = response.text.get
