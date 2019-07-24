@@ -658,7 +658,9 @@ proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
     for cb in b.inlineQueryCallbacks:
       await cb(b, update.inlineQuery.get)
   elif update.hasCommand():
-    var userCommands = update.getCommands()
+    var
+      message = update.message.get
+    var userCommands = getCommands(message.entities.get, message.text.get)
     for command in userCommands.keys():
       if b.commandCallbacks.hasKey(command):
         var cmd: Command

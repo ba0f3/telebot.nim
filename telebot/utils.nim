@@ -12,35 +12,30 @@ macro END_POINT*(s: string) =
   result = parseStmt("const endpoint = \"" & API_URL & s.strVal & "\"")
 
 proc hasCommand*(update: Update): bool =
-  result = false
   if update.message.isSome:
     var message = update.message.get()
     if message.entities.isSome:
       var entities = message.entities.get()
+      echo entities
       for entity in entities:
         if entity.kind == "bot_command":
           return true
 
-proc getCommands*(update: Update): StringTableRef =
+proc getCommands*(entities: seq[MessageEntity], messageText: string): StringTableRef =
   result = newStringTable(modeCaseInsensitive)
-  if update.message.isSome:
-    var message = update.message.get()
-    if message.entities.isSome:
-      var entities = message.entities.get()
-      for entity in entities:
-        if entity.kind == "bot_command":
-          var
-            messageText = message.text.get()
-            offset = entity.offset
-            length = entity.length
-            command = message_text[(offset + 1)..<(offset + length)].strip()
+  for entity in entities:
+    if entity.kind == "bot_command":
+      var
+        offset = entity.offset
+        length = entity.length
+        command = messageText[(offset + 1)..<(offset + length)].strip()
 
-          if '@' in command:
-            command = command.split('@')[0]
+      if '@' in command:
+        command = command.split('@')[0]
 
-          var param = message_text[(offset + length)..^1]
-          param = param.split(Whitespace, 0).join().strip()
-          result[command] = param
+      var param = messageText[(offset + length)..^1]
+      param = param.split(Whitespace, 0).join().strip()
+      result[command] = param
 
 proc isSet*(value: any): bool {.inline.} =
   when value is string:
@@ -88,7 +83,7 @@ proc unmarshal*(n: JsonNode, T: typedesc): T =
         for item in n[jsonKey]:
           put(value, item)
       elif value.type is string:
-        value = escapeJson(n[jsonKey].toStr)
+        value = n[jsonKey].toStr
       else:
         value = to[value.type](n[jsonKey])
   elif result is seq:
