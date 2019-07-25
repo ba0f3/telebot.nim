@@ -16,7 +16,6 @@ proc hasCommand*(update: Update): bool =
     var message = update.message.get()
     if message.entities.isSome:
       var entities = message.entities.get()
-      echo entities
       for entity in entities:
         if entity.kind == "bot_command":
           return true
