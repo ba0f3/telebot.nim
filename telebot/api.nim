@@ -213,21 +213,16 @@ proc unbanChatMember*(b: TeleBot, chatId: string, userId: int): Future[bool] {.a
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
-proc restrictChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0, canSendMessages = false, canSendMediaMessages = false, canSendOtherMessages = false, canAddWebPagePreviews = false): Future[bool] {.async.} =
+proc restrictChatMember*(b: TeleBot, chatId: string, userId: int, permissions: ChatPermissions, untilDate = 0): Future[bool] {.async.} =
   END_POINT("restrictChatMember")
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
+  var json  = ""
+  marshal(permissions, json)
+  data["permisisons"] = json
   if untilDate > 0:
     data["until_date"] = $untilDate
-  if canSendMessages:
-    data["can_send_messages"] = "true"
-  if canSendMediaMessages:
-    data["can_send_media_messages"] = "true"
-  if canSendOtherMessages:
-    data["can_send_other_messages"] = "true"
-  if canAddWebPagePreviews:
-    data["can_add_web_page_previews"] = "true"
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
@@ -252,6 +247,16 @@ proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, canChangeInfo =
     data["can_pin_messages"] = "true"
   if canPromoteMembers:
     data["can_promote_members"] = "true"
+  let res = await makeRequest(b, endpoint % b.token, data)
+  result = res.toBool
+
+proc setChatPermissions*(b: TeleBot, chatId: string, permissions: ChatPermissions): Future[bool] {.async.} =
+  END_POINT("setChatPermissions")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  var json  = ""
+  marshal(permissions, json)
+  data["permisisons"] = json
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 

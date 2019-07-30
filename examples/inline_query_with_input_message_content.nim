@@ -17,6 +17,8 @@ proc inlineHandler(b: Telebot, u: InlineQuery) {.async.} =
   var results: seq[InlineQueryResultArticle]
   results.add(res)
 
+  echo u
+
   discard waitFor b.answerInlineQuery(u.id, results)
 
 when isMainModule:

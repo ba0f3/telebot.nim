@@ -41,11 +41,11 @@ type
     username*: Option[string]
     firstName*: Option[string]
     lastName*: Option[string]
-    allMembersAreAdministrators*: Option[bool]
     photo*: Option[ChatPhoto]
     description*: Option[string]
     inviteLink*: Option[string]
     pinnedMessage*: Option[ref Message]
+    permissions*: Option[ChatPermissions]
     stickerSetName*: Option[string]
     canSetStickerSet*: Option[bool]
 
@@ -75,13 +75,17 @@ type
     fileId*: string
     width*: int
     height*: int
+    isAnimated*: bool
     thumb*: Option[PhotoSize]
     emoji*: Option[string]
+    setName*: Option[string]
+    maskPosition*: Option[MaskPosition]
     fileSize*: Option[int]
 
   StickerSet* = object of TelegramObject
     name*: string
     title*: string
+    isAnimated*: bool
     containsMasks*: bool
     stickers*: seq[Sticker]
 
@@ -265,19 +269,30 @@ type
     status*: string
     untilDate*: Option[int]
     canBeEdited*: Option[bool]
-    canChangeInfo*: Option[bool]
     canPostMessages*: Option[bool]
     canEditMessages*: Option[bool]
     canDeleteMessages*: Option[bool]
-    canInviteUsers*: Option[bool]
     canRestrictMembers*: Option[bool]
-    canPinMessages*: Option[bool]
     canPromoteMembers*: Option[bool]
+    canChangeInfo*: Option[bool]
+    canInviteUsers*: Option[bool]
+    canPinMessages*: Option[bool]
     isMember*: Option[bool]
     canSendMessages*: Option[bool]
     canSendMediaMessages*: Option[bool]
+    canSendPolls*: Option[bool]
     canSendOtherMessages*: Option[bool]
     canAddWebPagePreviews*: Option[bool]
+
+  ChatPermissions* = object of TelegramObject
+    canSendMessages*: Option[bool]
+    canSendMediaMessages*: Option[bool]
+    canSendPolls*: Option[bool]
+    canSendOtherMessages*: Option[bool]
+    canAddWebPagePreviews*: Option[bool]
+    canChangeInfo*: Option[bool]
+    canInviteUsers*: Option[bool]
+    canPinMessages*: Option[bool]
 
   ResponseParameters* = object of TelegramObject
     migrateToChatId*: Option[int64]
