@@ -220,7 +220,7 @@ proc restrictChatMember*(b: TeleBot, chatId: string, userId: int, permissions: C
   data["user_id"] = $userId
   var json  = ""
   marshal(permissions, json)
-  data["permisisons"] = json
+  data["permissions"] = json
   if untilDate > 0:
     data["until_date"] = $untilDate
   let res = await makeRequest(b, endpoint % b.token, data)
@@ -256,7 +256,7 @@ proc setChatPermissions*(b: TeleBot, chatId: string, permissions: ChatPermission
   data["chat_id"] = chatId
   var json  = ""
   marshal(permissions, json)
-  data["permisisons"] = json
+  data["permissions"] = json
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
