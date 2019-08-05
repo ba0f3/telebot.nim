@@ -1,0 +1,16 @@
+import ../telebot, asyncdispatch, logging, options, sam
+from strutils import strip
+
+var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
+addHandler(L)
+
+const API_KEY = slurp("secret.key").strip()
+
+proc commandHandler(b: Telebot, c: Command) {.async.} =
+  discard await b.deleteMessage($c.message.chat.id, c.message.messageId)
+
+when isMainModule:
+  let bot = newTeleBot(API_KEY)
+
+  bot.onCommand("deleteme", commandHandler)
+  bot.poll(timeout=300)
