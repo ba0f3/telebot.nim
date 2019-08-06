@@ -126,7 +126,10 @@ proc marshal*[T](t: T, s: var string) =
       else:
         s.add($t)
     else:
-      s.add("null")
+      when t is bool:
+        s.add("false")
+      else:
+        s.add("null")
 
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.} =
   s.add(unmarshal(n, T))
