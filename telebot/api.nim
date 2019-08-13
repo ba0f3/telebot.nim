@@ -662,24 +662,20 @@ proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
   if update.inlineQuery.isSome:
     for cb in b.inlineQueryCallbacks:
       await cb(b, update.inlineQuery.get)
-  elif update.hasCommand():
-    var
-      message = update.message.get
-    var userCommands = getCommands(message.entities.get, message.text.get)
-    for command in userCommands.keys():
-      if b.commandCallbacks.hasKey(command):
-        var cmd: Command
-        cmd.message = update.message.get()
-        cmd.params = userCommands[command]
+  elif update.hasCommand(b.username):
+    if b.commandCallbacks.hasKey(command):
+      var cmd: Command
+      cmd.message = update.message.get()
+      cmd.params = params
 
-        for cb in b.commandCallbacks[command]:
-          await cb(b, cmd)
-      elif b.catchallCommandCallback != nil:
-        var cmd: CatchallCommand
-        cmd.command = command
-        cmd.message = update.message.get()
-        cmd.params = userCommands[command]
-        await b.catchallCommandCallback(b, cmd)
+      for cb in b.commandCallbacks[command]:
+        await cb(b, cmd)
+    elif b.catchallCommandCallback != nil:
+      var cmd: CatchallCommand
+      cmd.command = command
+      cmd.message = update.message.get()
+      cmd.params = params
+      await b.catchallCommandCallback(b, cmd)
   else:
     for cb in b.updateCallbacks:
       await cb(b, update)
@@ -690,6 +686,13 @@ proc cleanUpdates*(b: TeleBot) {.async.} =
     updates = await b.getUpdates()
 
 proc loop(b: TeleBot, timeout = 50, offset, limit = 0) {.async.} =
+  try:
+    let me = waitFor b.getMe()
+    if me.username.isSome:
+      b.username = me.username.get().toLowerAscii()
+  except IOError, OSError:
+    d("Unable to fetch my info ", getCurrentExceptionMsg())
+
   while true:
     let updates = await b.getUpdates(timeout=timeout, offset=offset, limit=limit)
     for item in updates:
