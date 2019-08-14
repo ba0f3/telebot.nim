@@ -28,7 +28,7 @@ template hasCommand*(update: Update, username: string): bool =
           offset = entities[0].offset
           length = entities[0].length
         command = messageText[(offset + 1)..<(offset + length)].strip()
-        params = messageText[(offset + length)..^1].splitWhitespace().join().strip()
+        params = messageText[(offset + length)..^1].strip()
         result = true
         if '@' in command:
           var parts = command.split('@')
