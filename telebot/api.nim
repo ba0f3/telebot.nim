@@ -1,4 +1,6 @@
 import httpclient, sam, asyncdispatch, utils, strutils, options, strtabs
+from tables import hasKey, `[]`
+import types, keyboard
 
 magic Message:
   chatId: int64

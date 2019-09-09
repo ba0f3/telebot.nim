@@ -1,5 +1,5 @@
-import asyncdispatch, httpclient, strutils, sam
-import utils, types
+import asyncdispatch, asynchttpserver, httpclient, strutils, sam, options
+import utils, types, api
 
 type
   WebhookInfo* = object
@@ -50,3 +50,27 @@ proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =
   END_POINT("getWebhookInfo")
   let res = await makeRequest(b, endpoint % b.token)
   result = getWebhookInfo(res)
+
+
+proc startWebhook*(b: Telebot, secret, url: string, port = 8080) =
+  try:
+    let me = waitFor b.getMe()
+    if me.username.isSome:
+      b.username = me.username.get().toLowerAscii()
+  except IOError, OSError:
+    d("Unable to fetch my info ", getCurrentExceptionMsg())
+
+  waitFor b.setWebhook(url)
+
+  proc callback(req: Request) {.async, gcsafe.} =
+    if req.url.path == "/" & secret:
+      let
+        json = parse(req.body)
+        update = unmarshal(json, Update)
+      await b.handleUpdate(update)
+      await req.respond(Http200, "OK")
+    else:
+      await req.respond(Http404, "Not Found")
+
+  var server = newAsyncHttpServer()
+  waitFor server.serve(port=port.Port, callback=callback)

@@ -1,4 +1,4 @@
-import types, sam, strutils, utils, options, tables
+import types, strutils, utils, options
 
 proc initKeyBoardButton*(text: string): KeyboardButton =
   result.text = text
