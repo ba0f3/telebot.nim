@@ -16,6 +16,7 @@ type
     catchallCommandCallback*: CatchallCommandCallback
     inlineQueryCallbacks*: seq[InlineQueryCallback]
     proxy*: Proxy
+    id*: int
     username*: string
 
   CatchallCommand* = object of TelegramObject

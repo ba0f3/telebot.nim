@@ -52,9 +52,10 @@ proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =
   result = getWebhookInfo(res)
 
 
-proc startWebhook*(b: Telebot, secret, url: string, port = 8080) =
+proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080)) =
   try:
     let me = waitFor b.getMe()
+    b.id = me.id
     if me.username.isSome:
       b.username = me.username.get().toLowerAscii()
   except IOError, OSError:
@@ -63,14 +64,20 @@ proc startWebhook*(b: Telebot, secret, url: string, port = 8080) =
   waitFor b.setWebhook(url)
 
   proc callback(req: Request) {.async, gcsafe.} =
+    d("GET: ", req.body)
     if req.url.path == "/" & secret:
-      let
-        json = parse(req.body)
-        update = unmarshal(json, Update)
-      await b.handleUpdate(update)
-      await req.respond(Http200, "OK")
+      try:
+        let
+          json = parse(req.body)
+          update = unmarshal(json, Update)
+        await b.handleUpdate(update)
+        await req.respond(Http200, "OK\n")
+      except:
+        await req.respond(Http500, "FAIL\n")
     else:
-      await req.respond(Http404, "Not Found")
+      await req.respond(Http404, "Not Found\n")
 
   var server = newAsyncHttpServer()
-  waitFor server.serve(port=port.Port, callback=callback)
+  d("Starting webhook, listens on port ", port.int)
+  d("URL: ", url)
+  waitFor server.serve(port=port, callback=callback)

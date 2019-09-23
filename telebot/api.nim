@@ -690,6 +690,7 @@ proc cleanUpdates*(b: TeleBot) {.async.} =
 proc loop(b: TeleBot, timeout = 50, offset, limit = 0) {.async.} =
   try:
     let me = waitFor b.getMe()
+    b.id = me.id
     if me.username.isSome:
       b.username = me.username.get().toLowerAscii()
   except IOError, OSError:
