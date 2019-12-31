@@ -1,4 +1,5 @@
 import asyncdispatch, asynchttpserver, httpclient, strutils, sam, options
+from asyncnet import close
 import utils, types, api
 
 type
@@ -26,7 +27,7 @@ proc getWebhookInfo(n: JsonNode): WebhookInfo =
   if n.hasKey("allowed_updates"):
     result.allowedUpdates = @[]
     for i in n["allowed_udpates"]:
-          result.allowedUpdates.add($i)
+      result.allowedUpdates.add($i)
 
 proc setWebhook*(b: TeleBot, url: string, certificate: string = "", maxConnections = -1, allowedUpdates: seq[string] = @[]) {.async.} =
   END_POINT("setWebhook")

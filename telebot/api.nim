@@ -637,6 +637,15 @@ proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
+proc setChatAdministratorCustomTitle*(b: TeleBot, chatId: string, userId: int, customTitle: string): Future[bool] {.async.} =
+  END_POINT("setChatAdministratorCustomTitle")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  data["user_id"] = $userId
+  data["custom_title"] = customTitle
+  let res = await makeRequest(b, endpoint % b.token, data)
+  result = res.toBool
+
 proc getUpdates*(b: TeleBot, offset, limit = 0, timeout = 50, allowedUpdates: seq[string] = @[]): Future[JsonNode] {.async.} =
   END_POINT("getUpdates")
   var data = newMultipartData()

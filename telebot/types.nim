@@ -48,17 +48,20 @@ type
     inviteLink*: Option[string]
     pinnedMessage*: Option[ref Message]
     permissions*: Option[ChatPermissions]
+    slowModeDelay*: Option[int]
     stickerSetName*: Option[string]
     canSetStickerSet*: Option[bool]
 
   PhotoSize* = object of TelegramObject
     fileId*: string
+    fileUniqueId*: string
     width*: int
     height*: int
     fileSize*: Option[int]
 
   Audio* = object of TelegramObject
     fileId*: string
+    fileUniqueId*: string
     duration*: int
     performer*: Option[string]
     title*: Option[string]
@@ -68,6 +71,7 @@ type
 
   Document* = object of TelegramObject
     fileId*: string
+    fileUniqueId*: string
     thumb*: Option[PhotoSize]
     fileName*: Option[string]
     mimeType*: Option[string]
@@ -75,6 +79,7 @@ type
 
   Sticker* = object of TelegramObject
     fileId*: string
+    fileUniqueId*: string
     width*: int
     height*: int
     isAnimated*: bool
@@ -99,6 +104,7 @@ type
 
   Video* = object of TelegramObject
     fileId*: string
+    fileUniqueId*: string
     width*: int
     height*: int
     duration*: int
@@ -108,12 +114,14 @@ type
 
   Voice* = object of TelegramObject
     fileId*: string
+    fileUniqueId*: string
     duration*: int
     mimeType*: Option[string]
     fileSize*: Option[int]
 
   VideoNote* = object of TelegramObject
     fileId*: string
+    fileUniqueId*: string
     length*: int
     duration*: int
     thumb*: Option[PhotoSize]
@@ -153,6 +161,7 @@ type
 
   File* = object of TelegramObject
     fileId*: string
+    fileUniqueId*: string
     fileSize*: Option[int]
     filePath*: Option[string]
 
@@ -264,11 +273,14 @@ type
 
   ChatPhoto* = object of TelegramObject
     smallFileId*: string
+    smallFileUniqueId*: string
     bigFileId*: string
+    bigFileUniqueId*: string
 
   ChatMember* = object of TelegramObject
     user*: User
     status*: string
+    customTitle*: Option[string]
     untilDate*: Option[int]
     canBeEdited*: Option[bool]
     canPostMessages*: Option[bool]
@@ -318,6 +330,7 @@ type
   #------------------
   Animation* = object of TelegramObject
     fileId*: string
+    fileUniqueId*: string
     thumb*: Option[PhotoSize]
     fileName*: Option[string]
     mimeType*: Option[string]
@@ -607,6 +620,7 @@ type
   #------------------
   PassportFile* = object of TelegramObject
     fileId*: string
+    fileUniqueId*: string
     fileSize*: int
     fileDate*: int
 
