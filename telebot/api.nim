@@ -705,5 +705,9 @@ proc loop(b: TeleBot, timeout = 50, offset, limit = 0) {.async.} =
 proc poll*(b: TeleBot, timeout = 50, offset, limit = 0, clean = false) =
   if clean:
     waitFor b.cleanUpdates()
-
   waitFor loop(b, timeout, offset, limit)
+
+proc pollAsync*(b: TeleBot, timeout = 50, offset, limit = 0, clean = false) {.async.} =
+  if clean:
+    await b.cleanUpdates()
+  await loop(b, timeout, offset, limit)
