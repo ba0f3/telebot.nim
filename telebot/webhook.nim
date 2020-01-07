@@ -1,5 +1,4 @@
 import asyncdispatch, asynchttpserver, httpclient, strutils, sam, options
-from asyncnet import close
 import utils, types, api
 
 type

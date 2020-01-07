@@ -174,7 +174,7 @@ proc initHttpClient(b: Telebot): AsyncHttpClient =
 proc makeRequest*(b: Telebot, endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
   d("Making request to ", endpoint)
   let client = initHttpClient(b)
-
+  defer: client.close()
   let r = await client.post(endpoint, multipart=data)
   if r.code == Http200 or r.code == Http400:
     var obj = parse(await r.body)
@@ -185,7 +185,6 @@ proc makeRequest*(b: Telebot, endpoint: string, data: MultipartData = nil): Futu
       raise newException(IOError, obj["description"].toStr)
   else:
     raise newException(IOError, r.status)
-  client.close()
 
 
 proc getMessage*(n: JsonNode): Message {.inline.} =
