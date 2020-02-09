@@ -147,6 +147,11 @@ magic Poll:
   chatId: int64
   question: string
   options: seq[string]
+  isAnonymous: bool {.optional.}
+  kind: string {.optional.}
+  allowsMultipleAnswers: bool {.optional.}
+  correctOptionId: int {.optional.}
+  isClosed: bool {.optional.}
   disableNotification: string {.optional.}
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}

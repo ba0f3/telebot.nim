@@ -35,6 +35,9 @@ type
     lastName*: Option[string]
     username*: Option[string]
     languageCode*: Option[string]
+    canJoinGroups: Option[bool]
+    canReadAllGroupMessages: Option[bool]
+    supportsInlineQueries: Option[bool]
 
   Chat* = object of TelegramObject
     id*: int64
@@ -149,11 +152,20 @@ type
     text*: string
     voterCount*: int
 
+  PollAnswer* = object of TelegramObject
+    pollId*: string
+    user*: User
+    optionIds*: seq[int]
+
   Poll* = object of TelegramObject
     id*: string
     question*: string
     options*: seq[PollOption]
     isClosed*: bool
+    totalVoterCount*: int
+    isAnonymous*: bool
+    allowsMultipleAnswers*: bool
+    correctOptionId*: int
 
   UserProfilePhotos* = object of TelegramObject
     totalCount*: int
@@ -169,6 +181,7 @@ type
     text*: string
     requestContact*: Option[bool]
     requestLocation*: Option[bool]
+    requestPoll*: KeyboardButtonPollType
 
   InlineKeyboardButton* = object
     text*: string
@@ -190,11 +203,13 @@ type
     `type`*: KeyboardKind
     selective*: Option[bool]
 
-
   ReplyKeyboardMarkup* = ref object of KeyboardMarkup
     keyboard*: seq[seq[KeyboardButton]]
     resizeKeyboard*: Option[bool]
     oneTimeKeyboard*: Option[bool]
+
+  KeyboardButtonPollType* = ref object of TelegramObject
+    kind*: string
 
   ReplyKeyboardRemove* = ref object of KeyboardMarkup
   ForceReply* = ref object of KeyboardMarkup
@@ -225,6 +240,7 @@ type
     length*: int
     url*: Option[string]
     user*: Option[User]
+    language*: Option[string]
 
   Message* = object of TelegramObject
     messageId*: int
@@ -324,6 +340,7 @@ type
     shippingQuery*: Option[ShippingQuery]
     preCheckoutQuery*: Option[PreCheckoutQuery]
     poll*: Option[Poll]
+    pollAnswer*: Option[PollAnswer]
 
   #------------------
   # Game

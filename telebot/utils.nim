@@ -186,7 +186,6 @@ proc makeRequest*(b: Telebot, endpoint: string, data: MultipartData = nil): Futu
   else:
     raise newException(IOError, r.status)
 
-
 proc getMessage*(n: JsonNode): Message {.inline.} =
   result = unmarshal(n, Message)
 
