@@ -73,7 +73,7 @@ proc formatName*(s: string): string =
 proc unmarshal*(n: JsonNode, T: typedesc): T =
   when result is object:
     for name, value in result.fieldPairs:
-      const jsonKey = formatName(name)
+      let jsonKey = formatName(name)
       when value.type is Option:
         if n.hasKey(jsonKey):
           toOption(value, n[jsonKey])

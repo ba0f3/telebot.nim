@@ -1,4 +1,4 @@
-import types, options
+import types
 
 # -------------
 # InputMessageContent

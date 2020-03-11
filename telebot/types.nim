@@ -3,10 +3,10 @@ import asyncdispatch, options, tables, httpclient
 type
   TelegramObject* = object of RootObj
 
-  UpdateCallback* = proc(bot: Telebot, update: Update): Future[void]
-  CommandCallback* = proc(bot: Telebot, command: Command): Future[void]
-  CatchallCommandCallback* = proc(bot: Telebot, command: CatchallCommand): Future[void]
-  InlineQueryCallback* = proc(bot: Telebot, inlineQuery: InlineQuery): Future[void]
+  UpdateCallback* = proc(bot: Telebot, update: Update): Future[void] {.gcsafe.}
+  CommandCallback* = proc(bot: Telebot, command: Command): Future[void] {.gcsafe.}
+  CatchallCommandCallback* = proc(bot: Telebot, command: CatchallCommand): Future[void] {.gcsafe.}
+  InlineQueryCallback* = proc(bot: Telebot, inlineQuery: InlineQuery): Future[void] {.gcsafe.}
 
   TeleBot* = ref object of TelegramObject
     token*: string

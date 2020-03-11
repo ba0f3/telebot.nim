@@ -63,7 +63,7 @@ proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080)) =
 
   waitFor b.setWebhook(url)
 
-  proc callback(req: Request) {.async, gcsafe.} =
+  proc callback(req: Request) {.async.} =
     d("GET: ", req.body)
     if req.url.path == "/" & secret:
       try:
