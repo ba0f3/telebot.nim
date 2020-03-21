@@ -12,29 +12,39 @@ macro END_POINT*(s: string) =
   result = parseStmt("const endpoint = \"" & API_URL & s.strVal & "\"")
 
 template hasCommand*(update: Update, username: string): bool =
-  var result = false
+  var
+    result = false
+    hasMessage = false
   when not declaredInScope(command):
     var
       command {.inject.} = ""
       params {.inject.} = ""
+      message {.inject.}: Message
   if update.message.isSome:
-    let message = update.message.get()
-    if message.entities.isSome:
+    hasMessage = true
+    message = update.message.get()
+  elif update.editedMessage.isSome:
+    hasMessage = true
+    message = update.editedMessage.get()
+  else:
+    result = false
+
+  if hasMessage and message.entities.isSome:
+    let
+      entities = message.entities.get()
+      messageText = message.text.get()
+    if entities[0].kind == "bot_command":
       let
-        entities = message.entities.get()
-        messageText = message.text.get()
-      if entities[0].kind == "bot_command":
-        let
-          offset = entities[0].offset
-          length = entities[0].length
-        command = messageText[(offset + 1)..<(offset + length)].strip()
-        params = messageText[(offset + length)..^1].strip()
-        result = true
-        if '@' in command:
-          var parts = command.split('@')
-          command = parts[0]
-          if (parts.len == 2 and parts[1].toLowerAscii != username):
-            result = false
+        offset = entities[0].offset
+        length = entities[0].length
+      command = messageText[(offset + 1)..<(offset + length)].strip()
+      params = messageText[(offset + length)..^1].strip()
+      result = true
+      if '@' in command:
+        var parts = command.split('@')
+        command = parts[0]
+        if (parts.len == 2 and parts[1].toLowerAscii != username):
+          result = false
   result
 
 proc isSet*(value: any): bool {.inline.} =

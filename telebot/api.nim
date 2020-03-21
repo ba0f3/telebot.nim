@@ -681,7 +681,7 @@ proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
   elif update.hasCommand(b.username):
     if b.commandCallbacks.hasKey(command):
       var cmd: Command
-      cmd.message = update.message.get()
+      cmd.message = message
       cmd.params = params
 
       for cb in b.commandCallbacks[command]:
@@ -689,7 +689,7 @@ proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
     elif b.catchallCommandCallback != nil:
       var cmd: CatchallCommand
       cmd.command = command
-      cmd.message = update.message.get()
+      cmd.message = message
       cmd.params = params
       await b.catchallCommandCallback(b, cmd)
   else:
