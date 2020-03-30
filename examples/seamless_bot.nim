@@ -1,4 +1,4 @@
-import ../telebot, asyncdispatch, logging, options, sam, telebot/utils
+import telebot, asyncdispatch, logging, options
 from strutils import strip
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
@@ -12,16 +12,13 @@ const API_KEY = slurp("secret.key").strip()
 ]#
 
 proc loginHandler(b: Telebot, c: Command) {.async.} =
-    var
-      message = newMessage(c.message.chat.id, "Welcome to Seamless Web Bots")
-      loginButton = initInlineKeyBoardButton("Login")
-    loginButton.loginUrl = some(newLoginUrl("https://huy.im"))
-    message.replyMarkup = newInlineKeyboardMarkup(@[loginButton])
-    discard await b.send(message)
+  var loginButton = initInlineKeyBoardButton("Login")
+  loginButton.loginUrl = some(newLoginUrl("https://huy.im"))
+  discard await b.sendMessage(c.message.chat.id, "Welcome to Seamless Web Bots", replyMarkup = newInlineKeyboardMarkup(@[loginButton]))
 
 
 when isMainModule:
-    let bot = newTeleBot(API_KEY)
+  let bot = newTeleBot(API_KEY)
 
-    bot.onCommand("login", loginHandler)
-    bot.poll(timeout=300)
+  bot.onCommand("login", loginHandler)
+  bot.poll(timeout=300)

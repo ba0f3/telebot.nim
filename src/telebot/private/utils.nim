@@ -8,8 +8,10 @@ const
   API_URL* = "https://api.telegram.org/bot$#/"
   FILE_URL* = "https://api.telegram.org/file/bot$#/$#"
 
-macro END_POINT*(s: string) =
-  result = parseStmt("const endpoint = \"" & API_URL & s.strVal & "\"")
+#macro END_POINT*(s: static[string]) =
+#  result = parseStmt("const endpoint = \"" & API_URL & s & "\"")
+template END_POINT*(`method`: string) =
+  let endpoint {.used, inject.} = API_URL & `method`
 
 template hasCommand*(update: Update, username: string): bool =
   var
@@ -278,7 +280,7 @@ macro magic*(head, body: untyped): untyped =
     objSendProcParams = objSendProc[3]
     objSendProcBody = objSendProc[6]
 
-  objSendProc[4] = newNimNode(nnkPragma).add(ident("async"), ident("discardable"))
+  objSendProc[4] = newNimNode(nnkPragma).add(ident("async"), ident("discardable"), ident("deprecated"))
 
   objectTy.add(objParamList)
   objInitProcParams.add(ident(objName))

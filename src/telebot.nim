@@ -1,6 +1,6 @@
 import tables, httpclient
 
-import telebot/[types, keyboard, webhook, inputmedia, helpers]
+import telebot/private/[types, keyboard, webhook, inputmedia, helpers]
 export types, webhook, keyboard, inputmedia, helpers
 
 proc setProxy*(b: Telebot, url: string, auth = "") {.inline.} =
@@ -12,5 +12,5 @@ proc newTeleBot*(token: string): TeleBot =
   result.token = token
   result.commandCallbacks = newTable[string, seq[CommandCallback]]()
 
-include telebot/api
-include telebot/events
+include telebot/private/api
+include telebot/private/events

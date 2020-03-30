@@ -1,4 +1,4 @@
-import ../telebot, asyncdispatch, logging, options
+import telebot, asyncdispatch, logging, options
 from strutils import strip
 
 var L = newConsoleLogger()
@@ -6,16 +6,12 @@ addHandler(L)
 
 const API_KEY = slurp("secret.key").strip()
 
-var updates: seq[Update]
-
-
 proc updateHandler(bot: TeleBot, e: Update) {.async.} =
   var response = e.message.get
   if response.text.isSome:
     let
       text = response.text.get
     var
-      message = newMessage(response.chat.id, text)
       google = initInlineKeyboardButton("Google")
       bing = initInlineKeyboardButton("Bing")
       ddg = initInlineKeyboardButton("DuckDuckGo")
@@ -26,8 +22,9 @@ proc updateHandler(bot: TeleBot, e: Update) {.async.} =
     ddg.url = some("https://duckduckgo.com/?q=" & text)
     searx.url = some("https://searx.me/?q=" & text)
 
-    message.replyMarkup = newInlineKeyboardMarkup(@[google, bing], @[ddg, searx])
-    discard await bot.send(message)
+    let replyMarkup = newInlineKeyboardMarkup(@[google, bing], @[ddg, searx])
+
+    discard await bot.sendMessage(response.chat.id, text, replyMarkup = replyMarkup)
 
 when isMainModule:
   let bot = newTeleBot(API_KEY)

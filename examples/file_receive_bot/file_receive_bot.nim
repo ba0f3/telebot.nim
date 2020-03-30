@@ -23,11 +23,9 @@ proc updateHandler(bot: TeleBot, e: Update) {.async.} =
       responx = await newAsyncHttpClient().get(api_file & file_path)  # file_path > file
       file_content = await responx.body
       msg0_text = fmt"file_name: {file_name}, mime_type: {mime_type}, file_id: {file_id}, file_size: {file_size}, file_path: {file_path}"
-    var
-      message0 = newMessage(response.chat.id, msg0_text)    # metadata
-      message1 = newMessage(response.chat.id, file_content) # file contents
-    discard await bot.send(message0)
-    discard await bot.send(message1)
+
+    discard await bot.sendMessage(response.chat.id, msg0_text)
+    discard await bot.sendMessage(response.chat.id, file_content)
 
 let bot = newTeleBot(API_KEY)
 

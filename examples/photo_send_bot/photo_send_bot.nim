@@ -1,14 +1,13 @@
 import telebot, asyncdispatch, options, logging, os
 
 
-const API_KEY = slurp("secret.key")
+const API_KEY = slurp("../secret.key")
 
 
 addHandler(newConsoleLogger(fmtStr="$levelname, [$time] "))
 
 proc updateHandler(bot: TeleBot, e: Update) {.async.} =
-  let message = newPhoto(e.message.get.chat.id, "file://" & getCurrentDir() & "/sample.jpg")
-  discard await bot.send(message)
+  discard await bot.sendPhoto(e.message.get.chat.id, "file://" & getAppDir() & "/sample.jpg")
 
 let bot = newTeleBot(API_KEY)
 
