@@ -156,6 +156,12 @@ magic Poll:
   replyToMessageId: int {.optional.}
   replyMarkup: KeyboardMarkup {.optional.}
 
+magic Dice:
+  chatId: int64
+  disableNotification: string {.optional.}
+  replyToMessageId: int {.optional.}
+  replyMarkup: KeyboardMarkup {.optional.}
+
 proc getMe*(b: TeleBot): Future[User] {.async.} =
   ## Returns basic information about the bot in form of a ``User`` object.
   END_POINT("getMe")
@@ -376,13 +382,18 @@ proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: string): Future[typ
   let res = await makeRequest(b, endpoint % b.token, data)
   result = unmarshal(res, types.File)
 
-proc createNewStickerSet*(b: TeleBot, userId: int, name: string, title: string, pngSticker: string, emojis: string, containsMasks = false, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
+proc createNewStickerSet*(b: TeleBot, userId: int, name: string, title: string, pngSticker: string, tgsSticker: string, emojis: string, containsMasks = false, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
   END_POINT("createNewStickerSet")
   var data = newMultipartData()
   data["user_id"] = $userId
   data["name"] = name
   data["title"] = title
-  data.addFiles({"png_sticker": pngSticker})
+  if pngSticker.len != 0:
+    data.addFiles({"png_sticker": pngSticker})
+  elif tgsSticker.len != 0:
+    data.addFiles({"tgs_sticker": tgsSticker})
+  else:
+    raise newException(ValueError, "Either png_sticker or tgs_sticker must be set")
   data["emojis"] = emojis
   if containsMasks:
     data["contains_masks"] = "true"
@@ -393,12 +404,17 @@ proc createNewStickerSet*(b: TeleBot, userId: int, name: string, title: string, 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
-proc addStickerToSet*(b: TeleBot, userId: int, name: string, pngSticker: string, emojis: string, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
+proc addStickerToSet*(b: TeleBot, userId: int, name: string, pngSticker: string, tgsSticker: string, emojis: string, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
   END_POINT("addStickerToSet")
   var data = newMultipartData()
   data["user_id"] = $userId
   data["name"] = name
-  data.addFiles({"png_sticker": pngSticker})
+  if pngSticker.len != 0:
+    data.addFiles({"png_sticker": pngSticker})
+  elif tgsSticker.len != 0:
+    data.addFiles({"tgs_sticker": tgsSticker})
+  else:
+    raise newException(ValueError, "Either png_sticker or tgs_sticker must be set")
   data["emojis"] = emojis
   if maskPosition.isSome():
     var tmp = ""
@@ -419,6 +435,17 @@ proc deleteStickerFromSet*(b: TeleBot, sticker: string): Future[bool] {.async.} 
   END_POINT("deleteStickerFromSet")
   var data = newMultipartData()
   data["sticker"] = sticker
+  let res = await makeRequest(b, endpoint % b.token, data)
+  result = res.toBool
+
+proc setStickerSetThumb*(b: TeleBot, name: string, userId: int, thumb = ""): Future[bool] {.async.} =
+  END_POINT("setStickerSetThumb")
+  var data = newMultipartData()
+  data["name"] = name
+  data["user_id"] = $userId
+  if thumb.len != 0:
+    data.addFiles({"thumb": thumb})
+
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
@@ -615,6 +642,22 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
+
+proc setMyCommands*(b: TeleBot, commands: seq[BotCommand]): Future[bool] {.async.} =
+  END_POINT("setMyCommands")
+  var data = newMultipartData()
+  var json  = ""
+  marshal(commands, json)
+  data["commands"] = json
+
+  let res = await makeRequest(b, endpoint % b.token, data)
+  result = res.toBool
+
+proc getMyCommands*(b: TeleBot): Future[seq[BotCommand]] {.async.} =
+  END_POINT("etMyCommands")
+
+  let res = await makeRequest(b, endpoint % b.token)
+  result = unmarshal(res, seq[BotCommand])
 
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   const endpoint = API_URL & "answerInlineQuery"

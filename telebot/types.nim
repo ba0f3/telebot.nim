@@ -98,6 +98,7 @@ type
     isAnimated*: bool
     containsMasks*: bool
     stickers*: seq[Sticker]
+    thumb*: Option[PhotoSize]
 
   MaskPosition* = object of TelegramObject
     point*: string
@@ -170,6 +171,9 @@ type
   UserProfilePhotos* = object of TelegramObject
     totalCount*: int
     photos*: seq[seq[PhotoSize]]
+
+  Dice* = object of TelegramObject
+    value*: int
 
   File* = object of TelegramObject
     fileId*: string
@@ -273,6 +277,7 @@ type
     location*: Option[Location]
     venue*: Option[Venue]
     poll*: Option[Poll]
+    dice*: Option[Dice]
     newChatMembers*: Option[seq[User]]
     newChatMember*: Option[User]
     leftChatMember*: Option[User]
@@ -323,6 +328,10 @@ type
     canChangeInfo*: Option[bool]
     canInviteUsers*: Option[bool]
     canPinMessages*: Option[bool]
+
+  BotCommand* = object of TelegramObject
+    command*: string
+    description*: string
 
   ResponseParameters* = object of TelegramObject
     migrateToChatId*: Option[int64]
