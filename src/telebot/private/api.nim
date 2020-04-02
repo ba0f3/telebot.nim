@@ -870,7 +870,7 @@ proc setMyCommands*(b: TeleBot, commands: seq[BotCommand]): Future[bool] {.async
   result = res.toBool
 
 proc getMyCommands*(b: TeleBot): Future[seq[BotCommand]] {.async.} =
-  END_POINT("etMyCommands")
+  END_POINT("getMyCommands")
 
   let res = await makeRequest(b, endpoint % b.token)
   result = unmarshal(res, seq[BotCommand])
