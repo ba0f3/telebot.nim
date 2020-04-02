@@ -371,6 +371,9 @@ proc sendDice*(b: TeleBot, chatId: int64, disableNotification = false, replyToMe
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
+  let res = await makeRequest(b, endpoint % b.token, data)
+  result = getMessage(res)
+
 proc getMe*(b: TeleBot): Future[User] {.async.} =
   ## Returns basic information about the bot in form of a ``User`` object.
   END_POINT("getMe")
