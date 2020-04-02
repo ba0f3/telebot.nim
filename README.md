@@ -23,9 +23,10 @@ addHandler(L)
 
 const API_KEY = slurp("secret.key")
 
-proc updateHandler(b: Telebot, u: Update) {.async.} =
+proc updateHandler(b: Telebot, u: Update): Future[bool] {.async.} =
   if not u.message.isSome:
-    return
+    # return true will make bot stop process other callbacks
+    return true
   var response = u.message.get
   if response.text.isSome:
     let text = response.text.get
@@ -43,7 +44,7 @@ import telebot, asyncdispatch, options, logging
 
 const API_KEY = slurp("secret.key")
 
-proc updateHandler(bot: TeleBot, update: Update): UpdateCallback =
+proc updateHandler(bot: TeleBot, update: Update): Future[bool] {.async.} =
   discard await bot.sendPhoto(response.chat.id, "file:///path/to/photo.jpg")
 
 let bot = newTeleBot(API_KEY)

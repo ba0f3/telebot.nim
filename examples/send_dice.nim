@@ -6,7 +6,7 @@ addHandler(L)
 
 const API_KEY = slurp("secret.key").strip()
 
-proc commandHandler(b: Telebot, c: Command) {.async.} =
+proc commandHandler(b: Telebot, c: Command): Future[bool] {.async.} =
   discard await b.sendDice(c.message.chat.id)
 
 when isMainModule:

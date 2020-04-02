@@ -934,26 +934,28 @@ proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
   if update.updateId > b.lastUpdateId:
     b.lastUpdateId = update.updateId
 
+  # stop process other callbacks if a callback returns true
+  var stop = false
   if update.inlineQuery.isSome:
     for cb in b.inlineQueryCallbacks:
-      await cb(b, update.inlineQuery.get)
+      stop = await cb(b, update.inlineQuery.get)
+      if stop: break
   elif update.hasCommand(b.username):
+    var cmd = Command(
+      command: command,
+      message: message,
+      params: params
+    )
     if b.commandCallbacks.hasKey(command):
-      var cmd: Command
-      cmd.message = message
-      cmd.params = params
-
       for cb in b.commandCallbacks[command]:
-        await cb(b, cmd)
+        stop = await cb(b, cmd)
+        if stop: break
     elif b.catchallCommandCallback != nil:
-      var cmd: CatchallCommand
-      cmd.command = command
-      cmd.message = message
-      cmd.params = params
-      await b.catchallCommandCallback(b, cmd)
-  else:
+      stop = await b.catchallCommandCallback(b, cmd)
+  if not stop:
     for cb in b.updateCallbacks:
-      await cb(b, update)
+      stop = await cb(b, update)
+      if stop: break
 
 proc cleanUpdates*(b: TeleBot) {.async.} =
   var updates = await b.getUpdates(timeout=0)
