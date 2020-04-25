@@ -8,8 +8,6 @@ const
   API_URL* = "https://api.telegram.org/bot$#/"
   FILE_URL* = "https://api.telegram.org/file/bot$#/$#"
 
-#macro END_POINT*(s: static[string]) =
-#  result = parseStmt("const endpoint = \"" & API_URL & s & "\"")
 template END_POINT*(`method`: string) =
   let endpoint {.used, inject.} = API_URL & `method`
 

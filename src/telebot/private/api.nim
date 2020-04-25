@@ -331,7 +331,8 @@ proc sendAnimation*(b: TeleBot, chatId: int64, animation: string, duration = 0, 
   result = getMessage(res)
 
 proc sendPoll*(b: TeleBot, chatId: int64, question: string, options: seq[string], isAnonymous = false, kind = "",
-               allowsMultipleAnswers = false, correctOptionId = 0, isClosed = false,
+               allowsMultipleAnswers = false, correctOptionId = 0, explanation = "", explanationParseMode = "",
+               openPeriod = 0, closeDate = 0, isClosed = false,
                disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendPoll")
   var data = newMultipartData()
@@ -347,6 +348,14 @@ proc sendPoll*(b: TeleBot, chatId: int64, question: string, options: seq[string]
     data["allows_multiple_answers"] = "true"
   if correctOptionId != 0:
     data["correct_option_id"] = $correctOptionId
+  if explanation.len != 0:
+    data["explanation"] = explanation
+  if explanationParseMode.len != 0:
+    data["explanation_parse_mode"] = explanationParseMode
+  if openPeriod != 0:
+    data["open_period"] = $openPeriod
+  if closeDate != 0:
+    data["close_date"] = $closeDate
   if isClosed:
     data["is_closed"] = "true"
   if disableNotification:
@@ -359,11 +368,13 @@ proc sendPoll*(b: TeleBot, chatId: int64, question: string, options: seq[string]
   let res = await makeRequest(b, endpoint % b.token, data)
   result = getMessage(res)
 
-proc sendDice*(b: TeleBot, chatId: int64, disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendDice*(b: TeleBot, chatId: int64, emoji = "", disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendDice")
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
+  if emoji.len != 0:
+    data["emoji"] = emoji
   if disableNotification:
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
@@ -931,9 +942,6 @@ proc getUpdates*(b: TeleBot, offset, limit = 0, timeout = 50, allowedUpdates: se
     b.lastUpdateId = result[result.len - 1]["update_id"].toInt
 
 proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
-  if update.updateId > b.lastUpdateId:
-    b.lastUpdateId = update.updateId
-
   # stop process other callbacks if a callback returns true
   var stop = false
   if update.inlineQuery.isSome:

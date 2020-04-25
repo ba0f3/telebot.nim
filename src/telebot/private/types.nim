@@ -1,5 +1,8 @@
 import asyncdispatch, options, tables, httpclient
 
+
+converter optionToBool*[T](o: Option[T]): bool = o.isSome()
+
 type
   TelegramObject* = object of RootObj
 
@@ -158,17 +161,23 @@ type
     id*: string
     question*: string
     options*: seq[PollOption]
-    isClosed*: bool
     totalVoterCount*: int
+    isClosed*: bool
     isAnonymous*: bool
+    kind*: string
     allowsMultipleAnswers*: bool
     correctOptionId*: int
+    explanation*: Option[string]
+    explanationEntities*: Option[seq[MessageEntity]]
+    openPeriod*: Option[int]
+    closeDate*: Option[int]
 
   UserProfilePhotos* = object of TelegramObject
     totalCount*: int
     photos*: seq[seq[PhotoSize]]
 
   Dice* = object of TelegramObject
+    emoji*: string
     value*: int
 
   File* = object of TelegramObject

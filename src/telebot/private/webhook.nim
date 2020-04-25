@@ -52,7 +52,7 @@ proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =
   result = getWebhookInfo(res)
 
 
-proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080)) =
+proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080), clean = false) =
   try:
     let me = waitFor b.getMe()
     b.id = me.id
