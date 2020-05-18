@@ -64,6 +64,7 @@ proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080), clean = fal
   waitFor b.setWebhook(url)
 
   proc callback(req: Request) {.async.} =
+    let headers = newHttpHeaders([("content-type", "text/plain")])
     d("GET: ", req.body)
     if req.url.path == "/" & secret:
       try:
@@ -71,11 +72,11 @@ proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080), clean = fal
           json = parse(req.body)
           update = unmarshal(json, Update)
         await b.handleUpdate(update)
-        await req.respond(Http200, "OK\n")
+        await req.respond(Http200, "OK\n", headers)
       except:
-        await req.respond(Http500, "FAIL\n")
+        await req.respond(Http500, "FAIL\n", headers)
     else:
-      await req.respond(Http404, "Not Found\n")
+      await req.respond(Http404, "Not Found\n", headers)
 
   var server = newAsyncHttpServer()
   d("Starting webhook, listens on port ", port.int)
