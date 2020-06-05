@@ -263,6 +263,7 @@ type
     forwardSenderName*: Option[string]
     forwardDate*: Option[int]
     replyToMessage*: Option[ref Message]
+    viaBot*: Option[User]
     editDate*: Option[int]
     authorSignature*: Option[string]
     caption*: Option[string]
