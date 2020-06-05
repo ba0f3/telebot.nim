@@ -190,7 +190,7 @@ type
     text*: string
     requestContact*: Option[bool]
     requestLocation*: Option[bool]
-    requestPoll*: KeyboardButtonPollType
+    requestPoll*: Option[KeyboardButtonPollType]
 
   InlineKeyboardButton* = object
     text*: string
