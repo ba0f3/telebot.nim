@@ -6,6 +6,7 @@ type
     url*: string
     hasCustomCertificate*: bool
     pendingUpdateCount*: int
+    ipAddress*: string
     lastErrorDate*: int
     lastErrorMessage*: string
     maxConnections*: int
@@ -15,6 +16,8 @@ proc getWebhookInfo(n: JsonNode): WebhookInfo =
   result.url = $n["url"]
   result.hasCustomCertificate = n["has_custom_certificate"].toBool
   result.pendingUpdateCount = n["pending_update_count"].toInt
+  if n.hasKey("ip_address"):
+    result.ipAddress = $n["ip_address"]
   if n.hasKey("last_error_date"):
     result.lastErrorDate = n["last_error_date"].toInt
   if n.hasKey("last_error_message"):
@@ -28,22 +31,29 @@ proc getWebhookInfo(n: JsonNode): WebhookInfo =
     for i in n["allowed_udpates"]:
       result.allowedUpdates.add($i)
 
-proc setWebhook*(b: TeleBot, url: string, certificate = "", maxConnections = -1, allowedUpdates: seq[string] = @[]) {.async.} =
+proc setWebhook*(b: TeleBot, url: string, certificate = "", ipAddress = "", maxConnections = -1, allowedUpdates: seq[string] = @[], dropPendingUpdates = false) {.async.} =
   END_POINT("setWebhook")
   var data = newMultipartData()
   data["url"] = url
   if certificate.len > 0:
     data.addData("certificate", certificate, true)
+  if ipAddress.len > 0:
+    data.addData("ip_address", ipAddress, true)
   if maxConnections > 0 and maxConnections != 40:
     data["max_connections"] = $maxConnections
   if allowedUpdates.len > 0:
     data["allowed_updates"] = $allowedUpdates
+  if dropPendingUpdates:
+    data["drop_pending_updates"] = "true"
 
   discard await makeRequest(b, endpoint % b.token, data)
 
-proc deleteWebhook*(b: TeleBot): Future[bool] {.async.} =
+proc deleteWebhook*(b: TeleBot, dropPendingUpdates = false): Future[bool] {.async.} =
   END_POINT("deleteWebhook")
-  let res = await makeRequest(b, endpoint % b.token)
+  var data = newMultipartData()
+  if dropPendingUpdates:
+    data["drop_pending_updates"] = "true"
+  let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
 proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =

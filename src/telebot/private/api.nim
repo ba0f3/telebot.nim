@@ -2,8 +2,9 @@ import httpclient, sam, asyncdispatch, utils, strutils, options, strtabs
 from tables import hasKey, `[]`
 import types, keyboard
 
-proc sendMessage*(b: TeleBot, chatId: int64, text: string, parseMode = "", disableWebPagePreview = false,
-                  disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendMessage*(b: TeleBot, chatId: int64, text: string, parseMode = "", entities: seq[MessageEntity],
+                  disableWebPagePreview = false, disableNotification = false, replyToMessageId = 0,
+                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendMessage")
   var data = newMultipartData()
 
@@ -11,20 +12,27 @@ proc sendMessage*(b: TeleBot, chatId: int64, text: string, parseMode = "", disab
   data["text"] = text
   if parseMode.len != 0:
     data["parse_mode"] = parseMode
+  if entities.len != 0:
+    var json = ""
+    marshal(entities, json)
+    data["entities"] = json
   if disableWebPagePreview:
     data["disable_web_page_preview"]  = "true"
   if disableNotification:
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = getMessage(res)
 
-proc sendPhoto*(b: TeleBot, chatId: int64, photo: string, caption = "",
-                disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendPhoto*(b: TeleBot, chatId: int64, photo: string, caption = "", parseMode = "",
+                captionEntities: seq[MessageEntity] = @[], disableNotification = false, replyToMessageId = 0,
+                allowSendingWithoutReply = false,replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendPhoto")
   var data = newMultipartData()
 
@@ -32,18 +40,27 @@ proc sendPhoto*(b: TeleBot, chatId: int64, photo: string, caption = "",
   data.addData("photo", photo, true)
   if caption.len != 0:
     data["caption"] = caption
+  if parseMode.len != 0:
+    data["parse_mode"] = parseMode
+  if captionEntities.len != 0:
+    var json = ""
+    marshal(captionEntities, json)
+    data["caption_entities"] = json
   if disableNotification:
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = getMessage(res)
 
-proc sendAudio*(b: TeleBot, chatId: int64, audio: string, caption = "", duration = 0, performer = "", title = "", thumb = "",
-                disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendAudio*(b: TeleBot, chatId: int64, audio: string, caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[],
+                duration = 0, performer = "", title = "", thumb = "", disableNotification = false, replyToMessageId = 0,
+                allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendAudio")
   var data = newMultipartData()
 
@@ -51,6 +68,12 @@ proc sendAudio*(b: TeleBot, chatId: int64, audio: string, caption = "", duration
   data.addData("audio", audio, true)
   if caption.len != 0:
     data["caption"] = caption
+  if parseMode.len != 0:
+    data["parse_mode"] = parseMode
+  if captionEntities.len != 0:
+    var json = ""
+    marshal(captionEntities, json)
+    data["caption_entities"] = json
   if duration != 0:
     data["duration"] = $duration
   if performer.len != 0:
@@ -63,14 +86,17 @@ proc sendAudio*(b: TeleBot, chatId: int64, audio: string, caption = "", duration
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = getMessage(res)
 
-proc sendDocument*(b: TeleBot, chatId: int64, document: string, thumb = "", caption = "", parseMode = "",
-                   disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendDocument*(b: TeleBot, chatId: int64, document: string, thumb = "", caption = "",
+                   disableContentTypeDetection = false, parseMode = "", captionEntities: seq[MessageEntity] = @[], disableNotification = false,
+                   replyToMessageId = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendDocument")
   var data = newMultipartData()
 
@@ -80,19 +106,28 @@ proc sendDocument*(b: TeleBot, chatId: int64, document: string, thumb = "", capt
     data.addData("thumb", thumb, true)
   if caption.len != 0:
     data["caption"] = caption
+  if disableContentTypeDetection:
+    data["disableContentTypeDetection"] = "true"
   if parseMode.len != 0:
     data["parse_mode"] = parseMode
+  if captionEntities.len != 0:
+    var json = ""
+    marshal(captionEntities, json)
+    data["caption_entities"] = json
   if disableNotification:
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = getMessage(res)
 
-proc sendSticker*(b: TeleBot, chatId: int64, sticker: string, disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendSticker*(b: TeleBot, chatId: int64, sticker: string, disableNotification = false, replyToMessageId = 0,
+                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendSticker")
   var data = newMultipartData()
 
@@ -102,14 +137,17 @@ proc sendSticker*(b: TeleBot, chatId: int64, sticker: string, disableNotificatio
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = getMessage(res)
 
-proc sendVideo*(b: TeleBot, chatId: int64, video: string, duration = 0, width = 0, height = 0, thumb = "", caption = "", parseMode = "", supportsStreaming = false,
-                disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendVideo*(b: TeleBot, chatId: int64, video: string, duration = 0, width = 0, height = 0, thumb = "", caption = "",
+                parseMode = "", captionEntities: seq[MessageEntity] = @[], supportsStreaming = false, disableNotification = false,
+                replyToMessageId = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendVideo")
   var data = newMultipartData()
 
@@ -127,20 +165,27 @@ proc sendVideo*(b: TeleBot, chatId: int64, video: string, duration = 0, width = 
     data["caption"] = caption
   if parseMode.len != 0:
     data["parse_mode"] = parseMode
+  if captionEntities.len != 0:
+    var json = ""
+    marshal(captionEntities, json)
+    data["caption_entities"] = json
   if supportsStreaming:
     data["supports_streaming"] = "true"
   if disableNotification:
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = getMessage(res)
 
-proc sendVoice*(b: TeleBot, chatId: int64, voice: string, caption = "", duration = 0,
-                disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendVoice*(b: TeleBot, chatId: int64, voice: string, caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[],
+                duration = 0, disableNotification = false, replyToMessageId = 0,
+                allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendVoice")
   var data = newMultipartData()
 
@@ -148,12 +193,20 @@ proc sendVoice*(b: TeleBot, chatId: int64, voice: string, caption = "", duration
   data.addData("voice", voice, true)
   if caption.len != 0:
     data["caption"] = caption
+  if parseMode.len != 0:
+    data["parse_mode"] = parseMode
+  if captionEntities.len != 0:
+    var json = ""
+    marshal(captionEntities, json)
+    data["caption_entities"] = json
   if duration != 0:
     data["duration"] = $duration
   if disableNotification:
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
@@ -161,7 +214,8 @@ proc sendVoice*(b: TeleBot, chatId: int64, voice: string, caption = "", duration
   result = getMessage(res)
 
 proc sendVideoNote*(b: TeleBot, chatId: int64, videoNote: string, duration = 0, length = 0, thumb = "",
-                    disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                    disableNotification = false, replyToMessageId = 0,
+                    allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendVideoNote")
   var data = newMultipartData()
 
@@ -177,6 +231,8 @@ proc sendVideoNote*(b: TeleBot, chatId: int64, videoNote: string, duration = 0, 
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
@@ -184,7 +240,8 @@ proc sendVideoNote*(b: TeleBot, chatId: int64, videoNote: string, duration = 0, 
   result = getMessage(res)
 
 proc sendLocation*(b: TeleBot, chatId: int64, latitude: float, longitude: float, livePeriod = 0,
-                   disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                   heading = 0, proximityAlertRadius = 0, disableNotification = false,
+                   replyToMessageId = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendLocation")
   var data = newMultipartData()
 
@@ -193,10 +250,16 @@ proc sendLocation*(b: TeleBot, chatId: int64, latitude: float, longitude: float,
   data["longitude"] = $longitude
   if livePeriod != 0:
     data["live_period"] = $livePeriod
+  if heading != 0:
+    data["heading"] = $heading
+  if proximityAlertRadius != 0:
+    data["proximity_alert_radius"] = $proximityAlertRadius
   if disableNotification:
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
@@ -204,7 +267,8 @@ proc sendLocation*(b: TeleBot, chatId: int64, latitude: float, longitude: float,
   result = getMessage(res)
 
 proc sendVenue*(b: TeleBot, chatId: int64, latitude: float, longitude: float, address: string, foursquareId = "", foursquareType = "",
-                disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                googlePlaceId = "", googlePlaceType = "", disableNotification = false, replyToMessageId = 0,
+                allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendVenue")
   var data = newMultipartData()
 
@@ -217,10 +281,16 @@ proc sendVenue*(b: TeleBot, chatId: int64, latitude: float, longitude: float, ad
     data["foursquare_id"] = foursquareId
   if foursquareType.len != 0:
     data["foursquare_type"] = foursquareType
+  if googlePlaceId.len != 0:
+    data["google_place_id"] = googlePlaceId
+  if googlePlaceType.len != 0:
+    data["google_place_type"] = googlePlaceType
   if disableNotification:
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
@@ -228,7 +298,8 @@ proc sendVenue*(b: TeleBot, chatId: int64, latitude: float, longitude: float, ad
   result = getMessage(res)
 
 proc sendContact*(b: TeleBot, chatId: int64, phoneNumber: string, firstName: string, lastName = "", vcard = "",
-                  disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                  disableNotification = false, replyToMessageId = 0,
+                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendContact")
   var data = newMultipartData()
 
@@ -243,6 +314,8 @@ proc sendContact*(b: TeleBot, chatId: int64, phoneNumber: string, firstName: str
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
@@ -253,7 +326,7 @@ proc sendInvoice*(b: TeleBot, chatId: int64, title: string, description: string,
                   currency: string, prices: seq[LabeledPrice], providerData = "", photoUrl = "", photoSize = 0, photoWidth = 0, photoHeight = 0,
                   needName = false, needPhoneNumber = false, needEmail = false, needShippingAddress = false, sendPhoneNumberToProvider = false,
                   sendEmailToProvider = false, isFlexible = false,
-                  disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                  disableNotification = false, replyToMessageId = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendInvoice")
   var data = newMultipartData()
 
@@ -295,14 +368,17 @@ proc sendInvoice*(b: TeleBot, chatId: int64, title: string, description: string,
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = getMessage(res)
 
-proc sendAnimation*(b: TeleBot, chatId: int64, animation: string, duration = 0, width = 0, height = 0, thumb = "", caption = "", parseMode = "",
-                   disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendAnimation*(b: TeleBot, chatId: int64, animation: string, duration = 0, width = 0, height = 0, thumb = "",
+                   caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[], disableNotification = false, replyToMessageId = 0,
+                   allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendAnimation")
   var data = newMultipartData()
 
@@ -320,10 +396,16 @@ proc sendAnimation*(b: TeleBot, chatId: int64, animation: string, duration = 0, 
     data["caption"] = caption
   if parseMode.len != 0:
     data["parse_mode"] = parseMode
+  if captionEntities.len != 0:
+    var json = ""
+    marshal(captionEntities, json)
+    data["caption_entities"] = json
   if disableNotification:
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
@@ -332,8 +414,8 @@ proc sendAnimation*(b: TeleBot, chatId: int64, animation: string, duration = 0, 
 
 proc sendPoll*(b: TeleBot, chatId: int64, question: string, options: seq[string], isAnonymous = false, kind = "",
                allowsMultipleAnswers = false, correctOptionId = 0, explanation = "", explanationParseMode = "",
-               openPeriod = 0, closeDate = 0, isClosed = false,
-               disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+               explanationEntities: seq[MessageEntity] = @[], openPeriod = 0, closeDate = 0, isClosed = false, disableNotification = false,
+               replyToMessageId = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendPoll")
   var data = newMultipartData()
 
@@ -352,6 +434,10 @@ proc sendPoll*(b: TeleBot, chatId: int64, question: string, options: seq[string]
     data["explanation"] = explanation
   if explanationParseMode.len != 0:
     data["explanation_parse_mode"] = explanationParseMode
+  if explanationEntities.len != 0:
+    var json = ""
+    marshal(explanationEntities, json)
+    data["explanation_entities"] = json
   if openPeriod != 0:
     data["open_period"] = $openPeriod
   if closeDate != 0:
@@ -362,13 +448,16 @@ proc sendPoll*(b: TeleBot, chatId: int64, question: string, options: seq[string]
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = getMessage(res)
 
-proc sendDice*(b: TeleBot, chatId: int64, emoji = "", disableNotification = false, replyToMessageId = 0, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+proc sendDice*(b: TeleBot, chatId: int64, emoji = "", disableNotification = false, replyToMessageId = 0,
+               allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendDice")
   var data = newMultipartData()
 
@@ -379,6 +468,8 @@ proc sendDice*(b: TeleBot, chatId: int64, emoji = "", disableNotification = fals
     data["disable_notification"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
@@ -390,6 +481,16 @@ proc getMe*(b: TeleBot): Future[User] {.async.} =
   END_POINT("getMe")
   let res = await makeRequest(b, endpoint % b.token)
   result = unmarshal(res, User)
+
+proc logOut*(b: TeleBot): Future[bool] {.async.} =
+  END_POINT("logOut")
+  let res = await makeRequest(b, endpoint % b.token)
+  result = unmarshal(res, bool)
+
+proc close*(b: TeleBot): Future[bool] {.async.} =
+  END_POINT("close")
+  let res = await makeRequest(b, endpoint % b.token)
+  result = unmarshal(res, bool)
 
 proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, disableNotification = false): Future[Message] {.async.} =
   END_POINT("forwardMessage")
@@ -404,6 +505,36 @@ proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, dis
 
   let res = await makeRequest(b, endpoint % b.token, data)
   result = getMessage(res)
+
+proc copyMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, caption = "", parseMode = "",
+                  captionEntities: seq[MessageEntity] = @[], disableNotification = false,
+                  replyToMessageId = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[MessageId] {.async.} =
+  END_POINT("copyMessage")
+  var data = newMultipartData()
+
+  data["chat_id"] = chatId
+  data["from_chat_id"] = fromChatId
+  data["message_id"] = $messageId
+  if caption.len != 0:
+    data["caption"] = caption
+  if parseMode.len != 0:
+    data["parse_mode"] = parseMode
+  if captionEntities.len != 0:
+    var json = ""
+    marshal(captionEntities, json)
+    data["caption_entities"] = json
+  if disableNotification:
+    data["disable_notification"] = "true"
+  if replyToMessageId != 0:
+    data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
+  if replyMarkup != nil:
+    data["reply_markup"] = $replyMarkup
+
+  let res = await makeRequest(b, endpoint % b.token, data)
+  result = unmarshal(res, MessageId)
+
 
 proc sendChatAction*(b: TeleBot, chatId, action: string): Future[void] {.async.} =
   END_POINT("sendChatAction")
@@ -441,11 +572,13 @@ proc kickChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0): Fu
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
-proc unbanChatMember*(b: TeleBot, chatId: string, userId: int): Future[bool] {.async.} =
+proc unbanChatMember*(b: TeleBot, chatId: string, userId: int, onlyIfBanned = false): Future[bool] {.async.} =
   END_POINT("unbanChatMember")
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
+  if onlyIfBanned:
+    data["only_if_banned"] = "true"
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
@@ -462,12 +595,15 @@ proc restrictChatMember*(b: TeleBot, chatId: string, userId: int, permissions: C
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
-proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, canChangeInfo = false, canPostMessages = false, canEditMessages = false,
-                        canDeleteMessages = false, canInviteUsers = false, canRestrictMembers = false, canPinMessages = false, canPromoteMembers = false): Future[bool] {.async.} =
+proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, isAnonymous = false, canChangeInfo = false,
+                        canPostMessages = false, canEditMessages = false, canDeleteMessages = false,
+                        canInviteUsers = false, canRestrictMembers = false, canPinMessages = false, canPromoteMembers = false): Future[bool] {.async.} =
   END_POINT("promoteChatMember")
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
+  if isAnonymous:
+    data["is_anonymous"] = "true"
   if canChangeInfo:
     data["can_change_info"] = "true"
   if canPostMessages:
@@ -546,12 +682,22 @@ proc pinChatMessage*(b: TeleBot, chatId: string, messageId: int, disableNotifica
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
-proc unpinChatMessage*(b: TeleBot, chatId: string): Future[bool] {.async.} =
+proc unpinChatMessage*(b: TeleBot, chatId: string, messageId = 0): Future[bool] {.async.} =
   END_POINT("unpinChatMessage")
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  if messageId > 0:
+    data["message_id"] = $messageId
+  let res = await makeRequest(b, endpoint % b.token, data)
+  result = res.toBool
+
+proc unpinAllChatMessages*(b: TeleBot, chatId: string): Future[bool] {.async.} =
+  END_POINT("unpinAllChatMessages")
   var data = newMultipartData()
   data["chat_id"] = chatId
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
+
 
 proc leaveChat*(b: TeleBot, chatId: string): Future[bool] {.async.} =
   END_POINT("leaveChat")
@@ -689,7 +835,9 @@ proc deleteChatStickerSet*(b: TeleBot, chatId: string): Future[bool] {.async.} =
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
-proc editMessageLiveLocation*(b: TeleBot, latitude: float, longitude: float, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[bool] {.async.} =
+proc editMessageLiveLocation*(b: TeleBot, latitude: float, longitude: float, chatId = "",
+                              messageId = 0, inlineMessageId = "", horizontalAccuracy = 0.0,
+                              heading = 0, proximityAlertRadius = 0, replyMarkup: KeyboardMarkup = nil): Future[bool] {.async.} =
   END_POINT("editMessageLiveLocation")
   var data = newMultipartData()
   data["latiude"] = $latitude
@@ -700,6 +848,12 @@ proc editMessageLiveLocation*(b: TeleBot, latitude: float, longitude: float, cha
     data["message_id"] = $messageId
   if inlineMessageId.len != 0:
     data["inline_message_id"] = inlineMessageId
+  if horizontalAccuracy != 0.0:
+    data["horizontal_accuracy"] = $horizontalAccuracy
+  if heading != 0:
+    data["heading"] = $heading
+  if proximityAlertRadius != 0:
+    data["proximity_alert_radius"] = $proximityAlertRadius
   if replyMarkup != nil:
     data["reply_markup"] = $replyMarkup
 
@@ -721,7 +875,8 @@ proc stopMessageLiveLocation*(b: TeleBot, chatId = "", messageId = 0, inlineMess
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
-proc sendMediaGroup*(b: TeleBot, chatId = "", media: seq[InputMedia], disableNotification = false, replyToMessageId = 0): Future[bool] {.async.} =
+proc sendMediaGroup*(b: TeleBot, chatId = "", media: seq[InputMedia], disableNotification = false,
+                     allowSendingWithoutReply = false, replyToMessageId = 0): Future[bool] {.async.} =
   END_POINT("sendMediaGroup")
   var data = newMultipartData()
   data["chat_id"] = chatId
@@ -732,6 +887,8 @@ proc sendMediaGroup*(b: TeleBot, chatId = "", media: seq[InputMedia], disableNot
   data["media"] = json
   if disableNotification:
     data["disable_notification"] = "true"
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
   if replyToMessageId != 0:
     data["reply_to_message_id"] = $replyToMessageId
 
@@ -761,7 +918,7 @@ proc editMessageMedia*(b: TeleBot, media: InputMedia, chatId = "", messageId = 0
   else:
     result = some(unmarshal(res, Message))
 
-proc editMessageText*(b: TeleBot, text: string, chatId = "", messageId = 0, inlineMessageId = "", parseMode="",
+proc editMessageText*(b: TeleBot, text: string, chatId = "", messageId = 0, inlineMessageId = "", parseMode = "", entities: seq[MessageEntity] = @[],
                       replyMarkup: KeyboardMarkup = nil, disableWebPagePreview=false): Future[Option[Message]] {.async.} =
   END_POINT("editMessageText")
   var data = newMultipartData()
@@ -775,6 +932,10 @@ proc editMessageText*(b: TeleBot, text: string, chatId = "", messageId = 0, inli
     data["reply_markup"] = $replyMarkup
   if parseMode != "":
     data["parse_mode"] = parseMode
+  if entities.len != 0:
+    var json = ""
+    marshal(entities, json)
+    data["entities"] = json
   if disableWebPagePreview == true:
     data["disable_web_page_preview"] = "true"
 
@@ -787,7 +948,7 @@ proc editMessageText*(b: TeleBot, text: string, chatId = "", messageId = 0, inli
     result = some(unmarshal(res, Message))
 
 proc editMessageCaption*(b: TeleBot, caption = "", chatId = "", messageId = 0, inlineMessageId = "", parseMode="",
-                         replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
+                         captionEntities: seq[MessageEntity] = @[], replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
   END_POINT("editMessageCaption")
   var data = newMultipartData()
   if chatId.len > 0:
@@ -800,7 +961,10 @@ proc editMessageCaption*(b: TeleBot, caption = "", chatId = "", messageId = 0, i
     data["reply_markup"] = $replyMarkup
   if parseMode != "":
     data["parse_mode"] = parseMode
-
+  if captionEntities.len != 0:
+    var json = ""
+    marshal(captionEntities, json)
+    data["caption_entities"] = json
   data["caption"] = caption
 
   let res = await makeRequest(b, endpoint % b.token, data)
@@ -994,3 +1158,57 @@ proc pollAsync*(b: TeleBot, timeout = 50, offset, limit = 0, clean = false) {.as
   if clean:
     await b.cleanUpdates()
   await loop(b, timeout, offset, limit)
+
+
+proc sendGame*(b: TeleBot, chatId: int, gameShortName: string, disableNotification = false, replyToMessageId = 0,
+               allowSendingWithoutReply = false, replyMarkup: InlineKeyboardMarkup): Future[Message] {.async.} =
+
+  END_POINT("sendGame")
+  var data = newMultipartData()
+
+  data["chat_id"] = $chatId
+  data["game_short_name"] = gameShortName
+  if disableNotification:
+    data["disable_notification"] = "true"
+  if replyToMessageId != 0:
+    data["reply_to_message_id"] = $replyToMessageId
+  if allowSendingWithoutReply:
+    data["allow_sending_without_reply"] = "true"
+  if replyMarkup != nil:
+    data["reply_markup"] = $replyMarkup
+
+  let res = await makeRequest(b, endpoint % b.token, data)
+  result = getMessage(res)
+
+proc setGameScore*(b: TeleBot, userId: int, score: int, force = false, disableEditMessage = false,
+                   chatId = 0, inlineMessageId = 0): Future[Message] {.async.} =
+
+  END_POINT("setGameScore")
+  var data = newMultipartData()
+
+  data["user_id"] = $chatId
+  data["score"] = $score
+  if force:
+    data["force"] = "true"
+  if disableEditMessage:
+    data["disable_edit_message"] = "true"
+  if chatId != 0:
+    data["chat_id"] = $chatId
+  if inlineMessageId != 0:
+    data["inline_message_id"] = $inlineMessageId
+  let res = await makeRequest(b, endpoint % b.token, data)
+  result = getMessage(res)
+
+proc getGameHighScores*(b: TeleBot, userId: int, chatId = 0, messageId = 0, inlineMessageId = 0): Future[seq[GameHighScore]] {.async.} =
+  END_POINT("getGameHighScores")
+  var data = newMultipartData()
+
+  data["user_id"] = $chatId
+  if chatId != 0:
+    data["chat_id"] = $chatId
+  if messageId != 0:
+    data["message_id"] = $messageId
+  if inlineMessageId != 0:
+    data["inline_message_id"] = $inlineMessageId
+  let res = await makeRequest(b, endpoint % b.token, data)
+  result = unmarshal(res, seq[GameHighScore])
