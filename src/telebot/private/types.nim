@@ -67,6 +67,7 @@ type
     duration*: int
     performer*: Option[string]
     title*: Option[string]
+    fileName*: Option[string]
     mimeType*: Option[string]
     fileSize*: Option[int]
     thumb*: Option[PhotoSize]
@@ -112,6 +113,7 @@ type
     height*: int
     duration*: int
     thumb*: Option[PhotoSize]
+    fileName*: Option[string]
     mimeType*: Option[string]
     fileSize*: Option[int]
 
@@ -140,6 +142,10 @@ type
   Location* = object of TelegramObject
     longitude*: float
     latitude*: float
+    horizontalAccuracy*: Option[float]
+    livePeriod*: Option[int]
+    heading*: Option[int]
+    proximityAlertRadius*: Option[int]
 
   Venue* = object of TelegramObject
     location*: Location
@@ -147,6 +153,8 @@ type
     address*: string
     foursquareId*: Option[string]
     foursquareType*: Option[string]
+    googlePlaceId*: Option[string]
+    googlePlaceType*: Option[string]
 
   PollOption* = object of TelegramObject
     text*: string
@@ -171,6 +179,11 @@ type
     explanationEntities*: Option[seq[MessageEntity]]
     openPeriod*: Option[int]
     closeDate*: Option[int]
+
+  ProximityAlertTriggered* = object of TelegramObject
+    traveler*: User
+    watcher*: User
+    distance*: int
 
   UserProfilePhotos* = object of TelegramObject
     totalCount*: int
@@ -234,6 +247,11 @@ type
 
   CallbackGame* = object of TelegramObject
 
+  GameHighScore* = object of TelegramObject
+    position*: int
+    user*: User
+    score*: int
+
   CallbackQuery* = ref object of TelegramObject
     id*: string
     fromUser*: User
@@ -254,6 +272,7 @@ type
   Message* = object of TelegramObject
     messageId*: int
     fromUser*: Option[User]
+    senderChat*: Option[Chat]
     date*: int
     chat*: Chat
     forwardFrom*: Option[User]
@@ -265,30 +284,34 @@ type
     replyToMessage*: Option[ref Message]
     viaBot*: Option[User]
     editDate*: Option[int]
+    mediaGroupId*: Option[string]
     authorSignature*: Option[string]
-    caption*: Option[string]
     text*: Option[string]
     entities*: Option[seq[MessageEntity]]
-    captionEntities*: Option[seq[MessageEntity]]
+    animation*: Option[Animation]
     audio*: Option[Audio]
     document*: Option[Document]
-    animation*: Option[Animation]
-    game*: Option[Game]
     photo*: Option[seq[PhotoSize]]
     sticker*: Option[Sticker]
     video*: Option[Video]
-    voice*: Option[Voice]
     videoNote*: Option[VideoNote]
+    voice*: Option[Voice]
+    caption*: Option[string]
+    captionEntities*: Option[seq[MessageEntity]]
     contact*: Option[Contact]
-    location*: Option[Location]
-    venue*: Option[Venue]
-    poll*: Option[Poll]
     dice*: Option[Dice]
+    game*: Option[Game]
+    poll*: Option[Poll]
+    venue*: Option[Venue]
+    location*: Option[Location]
     newChatMembers*: Option[seq[User]]
-    newChatMember*: Option[User]
     leftChatMember*: Option[User]
     newChatTitle*: Option[string]
     newChatPhoto*: Option[seq[PhotoSize]]
+    deleteChatPhoto*: Option[bool]
+    groupChatCreated*: Option[bool]
+    superGroupChatCreated*: Option[bool]
+    chanelChatCreated*: Option[bool]
     migrateToChatId*: Option[int64]
     migrateFromChatId*: Option[int64]
     pinnedMessage*: Option[ref Message]
@@ -296,7 +319,11 @@ type
     successfulPayment*: Option[SuccessfulPayment]
     connectedWebsite*: Option[string]
     passportData*: Option[PassportData]
+    proximityAlertTriggered*: Option[ProximityAlertTriggered]
     replyMarkup*: Option[InlineKeyboardMarkup]
+
+  MessageId* = object of TelegramObject
+    messageId*: int
 
   ChatPhoto* = object of TelegramObject
     smallFileId*: string
@@ -308,6 +335,7 @@ type
     user*: User
     status*: string
     customTitle*: Option[string]
+    isAnonymous*: Option[bool]
     untilDate*: Option[int]
     canBeEdited*: Option[bool]
     canPostMessages*: Option[bool]
@@ -448,10 +476,12 @@ type
       messageText*: string
       parseMode*: Option[string]
       disableWebPagePreview*: Option[bool]
+      captionEntities*: Option[seq[MessageEntity]]
     of LocationMessage:
       latitude*: float
       longitude*: float
       livePeriod*: Option[int]
+      heading*: Option[int]
     of VenueMessage:
       venueLatitude*: float
       venueLongitude*: float
@@ -459,6 +489,8 @@ type
       venueAddress*: string
       foursquareId*: Option[string]
       foursquareType*: Option[string]
+      googlePlaceId*: Option[string]
+      googlePlaceType*: Option[string]
     of ContactMessage:
       phoneNumber*: string
       firstName*: string
@@ -468,6 +500,7 @@ type
   InlineQueryResult* = object of TelegramObject
     kind*: string
     id*: string
+    captionEntities*: Option[seq[MessageEntity]]
     inputMessageContent*: Option[InputMessageContent]
     replyMarkup*: Option[KeyboardMarkup]
 
@@ -544,7 +577,10 @@ type
     latitude*: float
     longitude*: float
     title*: string
+    horizontalAccuracy*: Option[float]
     livePeriod*: Option[int]
+    heading*: Option[int]
+    proximityAlertRadius*: Option[int]
 
   InlineQueryResultVenue* = object of InlineQueryResultWithThumb
     latitude*: float
@@ -553,6 +589,8 @@ type
     address*: string
     foursquareId*: Option[string]
     foursquareType*: Option[string]
+    googlePlaceId*: Option[string]
+    googlePlaceType*: Option[string]
 
   InlineQueryResultContact* = object of InlineQueryResultWithThumb
     phoneNumber*: string
@@ -626,6 +664,7 @@ type
     thumb*: Option[string]
     caption*: Option[string]
     parseMode*: Option[string]
+    captionEntities*: Option[seq[MessageEntity]]
 
   InputMediaPhoto* = ref object of InputMedia
 
@@ -646,6 +685,7 @@ type
     title*: Option[string]
 
   InputMediaDocument* = ref object of InputMedia
+    disableContentTypeDetection*: Option[bool]
 
   #------------------
   # Passport
