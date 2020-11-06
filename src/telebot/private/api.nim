@@ -2,7 +2,7 @@ import httpclient, sam, asyncdispatch, utils, strutils, options, strtabs
 from tables import hasKey, `[]`
 import types, keyboard
 
-proc sendMessage*(b: TeleBot, chatId: int64, text: string, parseMode = "", entities: seq[MessageEntity],
+proc sendMessage*(b: TeleBot, chatId: int64, text: string, parseMode = "", entities: seq[MessageEntity] = @[],
                   disableWebPagePreview = false, disableNotification = false, replyToMessageId = 0,
                   allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
   END_POINT("sendMessage")
