@@ -62,7 +62,7 @@ proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =
   result = getWebhookInfo(res)
 
 
-proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080), clean = false) =
+proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080), dropPendingUpdates = false) =
   try:
     let me = waitFor b.getMe()
     b.id = me.id
@@ -71,7 +71,7 @@ proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080), clean = fal
   except IOError, OSError:
     d("Unable to fetch my info ", getCurrentExceptionMsg())
 
-  waitFor b.setWebhook(url)
+  waitFor b.setWebhook(url, dropPendingUpdates = dropPendingUpdates)
 
   proc callback(req: Request) {.async.} =
     let headers = newHttpHeaders([("content-type", "text/plain")])
