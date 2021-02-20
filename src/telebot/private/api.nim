@@ -875,7 +875,7 @@ proc stopMessageLiveLocation*(b: TeleBot, chatId = "", messageId = 0, inlineMess
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
-proc sendMediaGroup*(b: TeleBot, chatId = "", media: seq[InputMedia], disableNotification = false,
+proc sendMediaGroup*(b: TeleBot, chatId = "", media: seq[InputMediaSet], disableNotification = false,
                      allowSendingWithoutReply = false, replyToMessageId = 0): Future[bool] {.async.} =
   END_POINT("sendMediaGroup")
   var data = newMultipartData()
@@ -895,7 +895,7 @@ proc sendMediaGroup*(b: TeleBot, chatId = "", media: seq[InputMedia], disableNot
   let res = await makeRequest(b, endpoint % b.token, data)
   result = res.toBool
 
-proc editMessageMedia*(b: TeleBot, media: InputMedia, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
+proc editMessageMedia*(b: TeleBot, media: InputMediaSet, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
   END_POINT("editMessageMedia")
   var data = newMultipartData()
   if chatId.len > 0:

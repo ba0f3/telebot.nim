@@ -687,6 +687,9 @@ type
   InputMediaDocument* = ref object of InputMedia
     disableContentTypeDetection*: Option[bool]
 
+
+  InputMediaSet* = InputMediaPhoto|InputMediaVideo|InputMediaAnimation|InputMediaAudio|InputMediaDocument
+
   #------------------
   # Passport
   #------------------
