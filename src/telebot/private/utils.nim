@@ -226,13 +226,15 @@ proc addData*(p: var MultipartData, name: string, content: Stream, fileName = ""
 proc uploadInputMedia*(p: var MultipartData, m: InputMedia) =
   var name = "file_upload_" & $rand(high(int))
   if m.media.startsWith("file://"):
+    p.addFiles({name: m.media[7..<m.media.len]})
     m.media = "attach://" & name
-    p.addFiles({name: m.media[7..m.media.len-1]})
 
   if m.thumb.isSome:
-    name = "file_upload_" & $rand(high(int))
-    m.thumb = some("attach://" & name)
-    p.addFiles({name: m.media[7..m.media.len-1]})
+    let thumb = m.thumb.get()
+    if thumb.startsWith("file://"):
+      name = "file_upload_" & $rand(high(int))
+      p.addFiles({name: thumb[7..<thumb.len]})
+      m.thumb = some("attach://" & name)
 
 macro genInputMedia*(mediaType: untyped): untyped =
   let
