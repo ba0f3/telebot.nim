@@ -32,7 +32,6 @@ proc getWebhookInfo(n: JsonNode): WebhookInfo =
       result.allowedUpdates.add($i)
 
 proc setWebhook*(b: TeleBot, url: string, certificate = "", ipAddress = "", maxConnections = -1, allowedUpdates: seq[string] = @[], dropPendingUpdates = false) {.async.} =
-  END_POINT("setWebhook")
   var data = newMultipartData()
   data["url"] = url
   if certificate.len > 0:
@@ -46,19 +45,17 @@ proc setWebhook*(b: TeleBot, url: string, certificate = "", ipAddress = "", maxC
   if dropPendingUpdates:
     data["drop_pending_updates"] = "true"
 
-  discard await makeRequest(b, endpoint % b.token, data)
+  discard await makeRequest(b, procName, data)
 
 proc deleteWebhook*(b: TeleBot, dropPendingUpdates = false): Future[bool] {.async.} =
-  END_POINT("deleteWebhook")
   var data = newMultipartData()
   if dropPendingUpdates:
     data["drop_pending_updates"] = "true"
-  let res = await makeRequest(b, endpoint % b.token, data)
+  let res = await makeRequest(b, procName, data)
   result = res.toBool
 
 proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =
-  END_POINT("getWebhookInfo")
-  let res = await makeRequest(b, endpoint % b.token)
+  let res = await makeRequest(b, procName)
   result = getWebhookInfo(res)
 
 

@@ -1,6 +1,7 @@
 import macros, httpclient, asyncdispatch, sam, strutils, types, options, logging, strtabs, random
 from json import escapeJson
 from streams import Stream, readAll
+from parseutils import parseUntil
 
 randomize()
 
@@ -8,8 +9,13 @@ const
   API_URL* = "https://api.telegram.org/bot$#/"
   FILE_URL* = "https://api.telegram.org/file/bot$#/$#"
 
-template END_POINT*(`method`: string) =
-  let endpoint {.used, inject.} = API_URL & `method`
+template procName*: string =
+  when not declaredInScope(internalProcName):
+    var internalProcName {.exportc, inject.}: cstring
+    {.emit: "`internalProcName` = __func__;".}
+    var realProcName {.inject.}: string
+    discard parseUntil($internalProcName, realProcName, "Iter__")
+  realProcName
 
 template hasCommand*(update: Update, username: string): bool =
   var
@@ -181,7 +187,8 @@ proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
 proc initHttpClient(b: Telebot): AsyncHttpClient =
   result = newAsyncHttpClient(userAgent="telebot.nim/0.5.7", proxy=b.proxy)
 
-proc makeRequest*(b: Telebot, endpoint: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
+proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
+  let endpoint = API_URL % b.token & `method`
   d("Making request to ", endpoint)
   let client = initHttpClient(b)
   defer: client.close()
@@ -362,7 +369,7 @@ macro magic*(head, body: untyped): untyped =
 
   var epilogue = parseStmt("""
 try:
-  let res = await makeRequest(b, endpoint % b.token, data)
+  let res = await makeRequest(b, procName, data)
   result = unmarshal(res, Message)
 except:
   echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
