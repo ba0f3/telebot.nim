@@ -1,14 +1,18 @@
 # This Bot receives any Document file, responds on chat with file metadata and file contents.
 import telebot, asyncdispatch, options, strformat, httpclient, json
+from strutils import strip
 
-const API_KEY = slurp("secret.key")
+
+const API_KEY = slurp("../secret.key").strip()
 
 
-proc updateHandler(bot: TeleBot, e: Update) {.async.} =
+proc updateHandler(bot: TeleBot, e: Update): Future[bool] {.async.} =
   let
     url_getfile = fmt"https://api.telegram.org/bot{API_KEY}/getFile?file_id="
     api_file = fmt"https://api.telegram.org/file/bot{API_KEY}/"
 
+  if not e.message:
+    return true
   var response = e.message.get
   if response.document.isSome:
     let
