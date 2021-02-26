@@ -29,7 +29,7 @@ proc updateHandler(bot: TeleBot, e: Update): Future[bool] {.async.} =
       msg0_text = fmt"file_name: {file_name}, mime_type: {mime_type}, file_id: {file_id}, file_size: {file_size}, file_path: {file_path}"
 
     discard await bot.sendMessage(response.chat.id, msg0_text)
-    discard await bot.sendMessage(response.chat.id, file_content)
+    #discard await bot.sendMessage(response.chat.id, file_content)
 
 let bot = newTeleBot(API_KEY)
 
