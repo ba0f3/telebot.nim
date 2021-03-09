@@ -6,6 +6,8 @@ converter optionToBool*[T](o: Option[T]): bool = o.isSome()
 type
   TelegramObject* = object of RootObj
 
+  ChatId* = int64|string
+
   UpdateCallback* = proc(bot: Telebot, update: Update): Future[bool] {.gcsafe.}
   CommandCallback* = proc(bot: Telebot, command: Command): Future[bool] {.gcsafe.}
   CatchallCommandCallback* = proc(bot: Telebot, command: Command): Future[bool] {.gcsafe.}
@@ -185,6 +187,17 @@ type
     watcher*: User
     distance*: int
 
+  MessageAutoDeleteTimerChanged* = object of TelegramObject
+    messageAutoDeleteTime*: int
+
+  VoiceChatStarted* = object of TelegramObject
+
+  VoiceChatEnded* = object of TelegramObject
+    duration*: int
+
+  VoiceChatParticipantsInvited* = object of TelegramObject
+    users*: seq[User]
+
   UserProfilePhotos* = object of TelegramObject
     totalCount*: int
     photos*: seq[seq[PhotoSize]]
@@ -312,6 +325,7 @@ type
     groupChatCreated*: Option[bool]
     superGroupChatCreated*: Option[bool]
     chanelChatCreated*: Option[bool]
+    messageAutoDeleteTimerChanged*: Option[MessageAutoDeleteTimerChanged]
     migrateToChatId*: Option[int64]
     migrateFromChatId*: Option[int64]
     pinnedMessage*: Option[ref Message]
@@ -320,6 +334,9 @@ type
     connectedWebsite*: Option[string]
     passportData*: Option[PassportData]
     proximityAlertTriggered*: Option[ProximityAlertTriggered]
+    voiceChatStarted*: Option[VoiceChatStarted]
+    voiceChatEnded*: Option[VoiceChatEnded]
+    voiceChatParticipantsInvited*: Option[VoiceChatParticipantsInvited]
     replyMarkup*: Option[InlineKeyboardMarkup]
 
   MessageId* = object of TelegramObject
@@ -331,6 +348,14 @@ type
     bigFileId*: string
     bigFileUniqueId*: string
 
+  ChatInviteLink* = object of TelegramObject
+    inviteLink*: string
+    creator*: User
+    isPrimary*: bool
+    isRevoked*: bool
+    expireDate*: Option[int]
+    memberLimit*: Option[int]
+
   ChatMember* = object of TelegramObject
     user*: User
     status*: string
@@ -338,9 +363,11 @@ type
     isAnonymous*: Option[bool]
     untilDate*: Option[int]
     canBeEdited*: Option[bool]
+    canManageChat*: Option[bool]
     canPostMessages*: Option[bool]
     canEditMessages*: Option[bool]
     canDeleteMessages*: Option[bool]
+    canManageVoiceChats*: Option[bool]
     canRestrictMembers*: Option[bool]
     canPromoteMembers*: Option[bool]
     canChangeInfo*: Option[bool]
@@ -352,6 +379,14 @@ type
     canSendPolls*: Option[bool]
     canSendOtherMessages*: Option[bool]
     canAddWebPagePreviews*: Option[bool]
+
+  ChatMemberUpdated* = object of TelegramObject
+    chat*: Chat
+    fromUser*: User
+    date*: int
+    oldChatMember*: ChatMember
+    newChatMember*: ChatMember
+    inviteLink*: Option[ChatInviteLink]
 
   ChatPermissions* = object of TelegramObject
     canSendMessages*: Option[bool]
@@ -384,6 +419,8 @@ type
     preCheckoutQuery*: Option[PreCheckoutQuery]
     poll*: Option[Poll]
     pollAnswer*: Option[PollAnswer]
+    myChatMember*: Option[ChatMemberUpdated]
+    chatMember*: Option[ChatMemberUpdated]
 
   #------------------
   # Game
@@ -752,3 +789,5 @@ type
 
   PassportElementErrorUnspecified* = ref object of PassportElementError
     elementHash*: string
+
+

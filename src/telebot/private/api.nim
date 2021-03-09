@@ -539,12 +539,14 @@ proc getFile*(b: TeleBot, fileId: string): Future[types.File] {.async.} =
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, types.File)
 
-proc kickChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0): Future[bool] {.async.} =
+proc kickChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0, revokeMessages = false): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
   if untilDate > 0:
     data["until_date"] = $untilDate
+  if revokeMessages:
+    data["revoke_messages"] = "true"
   let res = await makeRequest(b, procName, data)
   result = res.toBool
 
@@ -569,14 +571,16 @@ proc restrictChatMember*(b: TeleBot, chatId: string, userId: int, permissions: C
   let res = await makeRequest(b, procName, data)
   result = res.toBool
 
-proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, isAnonymous = false, canChangeInfo = false,
-                        canPostMessages = false, canEditMessages = false, canDeleteMessages = false,
+proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, isAnonymous = false, canManageChat = false, canChangeInfo = false,
+                        canPostMessages = false, canEditMessages = false, canDeleteMessages = false, canManageVoiceChats = false,
                         canInviteUsers = false, canRestrictMembers = false, canPinMessages = false, canPromoteMembers = false): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
   if isAnonymous:
     data["is_anonymous"] = "true"
+  if canManageChat:
+    data["can_manage_chat"] = "true"
   if canChangeInfo:
     data["can_change_info"] = "true"
   if canPostMessages:
@@ -585,6 +589,8 @@ proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, isAnonymous = f
     data["can_edit_messages"] = "true"
   if canDeleteMessages:
     data["can_delete_messages"] = "true"
+  if canManageVoiceChats:
+    data["can_manage_voice_chats"] = "true"
   if canInviteUsers:
     data["can_invite_users"] = "true"
   if canRestrictMembers:
@@ -1094,7 +1100,7 @@ proc pollAsync*(b: TeleBot, timeout = 50, offset, limit = 0, clean = false) {.as
   await loop(b, timeout, offset, limit)
 
 
-proc sendGame*(b: TeleBot, chatId: int, gameShortName: string, disableNotification = false, replyToMessageId = 0,
+proc sendGame*(b: TeleBot, chatId: int64, gameShortName: string, disableNotification = false, replyToMessageId = 0,
                allowSendingWithoutReply = false, replyMarkup: InlineKeyboardMarkup): Future[Message] {.async.} =
   var data = newMultipartData()
 
@@ -1117,7 +1123,7 @@ proc setGameScore*(b: TeleBot, userId: int, score: int, force = false, disableEd
 
   var data = newMultipartData()
 
-  data["user_id"] = $chatId
+  data["user_id"] = $userId
   data["score"] = $score
   if force:
     data["force"] = "true"
@@ -1133,7 +1139,7 @@ proc setGameScore*(b: TeleBot, userId: int, score: int, force = false, disableEd
 proc getGameHighScores*(b: TeleBot, userId: int, chatId = 0, messageId = 0, inlineMessageId = 0): Future[seq[GameHighScore]] {.async.} =
   var data = newMultipartData()
 
-  data["user_id"] = $chatId
+  data["user_id"] = $userId
   if chatId != 0:
     data["chat_id"] = $chatId
   if messageId != 0:
@@ -1142,3 +1148,38 @@ proc getGameHighScores*(b: TeleBot, userId: int, chatId = 0, messageId = 0, inli
     data["inline_message_id"] = $inlineMessageId
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[GameHighScore])
+
+
+proc createChatInviteLink*(b: Telebot, chatId: ChatId, expireDate = 0, memberLimit = 0): Future[ChatInviteLink] {.async.} =
+  var data = newMultipartData()
+
+  data["chat_id"] = $chatId
+  if expireDate > 0:
+    data["expire_date"] = $expireDate
+  if memberLimit > 0:
+    data["member_limit"] = $memberLimit
+
+  let res = await makeRequest(b, procName, data)
+  result = unmarshal(res, seq[ChatInviteLink])
+
+proc editChatInviteLink*(b: Telebot, chatId: ChatId, inviteLink: string, expireDate = 0, memberLimit = 0): Future[ChatInviteLink] {.async.} =
+  var data = newMultipartData()
+
+  data["chat_id"] = $chatId
+  data["invite_link"] = invite_link
+  if expireDate > 0:
+    data["expire_date"] = $expireDate
+  if memberLimit > 0:
+    data["member_limit"] = $memberLimit
+
+  let res = await makeRequest(b, procName, data)
+  result = unmarshal(res, seq[ChatInviteLink])
+
+proc revokeChatInviteLink*(b: Telebot, chatId: ChatId, inviteLink: string): Future[ChatInviteLink] {.async.} =
+  var data = newMultipartData()
+
+  data["chat_id"] = $chatId
+  data["invite_link"] = invite_link
+
+  let res = await makeRequest(b, procName, data)
+  result = unmarshal(res, seq[ChatInviteLink])
