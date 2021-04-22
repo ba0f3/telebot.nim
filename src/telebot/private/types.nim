@@ -672,7 +672,7 @@ type
     title*: string
     caption*: Option[string]
 
-  InlineQueryResultCacchedDocument* = object of InlineQueryResult
+  InlineQueryResultCachedDocument* = object of InlineQueryResult
     title*: string
     caption*: Option[string]
     documentFileId*: string
