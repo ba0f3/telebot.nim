@@ -86,6 +86,8 @@ proc formatName*(s: string): string =
     else:
       result.add(c)
 
+proc put*[T](s: var seq[T], n: JsonNode) {.inline.}
+
 proc unmarshal*(n: JsonNode, T: typedesc): T =
   when result is object:
     for name, value in result.fieldPairs:
@@ -96,15 +98,18 @@ proc unmarshal*(n: JsonNode, T: typedesc): T =
       elif value.type is TelegramObject:
         value = unmarshal(n[jsonKey], value.type)
       elif value.type is seq:
-        for item in n[jsonKey]:
-          put(value, item)
+        value = unmarshal(n[jsonKey], value.type)
+        #for item in n[jsonKey]:
+        #  put(value, item)
       elif value.type is string:
         value = n[jsonKey].toStr
       else:
         value = to[value.type](n[jsonKey])
   elif result is seq:
-    for item in n:
+    for item in n.items:
       result.put(item)
+    #for item in n:
+    #  result.put(item)
 
 proc marshal*[T](t: T, s: var string) =
   when t is Option:
