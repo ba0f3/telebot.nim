@@ -190,6 +190,9 @@ type
   MessageAutoDeleteTimerChanged* = object of TelegramObject
     messageAutoDeleteTime*: int
 
+  VoiceChatScheduled* = object of TelegramObject
+    startDate*: int
+
   VoiceChatStarted* = object of TelegramObject
 
   VoiceChatEnded* = object of TelegramObject
@@ -334,6 +337,7 @@ type
     connectedWebsite*: Option[string]
     passportData*: Option[PassportData]
     proximityAlertTriggered*: Option[ProximityAlertTriggered]
+    voiceChatScheduled*: Option[VoiceChatScheduled]
     voiceChatStarted*: Option[VoiceChatStarted]
     voiceChatEnded*: Option[VoiceChatEnded]
     voiceChatParticipantsInvited*: Option[VoiceChatParticipantsInvited]
@@ -506,6 +510,7 @@ type
     LocationMessage
     VenueMessage
     ContactMessage
+    InvoiceMessage
 
   InputMessageContent* = ref object of TelegramObject
     case `type`*: InputMessageContentKind
@@ -533,6 +538,28 @@ type
       firstName*: string
       lastName*: Option[string]
       vcard*: Option[string]
+    of InvoiceMessage:
+      title*: string
+      description*: string
+      payload*: string
+      providerToken*: string
+      currrency*: string
+      prices*: seq[LabeledPrice]
+      maxTipAmount*: Option[int]
+      suggestedTipAmounts*: Option[seq[int]]
+      providerData*: Option[string]
+      photoUrl*: Option[string]
+      photoSize*: Option[int]
+      photoWidth*: Option[int]
+      photoHeight*: Option[int]
+      needName*: Option[bool]
+      needPhoneNumber*: Option[bool]
+      needEmail*: Option[bool]
+      needShippingAddress*: Option[bool]
+      sendPhoneNumberToProvider*: Option[bool]
+      sendEmailToProvider*: Option[bool]
+      isFlexible*: Option[bool]
+
 
   InlineQueryResult* = object of TelegramObject
     kind*: string
@@ -681,9 +708,11 @@ type
   InlineQuery* = object of TelegramObject
     id*: string
     fromUser*: User
-    location*: Option[Location]
     query*: string
     offset*: string
+    chatType: Option[string]
+    location*: Option[Location]
+
 
   ChosenInlineResult* = object of TelegramObject
     resultId*: string

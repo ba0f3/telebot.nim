@@ -27,3 +27,13 @@ func InputContactMessageContent*(phoneNumber, firstName: string): InputMessageCo
   result.`type` = ContactMessage
   result.phoneNumber = phoneNumber
   result.firstName = firstName
+
+func InputInvoiceMessageContent*(title, description, payload, providerToken, currrency: string, prices: seq[LabeledPrice]): InputMessageContent =
+  new(result)
+  result.`type` = InvoiceMessage
+  result.title = title
+  result.description = description
+  result.payload = payload
+  result.providerToken = providerToken
+  result.currrency = currrency
+  result.prices = prices

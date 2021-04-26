@@ -311,8 +311,9 @@ proc sendContact*(b: TeleBot, chatId: int64, phoneNumber: string, firstName: str
   let res = await makeRequest(b, procName, data)
   result = getMessage(res)
 
-proc sendInvoice*(b: TeleBot, chatId: int64, title: string, description: string, payload: string, providerToken: string, startParameter: string,
-                  currency: string, prices: seq[LabeledPrice], providerData = "", photoUrl = "", photoSize = 0, photoWidth = 0, photoHeight = 0,
+proc sendInvoice*(b: TeleBot, chatId: int64, title: string, description: string, payload: string, providerToken: string, currency: string,
+                  prices: seq[LabeledPrice], maxTipAmount = 0, suggestedTipAmounts: seq[int] = @[], startParameter = "",
+                  providerData = "", photoUrl = "", photoSize = 0, photoWidth = 0, photoHeight = 0,
                   needName = false, needPhoneNumber = false, needEmail = false, needShippingAddress = false, sendPhoneNumberToProvider = false,
                   sendEmailToProvider = false, isFlexible = false,
                   disableNotification = false, replyToMessageId = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
@@ -323,11 +324,17 @@ proc sendInvoice*(b: TeleBot, chatId: int64, title: string, description: string,
   data["description"] = description
   data["payload"] = payload
   data["provider_token"] = providerToken
-  data["start_parameter"] = startParameter
   data["currency"] = currency
   var json = ""
   marshal(prices, json)
   data["prices"] = json
+  if maxTipAmount != 0:
+    data["max_tip_amount"] = maxTipAmount
+  if suggestedTipAmounts.len != 0:
+    json = marshal(suggestedTipAmounts, json)
+    data["suggested_top_amounts"] = json
+  if startParameter.len != 0:
+    data["start_parameter"] = startParameter
   if providerData.len != 0:
     data["provider_data"] = providerData
   if photoUrl.len != 0:
