@@ -223,7 +223,7 @@ proc newProcDef(name: string): NimNode {.compileTime.} =
      newStmtList()
    )
 
-proc addData*(p: var MultipartData, name: string, content: auto, fileCheck = false) {.inline.} =
+proc addData*(p: var MultipartData, name: string, content: any, fileCheck = false) {.inline.} =
   when content is string:
     if fileCheck and content.startsWith("file://"):
       p.addFiles({name: content[7..content.len-1]})

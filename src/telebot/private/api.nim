@@ -329,9 +329,10 @@ proc sendInvoice*(b: TeleBot, chatId: int64, title: string, description: string,
   marshal(prices, json)
   data["prices"] = json
   if maxTipAmount != 0:
-    data["max_tip_amount"] = maxTipAmount
+    data["max_tip_amount"] = $maxTipAmount
   if suggestedTipAmounts.len != 0:
-    json = marshal(suggestedTipAmounts, json)
+    json = ""
+    marshal(suggestedTipAmounts, json)
     data["suggested_top_amounts"] = json
   if startParameter.len != 0:
     data["start_parameter"] = startParameter
