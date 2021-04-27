@@ -53,7 +53,7 @@ template hasCommand*(update: Update, username: string): bool =
           result = false
   result
 
-proc isSet*(value: any): bool {.inline.} =
+proc isSet*(value: auto): bool {.inline.} =
   when value is string:
     result = value.len > 0
   elif value is int:
@@ -223,7 +223,7 @@ proc newProcDef(name: string): NimNode {.compileTime.} =
      newStmtList()
    )
 
-proc addData*(p: var MultipartData, name: string, content: any, fileCheck = false) {.inline.} =
+proc addData*(p: var MultipartData, name: string, content: auto, fileCheck = false) {.inline.} =
   when content is string:
     if fileCheck and content.startsWith("file://"):
       p.addFiles({name: content[7..content.len-1]})
