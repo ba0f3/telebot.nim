@@ -14,7 +14,7 @@ template procName*: string =
     var internalProcName {.exportc, inject.}: cstring
     {.emit: "`internalProcName` = __func__;".}
     var realProcName {.inject.}: string
-    discard parseUntil($internalProcName, realProcName, "Iter__")
+    discard parseUntil($internalProcName, realProcName, "Iter_")
   realProcName
 
 template hasCommand*(update: Update, username: string): bool =
