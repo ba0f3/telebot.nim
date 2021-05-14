@@ -70,7 +70,7 @@ proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080), dropPending
 
   waitFor b.setWebhook(url, dropPendingUpdates = dropPendingUpdates)
 
-  proc callback(req: Request) {.async.} =
+  proc callback(req: Request) {.gcsafe, async.} =
     let headers = newHttpHeaders([("content-type", "text/plain")])
     d("GET: ", req.body)
     if req.url.path == "/" & secret:

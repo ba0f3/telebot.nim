@@ -1001,7 +1001,6 @@ proc getMyCommands*(b: TeleBot): Future[seq[BotCommand]] {.async.} =
   result = unmarshal(res, seq[BotCommand])
 
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
-  const endpoint = API_URL & "answerInlineQuery"
   if results.len == 0:
     return false
 

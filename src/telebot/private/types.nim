@@ -1,4 +1,5 @@
-import asyncdispatch, options, tables, httpclient
+import options, tables, httpclient
+from asyncdispatch import Future
 
 
 converter optionToBool*[T](o: Option[T]): bool = o.isSome()
@@ -20,6 +21,7 @@ type
     commandCallbacks*: TableRef[string, seq[CommandCallback]]
     catchallCommandCallback*: CatchallCommandCallback
     inlineQueryCallbacks*: seq[InlineQueryCallback]
+    serverUrl*: string
     proxy*: Proxy
     id*: int
     username*: string

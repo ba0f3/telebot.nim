@@ -6,8 +6,8 @@ from parseutils import parseUntil
 randomize()
 
 const
-  API_URL* = "https://api.telegram.org/bot$#/"
-  FILE_URL* = "https://api.telegram.org/file/bot$#/$#"
+  API_URL = "$#/bot$#/$#"
+  #FILE_PATH = "file/bot$#/$#"
 
 template procName*: string =
   when not declaredInScope(internalProcName):
@@ -189,13 +189,10 @@ proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
     var res: T
     o = some(unref(res, n))
 
-proc initHttpClient(b: Telebot): AsyncHttpClient =
-  result = newAsyncHttpClient(userAgent="telebot.nim/0.5.7", proxy=b.proxy)
-
 proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
-  let endpoint = API_URL % b.token & `method`
+  let endpoint = API_URL % [b.serverUrl, b.token, `method`]
   d("Making request to ", endpoint)
-  let client = initHttpClient(b)
+  let client = newAsyncHttpClient(userAgent="telebot.nim/1.1.0 Nim/" & NimVersion & " +https://github.com/ba0f3/telebot.nim", proxy=b.proxy)
   defer: client.close()
   let r = await client.post(endpoint, multipart=data)
   if r.code == Http200 or r.code == Http400:
@@ -210,18 +207,6 @@ proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Futu
 
 proc getMessage*(n: JsonNode): Message {.inline.} =
   result = unmarshal(n, Message)
-
-proc newProcDef(name: string): NimNode {.compileTime.} =
-   result = newNimNode(nnkProcDef)
-   result.add(postfix(ident(name), "*"))
-   result.add(
-     newEmptyNode(),
-     newEmptyNode(),
-     newNimNode(nnkFormalParams),
-     newEmptyNode(),
-     newEmptyNode(),
-     newStmtList()
-   )
 
 proc addData*(p: var MultipartData, name: string, content: auto, fileCheck = false) {.inline.} =
   when content is string:
@@ -265,123 +250,3 @@ macro genInputMedia*(mediaType: untyped): untyped =
       if parseMode.len > 0:
         inputMedia.parseMode = some(parseMode)
       return inputMedia
-
-macro magic*(head, body: untyped): untyped =
-  result = newStmtList()
-
-  var
-    objNameNode: NimNode
-
-  if head.kind == nnkIdent:
-    objNameNode = head
-  else:
-    quit "Invalid node: " & head.lispRepr
-
-  var
-    objectTy = newNimNode(nnkObjectTy)
-
-  objectTy.add(newEmptyNode(), newEmptyNode())
-
-  var
-    objName = $objNameNode & "Object"
-    objParamList = newNimNode(nnkRecList)
-    objInitProc = newProcDef("new" & $objNameNode)
-    objSendProc = newProcDef("send")
-    objInitProcParams = objInitProc[3]
-    objInitProcBody = objInitProc[6]
-    objSendProcParams = objSendProc[3]
-    objSendProcBody = objSendProc[6]
-
-  objSendProc[4] = newNimNode(nnkPragma).add(ident("async"), ident("discardable"), ident("deprecated"))
-
-  objectTy.add(objParamList)
-  objInitProcParams.add(ident(objName))
-
-  objSendProcParams.add(newNimNode(nnkBracketExpr).add(
-    ident("Future"), ident("Message")) # return value
-  ).add(newIdentDefs(ident("b"), ident("TeleBot"))
-  ).add(newIdentDefs(ident("m"), ident(objName)))
-
-  objSendProcBody.add(newConstStmt(
-    ident("endpoint"),
-    infix(ident("API_URL"), "&", newStrLitNode("send" & $objNameNode))
-  )).add(newVarStmt(
-      ident("data"),
-      newCall(ident("newMultipartData"))
-  ))
-
-  for node in body:
-    let fieldName = $node[0]
-
-    case node[1][0].kind
-    of nnkIdent:
-      var identDefs = newIdentDefs(
-        node[0],
-        node[1][0] # objInitProcBody -> Ident
-      )
-      objParamList.add(identDefs)
-      objInitProcParams.add(identDefs)
-      objInitProcBody.add(newAssignment(
-        newDotExpr(ident("result"), node[0]),
-        node[0]
-      ))
-
-      # dirty hack to determine if the field might be `InputFile`
-      # if  field is InputFile or string, `addData` will checks if it starts w/ file://
-      # and do file upload
-      var fileCheck = ident("false")
-      if toLowerAscii(fieldName) == toLowerAscii($objNameNode):
-        fileCheck = ident("true")
-
-
-      objSendProcBody.add(
-        newCall(
-          ident("addData"),
-          ident("data"),
-          newStrLitNode(formatName(fieldName)),
-          newDotExpr(ident("m"), node[0]),
-          fileCheck
-      ))
-
-    of nnkPragmaExpr:
-      objParamList.add(
-        newIdentDefs(
-          postfix(node[0], "*"),
-          node[1][0][0] # stmtList -> pragma -> ident
-        )
-      )
-
-      var ifStmt = newNimNode(nnkIfStmt).add(
-        newNimNode(nnkElifBranch).add(
-          newCall(
-            ident("isSet"),
-            newDotExpr(ident("m"), node[0])
-          ),
-          newStmtList(
-            newCall(
-              ident("addData"),
-              ident("data"),
-              newStrLitNode(formatName(fieldName)),
-              newDotExpr(ident("m"), node[0])
-            )
-          )
-        )
-      )
-      objSendProcBody.add(ifStmt)
-    else:
-      # silently ignore unsupported node
-      discard
-
-  var epilogue = parseStmt("""
-try:
-  let res = await makeRequest(b, procName, data)
-  result = unmarshal(res, Message)
-except:
-  echo "Got exception ", repr(getCurrentException()), " with message: ", getCurrentExceptionMsg()
-""")
-  objSendProcBody.add(epilogue[0])
-
-  result.add(newNimNode(nnkTypeSection).add(
-    newNimNode(nnkTypeDef).add(postfix(ident(objName), "*"), newEmptyNode(), objectTy)
-  ))
-  result.add(objInitProc, objSendProc)
