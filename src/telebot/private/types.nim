@@ -247,12 +247,15 @@ type
     keyboard*: seq[seq[KeyboardButton]]
     resizeKeyboard*: Option[bool]
     oneTimeKeyboard*: Option[bool]
+    inputFieldPlaceholder*: Option[string]
 
   KeyboardButtonPollType* = ref object of TelegramObject
     kind*: string
 
   ReplyKeyboardRemove* = ref object of KeyboardMarkup
   ForceReply* = ref object of KeyboardMarkup
+    inputFieldPlaceholder*: Option[string]
+
 
   InlineKeyboardMarkup* = ref object of KeyboardMarkup
     inlineKeyboard*: seq[seq[InlineKeyboardButton]]
@@ -365,6 +368,7 @@ type
   ChatMember* = object of TelegramObject
     user*: User
     status*: string
+    #TODO these properties below will be removed infavor of 6 types of chat members
     customTitle*: Option[string]
     isAnonymous*: Option[bool]
     untilDate*: Option[int]
@@ -385,6 +389,48 @@ type
     canSendPolls*: Option[bool]
     canSendOtherMessages*: Option[bool]
     canAddWebPagePreviews*: Option[bool]
+
+  #[ I dont know how these types work yet
+  ChatMember* = object of TelegramObject
+    user*: User
+    status*: string
+
+  ChatMemberOwner* = object of ChatMember
+    customTitle*: Option[string]
+    isAnonymous*: Option[bool]
+
+  ChatMemberAdministrator* = object of ChatMemberOwner
+    canBeEdited*: Option[bool]
+    canManageChat*: Option[bool]
+    canDeleteMessages*: Option[bool]
+    canManageVoiceChats*: Option[bool]
+    canRestrictMembers*: Option[bool]
+    canPromoteMembers*: Option[bool]
+    canChangeInfo*: Option[bool]
+    canInviteUsers*: Option[bool]
+    canPostMessages*: Option[bool]
+    canEditMessages*: Option[bool]
+    canPinMessages*: Option[bool]
+
+  ChatMemberMember* = object of ChatMember
+
+  ChatMemberRestricted* = object of ChatMember
+    isMember*: Option[bool]
+    canChangeInfo*: Option[bool]
+    canInviteUsers*: Option[bool]
+    canPinMessages*: Option[bool]
+    canSendMessages*: Option[bool]
+    canSendMediaMessages*: Option[bool]
+    canSendPolls*: Option[bool]
+    canSendOtherMessages*: Option[bool]
+    canAddWebPagePreviews*: Option[bool]
+    untilDate*: Option[int]
+
+  ChatMemberLeft* = object of ChatMember
+
+  ChatMemberBanned* = object of ChatMember
+    untilDate*: Option[int]
+  ]#
 
   ChatMemberUpdated* = object of TelegramObject
     chat*: Chat
@@ -821,4 +867,21 @@ type
   PassportElementErrorUnspecified* = ref object of PassportElementError
     elementHash*: string
 
+  BotCommandScope* = ref object of TelegramObject
+    kind*: string
 
+  BotCommandScopeDefault* = ref object of BotCommandScope
+
+  BotCommandScopeAllPrivateChats* = ref object of BotCommandScope
+
+  BotCommandScopeAllGroupChats* = ref object of BotCommandScope
+
+  BotCommandScopeAllChatAdministrators* = ref object of BotCommandScope
+
+  BotCommandScopeChat* = ref object of BotCommandScope
+    chatId*: ChatId
+
+  BotCommandScopeChatAdministrator* = ref object of BotCommandScopeChat
+
+  BotCommandScopeChatMember* = ref object of BotCommandScopeChat
+    userId*: int64

@@ -3,11 +3,13 @@ import types, strutils, utils, options
 proc initKeyBoardButton*(text: string): KeyboardButton =
   result.text = text
 
-proc newReplyKeyboardMarkup*(keyboards: varargs[seq[KeyboardButton]]): ReplyKeyboardMarkup =
+proc newReplyKeyboardMarkup*(keyboards: varargs[seq[KeyboardButton]], inputFieldPlaceholder = ""): ReplyKeyboardMarkup =
   new(result)
   result.type = kReplyKeyboardMarkup
   for keyboard in keyboards:
     result.keyboard.add(keyboard)
+  if inputFieldPlaceholder.len != 0:
+    result.inputFieldPlaceholder = some(inputFieldPlaceholder)
 
 proc initInlineKeyBoardButton*(text: string): InlineKeyboardButton =
   result.text = text
@@ -18,15 +20,18 @@ proc newInlineKeyboardMarkup*(keyboards: varargs[seq[InlineKeyBoardButton]]): In
   for keyboard in keyboards:
     result.inlineKeyboard.add(keyboard)
 
+
 proc newReplyKeyboardRemove*(selective: bool): ReplyKeyboardRemove =
   new(result)
   result.type = kReplyKeyboardRemove
   result.selective = some(selective)
 
-proc newForceReply*(selective: bool): ForceReply =
+proc newForceReply*(selective: bool, inputFieldPlaceholder = ""): ForceReply =
   new(result)
   result.type = kForceReply
   result.selective = some(selective)
+  if inputFieldPlaceholder.len != 0:
+    result.inputFieldPlaceholder = some(inputFieldPlaceholder)
 
 proc `$`*(k: KeyboardMarkup): string =
   case k.type:
@@ -40,10 +45,7 @@ proc `$`*(k: KeyboardMarkup): string =
     else:
       result = "{'remove_keyboard': true}"
   of kForceReply:
-      if k.selective.get(false):
-        result = "{'force_reply': true, 'selective': true}"
-      else:
-        result = "{'force_reply': true}"
+      marshal(ForceReply(k), result)
 
 proc newLoginUrl*(url: string, forwardText = "", botUsername = "", requestWriteAccess = false): LoginUrl =
   new(result)

@@ -547,7 +547,7 @@ proc getFile*(b: TeleBot, fileId: string): Future[types.File] {.async.} =
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, types.File)
 
-proc kickChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0, revokeMessages = false): Future[bool] {.async.} =
+proc banChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0, revokeMessages = false): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
@@ -557,6 +557,9 @@ proc kickChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0, rev
     data["revoke_messages"] = "true"
   let res = await makeRequest(b, procName, data)
   result = res.toBool
+
+proc kickChatMember*(b: TeleBot, chatId: string, userId: int, untilDate = 0, revokeMessages = false): Future[bool] {.async, inline, deprecated: "Use banChatMember instead".} =
+  result = await banChatMember(b, chatId, userId, untilDate, revokeMessages)
 
 proc unbanChatMember*(b: TeleBot, chatId: string, userId: int, onlyIfBanned = false): Future[bool] {.async.} =
   var data = newMultipartData()
@@ -702,6 +705,9 @@ proc getChatMemberCount*(b: TeleBot, chatId: string): Future[int] {.async.} =
   data["chat_id"] = chatId
   let res = await makeRequest(b, procName, data)
   result = res.toInt
+
+proc getChatMembersCount*(b: TeleBot, chatId: string): Future[int] {.async, inline, deprecated: "Use getChatMemberCount instead".} =
+  result = await getChatMemberCount(b, chatId)
 
 proc getChatMember*(b: TeleBot, chatId: string, userId: int): Future[ChatMember] {.async.} =
   var data = newMultipartData()
@@ -987,18 +993,46 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
   let res = await makeRequest(b, procName, data)
   result = res.toBool
 
-proc setMyCommands*(b: TeleBot, commands: seq[BotCommand]): Future[bool] {.async.} =
+proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope = BotCommandScopeDefault, languageCode = ""): Future[bool] {.async.} =
   var data = newMultipartData()
   var json  = ""
   marshal(commands, json)
   data["commands"] = json
 
+  var json = ""
+  marshal(scope, json)
+  data["scope"] = json
+
+  if languageCode.len != 0:
+    data["language_code"] = languageCode
+
   let res = await makeRequest(b, procName, data)
   result = res.toBool
 
-proc getMyCommands*(b: TeleBot): Future[seq[BotCommand]] {.async.} =
-  let res = await makeRequest(b, procName)
+proc getMyCommands*(b: TeleBot, scope = BotCommandScopeDefault, languageCode = ""): Future[seq[BotCommand]] {.async.} =
+  var data = newMultipartData()
+  var json = ""
+  marshal(scope, json)
+  data["scope"] = json
+
+  if languageCode.len != 0:
+    data["language_code"] = languageCode
+
+  let res = await makeRequest(b, procName, data)
+
   result = unmarshal(res, seq[BotCommand])
+
+proc deleteMyCommands*(b: TeleBot, scope = BotCommandScopeDefault, languageCode = ""): Future[bool] {.async.} =
+  var data = newMultipartData()
+  var json = ""
+  marshal(scope, json)
+  data["scope"] = json
+
+  if languageCode.len != 0:
+    data["language_code"] = languageCode
+
+  let res = await makeRequest(b, procName, data)
+  result = res.toBool
 
 proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   if results.len == 0:
