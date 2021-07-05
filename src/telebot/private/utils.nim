@@ -39,7 +39,7 @@ template hasCommand*(update: Update, username: string): bool =
     let
       entities = message.entities.get()
       messageText = message.text.get()
-    if entities[0].kind == "bot_command":
+    if entities[0].kind == "bot_command" and entities[0].offset == 0:
       let
         offset = entities[0].offset
         length = entities[0].length
