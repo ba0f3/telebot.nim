@@ -872,16 +872,16 @@ type
 
   BotCommandScopeDefault* = ref object of BotCommandScope
 
-  BotCommandScopeAllPrivateChats* = ref object of BotCommandScope
+  #BotCommandScopeAllPrivateChats* = ref object of BotCommandScope
 
-  BotCommandScopeAllGroupChats* = ref object of BotCommandScope
+  #BotCommandScopeAllGroupChats* = ref object of BotCommandScope
 
-  BotCommandScopeAllChatAdministrators* = ref object of BotCommandScope
+  #BotCommandScopeAllChatAdministrators* = ref object of BotCommandScope
 
   BotCommandScopeChat* = ref object of BotCommandScope
     chatId*: ChatId
 
-  BotCommandScopeChatAdministrator* = ref object of BotCommandScopeChat
+  #BotCommandScopeChatAdministrator* = ref object of BotCommandScopeChat
 
   BotCommandScopeChatMember* = ref object of BotCommandScopeChat
     userId*: int64

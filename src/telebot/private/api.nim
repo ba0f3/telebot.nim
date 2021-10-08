@@ -1,6 +1,6 @@
 import httpclient, sam, asyncdispatch, utils, strutils, options, strtabs
 from tables import hasKey, `[]`
-import types, keyboard
+import types, keyboard, commandscope
 
 proc sendMessage*(b: TeleBot, chatId: int64, text: string, parseMode = "", entities: seq[MessageEntity] = @[],
                   disableWebPagePreview = false, disableNotification = false, replyToMessageId = 0,
@@ -993,13 +993,13 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
   let res = await makeRequest(b, procName, data)
   result = res.toBool
 
-proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope = BotCommandScopeDefault, languageCode = ""): Future[bool] {.async.} =
+proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope: BotCommandScope = newBotCommandScopeDefault(), languageCode = ""): Future[bool] {.async.} =
   var data = newMultipartData()
   var json  = ""
   marshal(commands, json)
   data["commands"] = json
 
-  var json = ""
+  json = ""
   marshal(scope, json)
   data["scope"] = json
 
@@ -1009,7 +1009,7 @@ proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope = BotCommandSco
   let res = await makeRequest(b, procName, data)
   result = res.toBool
 
-proc getMyCommands*(b: TeleBot, scope = BotCommandScopeDefault, languageCode = ""): Future[seq[BotCommand]] {.async.} =
+proc getMyCommands*(b: TeleBot, scope: BotCommandScope = newBotCommandScopeDefault(), languageCode = ""): Future[seq[BotCommand]] {.async.} =
   var data = newMultipartData()
   var json = ""
   marshal(scope, json)
@@ -1022,7 +1022,7 @@ proc getMyCommands*(b: TeleBot, scope = BotCommandScopeDefault, languageCode = "
 
   result = unmarshal(res, seq[BotCommand])
 
-proc deleteMyCommands*(b: TeleBot, scope = BotCommandScopeDefault, languageCode = ""): Future[bool] {.async.} =
+proc deleteMyCommands*(b: TeleBot, scope: BotCommandScope = newBotCommandScopeDefault(), languageCode = ""): Future[bool] {.async.} =
   var data = newMultipartData()
   var json = ""
   marshal(scope, json)
