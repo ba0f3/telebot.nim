@@ -1,6 +1,6 @@
 import httpclient, sam, asyncdispatch, utils, strutils, options, strtabs
 from tables import hasKey, `[]`
-import types, keyboard, commandscope
+import types, keyboard
 
 proc sendMessage*(b: TeleBot, chatId: int64, text: string, parseMode = "", entities: seq[MessageEntity] = @[],
                   disableWebPagePreview = false, disableNotification = false, replyToMessageId = 0,
@@ -993,15 +993,27 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
   let res = await makeRequest(b, procName, data)
   result = res.toBool
 
-proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope: BotCommandScope = newBotCommandScopeDefault(), languageCode = ""): Future[bool] {.async.} =
+proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope = COMMAND_SCOPE_DEFAULT, chatId = "", userId = 0, languageCode = ""): Future[bool] {.async.} =
   var data = newMultipartData()
   var json  = ""
   marshal(commands, json)
   data["commands"] = json
 
-  json = ""
-  marshal(scope, json)
-  data["scope"] = json
+  echo json
+
+  case scope
+  of COMMAND_SCOPE_DEFAULT:
+    discard
+  of COMMAND_SCOPE_ALL_PRIVATE_CHATS, COMMAND_SCOPE_ALL_GROUP_CHATS, COMMAND_SCOPE_ALL_CHAT_ADMINISTARTORS:
+    json = "{\"type\": \"$#}\"" % [$scope]
+  of COMMAND_SCOPE_CHAT, COMMAND_SCOPE_CHAT_ADMINISTARTORS:
+    json = "{\"type\": \"$#\", \"chat_id\": \"$#\"}" % [$scope, $chatId]
+  of COMMAND_SCOPE_CHAT_MEMBER:
+    json = "{\"type\": \"$#\", \"chat_id\": \"$#\", \"user_id\": $#}" % [$scope, $chatId, $userId]
+
+  echo json
+  if scope != COMMAND_SCOPE_DEFAULT:
+    data["scope"] = json
 
   if languageCode.len != 0:
     data["language_code"] = languageCode
@@ -1009,11 +1021,22 @@ proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope: BotCommandScop
   let res = await makeRequest(b, procName, data)
   result = res.toBool
 
-proc getMyCommands*(b: TeleBot, scope: BotCommandScope = newBotCommandScopeDefault(), languageCode = ""): Future[seq[BotCommand]] {.async.} =
+proc getMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "", userId = 0, languageCode = ""): Future[seq[BotCommand]] {.async.} =
   var data = newMultipartData()
+
   var json = ""
-  marshal(scope, json)
-  data["scope"] = json
+  case scope
+  of COMMAND_SCOPE_DEFAULT:
+    discard
+  of COMMAND_SCOPE_ALL_PRIVATE_CHATS, COMMAND_SCOPE_ALL_GROUP_CHATS, COMMAND_SCOPE_ALL_CHAT_ADMINISTARTORS:
+    json = "{\"type\": \"$#\"" % [$scope]
+  of COMMAND_SCOPE_CHAT, COMMAND_SCOPE_CHAT_ADMINISTARTORS:
+    json = "{\"type\": \"$#\", \"chat_id\": \"$#\"}" % [$scope, $chatId]
+  of COMMAND_SCOPE_CHAT_MEMBER:
+    json = "{\"type\": \"$#\", \"chat_id\": \"$#\", \"user_id\": $#}" % [$scope, $chatId, $userId]
+
+  if scope != COMMAND_SCOPE_DEFAULT:
+    data["scope"] = json
 
   if languageCode.len != 0:
     data["language_code"] = languageCode
@@ -1022,11 +1045,22 @@ proc getMyCommands*(b: TeleBot, scope: BotCommandScope = newBotCommandScopeDefau
 
   result = unmarshal(res, seq[BotCommand])
 
-proc deleteMyCommands*(b: TeleBot, scope: BotCommandScope = newBotCommandScopeDefault(), languageCode = ""): Future[bool] {.async.} =
+proc deleteMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "", userId = 0, languageCode = ""): Future[bool] {.async.} =
   var data = newMultipartData()
+
   var json = ""
-  marshal(scope, json)
-  data["scope"] = json
+  case scope
+  of COMMAND_SCOPE_DEFAULT:
+    discard
+  of COMMAND_SCOPE_ALL_PRIVATE_CHATS, COMMAND_SCOPE_ALL_GROUP_CHATS, COMMAND_SCOPE_ALL_CHAT_ADMINISTARTORS:
+    json = "{\"type\": \"$#\"" % [$scope]
+  of COMMAND_SCOPE_CHAT, COMMAND_SCOPE_CHAT_ADMINISTARTORS:
+    json = "{\"type\": \"$#\", \"chat_id\": \"$#\"}" % [$scope, $chatId]
+  of COMMAND_SCOPE_CHAT_MEMBER:
+    json = "{\"type\": \"$#\", \"chat_id\": \"$#\", \"user_id\": $#}" % [$scope, $chatId, $userId]
+
+  if scope != COMMAND_SCOPE_DEFAULT:
+    data["scope"] = json
 
   if languageCode.len != 0:
     data["language_code"] = languageCode

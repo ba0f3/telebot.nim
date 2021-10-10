@@ -867,10 +867,25 @@ type
   PassportElementErrorUnspecified* = ref object of PassportElementError
     elementHash*: string
 
-  BotCommandScope* = ref object of TelegramObject
+  #------------------
+  # BotCommandScope
+  #------------------
+
+  BotCommandScope* = enum
+    COMMAND_SCOPE_DEFAULT = "default"
+    COMMAND_SCOPE_ALL_PRIVATE_CHATS = "all_private_chats"
+    COMMAND_SCOPE_ALL_GROUP_CHATS = "all_group_chats"
+    COMMAND_SCOPE_ALL_CHAT_ADMINISTARTORS = "all_chat_administrators"
+    COMMAND_SCOPE_CHAT = "chat"
+    COMMAND_SCOPE_CHAT_ADMINISTARTORS = "chat_administrators"
+    COMMAND_SCOPE_CHAT_MEMBER = "chat_member"
+
+
+
+  #[BotCommandScope* = object of TelegramObject
     kind*: string
 
-  BotCommandScopeDefault* = ref object of BotCommandScope
+  BotCommandScopeDefault* = object of BotCommandScope
 
   #BotCommandScopeAllPrivateChats* = ref object of BotCommandScope
 
@@ -878,10 +893,11 @@ type
 
   #BotCommandScopeAllChatAdministrators* = ref object of BotCommandScope
 
-  BotCommandScopeChat* = ref object of BotCommandScope
-    chatId*: ChatId
+  BotCommandScopeChat* = object of BotCommandScope
+    chatId*: int64
 
   #BotCommandScopeChatAdministrator* = ref object of BotCommandScopeChat
 
-  BotCommandScopeChatMember* = ref object of BotCommandScopeChat
+  BotCommandScopeChatMember* = object of BotCommandScopeChat
     userId*: int64
+]#

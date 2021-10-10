@@ -1,7 +1,7 @@
 import tables, httpclient
 
-import telebot/private/[types, keyboard, webhook, inputmedia, helpers, commandscope]
-export types, webhook, keyboard, inputmedia, helpers, commandscope
+import telebot/private/[types, keyboard, webhook, inputmedia, helpers]
+export types, webhook, keyboard, inputmedia, helpers
 
 proc setProxy*(b: Telebot, url: string, auth = "") {.inline.} =
   b.proxy = newProxy(url, auth)
