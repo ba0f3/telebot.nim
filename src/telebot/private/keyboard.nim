@@ -41,9 +41,9 @@ proc `$`*(k: KeyboardMarkup): string =
     marshal(ReplyKeyboardMarkup(k), result)
   of kReplyKeyboardRemove:
     if k.selective.get(false):
-      result = "{'remove_keyboard': true, 'selective': true}"
+      result = "{\"remove_keyboard\": true, \"selective\": true}"
     else:
-      result = "{'remove_keyboard': true}"
+      result = "{\"remove_keyboard\": true}"
   of kForceReply:
       marshal(ForceReply(k), result)
 
