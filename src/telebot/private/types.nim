@@ -7,6 +7,19 @@ converter optionToBool*[T](o: Option[T]): bool = o.isSome()
 type
   TelegramObject* = object of RootObj
 
+  ChatAction* = enum
+    TYPING
+    UPLOAD_PHOTO
+    RECORD_VIDEO
+    UPLOAD_VIDEO
+    RECORD_VOICE
+    UPLOAD_VOICE
+    UPLOAD_DOCUMENT
+    CHOOSE_STICKER
+    FIND_LOCATION
+    RECORD_VIDEO_NOTE
+    UPLOAD_VIDEO_NOTE
+
   ChatId* = int64|string
 
   UpdateCallback* = proc(bot: Telebot, update: Update): Future[bool] {.gcsafe.}
@@ -360,10 +373,13 @@ type
   ChatInviteLink* = object of TelegramObject
     inviteLink*: string
     creator*: User
+    createsJoinRequest*: bool
     isPrimary*: bool
     isRevoked*: bool
+    name*: Option[string]
     expireDate*: Option[int]
     memberLimit*: Option[int]
+    pendingJoinRequestCount*: Option[int]
 
   ChatMember* = object of TelegramObject
     user*: User
@@ -440,6 +456,13 @@ type
     newChatMember*: ChatMember
     inviteLink*: Option[ChatInviteLink]
 
+  ChatJoinRequest* = object of TelegramObject
+    chat*: Chat
+    fomrUser*: User
+    date*: int
+    bio*: Option[string]
+    inviteLink*: Option[ChatInviteLink]
+
   ChatPermissions* = object of TelegramObject
     canSendMessages*: Option[bool]
     canSendMediaMessages*: Option[bool]
@@ -473,6 +496,7 @@ type
     pollAnswer*: Option[PollAnswer]
     myChatMember*: Option[ChatMemberUpdated]
     chatMember*: Option[ChatMemberUpdated]
+    chatJoinRequest*: Option[ChatJoinRequest]
 
   #------------------
   # Game
@@ -879,25 +903,3 @@ type
     COMMAND_SCOPE_CHAT = "chat"
     COMMAND_SCOPE_CHAT_ADMINISTARTORS = "chat_administrators"
     COMMAND_SCOPE_CHAT_MEMBER = "chat_member"
-
-
-
-  #[BotCommandScope* = object of TelegramObject
-    kind*: string
-
-  BotCommandScopeDefault* = object of BotCommandScope
-
-  #BotCommandScopeAllPrivateChats* = ref object of BotCommandScope
-
-  #BotCommandScopeAllGroupChats* = ref object of BotCommandScope
-
-  #BotCommandScopeAllChatAdministrators* = ref object of BotCommandScope
-
-  BotCommandScopeChat* = object of BotCommandScope
-    chatId*: int64
-
-  #BotCommandScopeChatAdministrator* = ref object of BotCommandScopeChat
-
-  BotCommandScopeChatMember* = object of BotCommandScopeChat
-    userId*: int64
-]#

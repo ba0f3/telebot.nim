@@ -524,10 +524,10 @@ proc copyMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, captio
   result = unmarshal(res, MessageId)
 
 
-proc sendChatAction*(b: TeleBot, chatId, action: string): Future[void] {.async.} =
+proc sendChatAction*(b: TeleBot, chatId: ChatId, action: ChatAction): Future[void] {.async.} =
   var data = newMultipartData()
-  data["chat_id"] = chatId
-  data["action"] = action
+  data["chat_id"] = $chatId
+  data["action"] = toLowerAscii($action)
 
   discard makeRequest(b, procName, data)
 
@@ -1224,28 +1224,35 @@ proc getGameHighScores*(b: TeleBot, userId: int, chatId = 0, messageId = 0, inli
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[GameHighScore])
 
-
-proc createChatInviteLink*(b: Telebot, chatId: ChatId, expireDate = 0, memberLimit = 0): Future[ChatInviteLink] {.async.} =
+proc createChatInviteLink*(b: Telebot, chatId: ChatId, name = "", expireDate = 0, memberLimit = 0, createsJoinRequest = false): Future[ChatInviteLink] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
+  if name.len > 0:
+    data["name"] = name
   if expireDate > 0:
     data["expire_date"] = $expireDate
   if memberLimit > 0:
     data["member_limit"] = $memberLimit
+  if createsJoinRequest:
+    data["creates_join_request"] = "true"
 
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[ChatInviteLink])
 
-proc editChatInviteLink*(b: Telebot, chatId: ChatId, inviteLink: string, expireDate = 0, memberLimit = 0): Future[ChatInviteLink] {.async.} =
+proc editChatInviteLink*(b: Telebot, chatId: ChatId, inviteLink: string, name = "", expireDate = 0, memberLimit = 0, createsJoinRequest = false): Future[ChatInviteLink] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
   data["invite_link"] = invite_link
+  if name.len > 0:
+    data["name"] = name
   if expireDate > 0:
     data["expire_date"] = $expireDate
   if memberLimit > 0:
     data["member_limit"] = $memberLimit
+  if createsJoinRequest:
+    data["creates_join_request"] = "true"
 
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[ChatInviteLink])
@@ -1258,3 +1265,21 @@ proc revokeChatInviteLink*(b: Telebot, chatId: ChatId, inviteLink: string): Futu
 
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[ChatInviteLink])
+
+proc approveChatJoinRequest*(b: Telebot, chatId: ChatId, userId: int): Future[bool] {.async.} =
+  var data = newMultipartData()
+
+  data["chat_id"] = $chatId
+  data["user_id"] = $user_id
+
+  let res = await makeRequest(b, procName, data)
+  result = unmarshal(res, bool)
+
+proc declineChatJoinRequest*(b: Telebot, chatId: ChatId, userId: int): Future[bool] {.async.} =
+  var data = newMultipartData()
+
+  data["chat_id"] = $chatId
+  data["user_id"] = $user_id
+
+  let res = await makeRequest(b, procName, data)
+  result = unmarshal(res, bool)
