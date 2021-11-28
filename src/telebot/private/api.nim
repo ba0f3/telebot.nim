@@ -999,8 +999,6 @@ proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope = COMMAND_SCOPE
   marshal(commands, json)
   data["commands"] = json
 
-  echo json
-
   case scope
   of COMMAND_SCOPE_DEFAULT:
     discard
@@ -1011,7 +1009,6 @@ proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope = COMMAND_SCOPE
   of COMMAND_SCOPE_CHAT_MEMBER:
     json = "{\"type\": \"$#\", \"chat_id\": \"$#\", \"user_id\": $#}" % [$scope, $chatId, $userId]
 
-  echo json
   if scope != COMMAND_SCOPE_DEFAULT:
     data["scope"] = json
 
