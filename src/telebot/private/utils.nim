@@ -196,8 +196,14 @@ proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Futu
   defer: client.close()
   let r = await client.post(endpoint, multipart=data)
   if r.code == Http200 or r.code == Http400:
-    var obj = parse(await r.body)
-    if obj["ok"].toBool:
+    let body = await r.body
+    var obj: JsonNode
+    try:
+      obj = parse(body)
+    except:
+      raise newException(ValueError, "Parse JSON error: " & getCurrentExceptionMsg() & "\n" & body)
+
+    if obj.hasKey("ok") and obj["ok"].toBool:
       result = obj["result"]
       d("Result: ", $result)
     else:
