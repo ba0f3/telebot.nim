@@ -63,13 +63,19 @@ type
     firstName*: Option[string]
     lastName*: Option[string]
     photo*: Option[ChatPhoto]
+    bio*: Option[string]
+    hasPrivateForwards*: Option[bool]
     description*: Option[string]
     inviteLink*: Option[string]
     pinnedMessage*: Option[ref Message]
     permissions*: Option[ChatPermissions]
     slowModeDelay*: Option[int]
+    messageAutoDeleteTime*: Option[int]
+    hasProtectedContent*: Option[bool]
     stickerSetName*: Option[string]
     canSetStickerSet*: Option[bool]
+    linkedChatId*: Option[int]
+    location*: Option[ChatLocation]
 
   PhotoSize* = object of TelegramObject
     fileId*: string
@@ -315,9 +321,11 @@ type
     forwardSignature*: Option[string]
     forwardSenderName*: Option[string]
     forwardDate*: Option[int]
+    isAutomaticForward*: Option[bool]
     replyToMessage*: Option[ref Message]
     viaBot*: Option[User]
     editDate*: Option[int]
+    hasProtectedContent*: Option[bool]
     mediaGroupId*: Option[string]
     authorSignature*: Option[string]
     text*: Option[string]
@@ -472,6 +480,10 @@ type
     canChangeInfo*: Option[bool]
     canInviteUsers*: Option[bool]
     canPinMessages*: Option[bool]
+
+  ChatLocation* = object of TelegramObject
+    location*: Location
+    address*: string
 
   BotCommand* = object of TelegramObject
     command*: string

@@ -1098,6 +1098,22 @@ proc setChatAdministratorCustomTitle*(b: TeleBot, chatId: string, userId: int, c
   let res = await makeRequest(b, procName, data)
   result = res.toBool
 
+proc banChatSenderChat*(b: TeleBot, chatId: string, senderChatId: int, untilDate = 0): Future[bool] {.async.} =
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  data["sender_chat_id"] = $senderChatId
+  if untilDate > 0:
+    data["until_date"] = $untilDate
+  let res = await makeRequest(b, procName, data)
+  result = res.toBool
+
+proc unbanChatSenderChat*(b: TeleBot, chatId: string, senderChatId: int): Future[bool] {.async.} =
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  data["sender_chat_id"] = $senderChatId
+  let res = await makeRequest(b, procName, data)
+  result = res.toBool
+
 proc getUpdates*(b: TeleBot, offset, limit = 0, timeout = 50, allowedUpdates: seq[string] = @[]): Future[JsonNode] {.async.} =
   var data = newMultipartData()
 
