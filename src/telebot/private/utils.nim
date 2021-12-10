@@ -199,7 +199,7 @@ proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Futu
     let body = await r.body
     var obj: JsonNode
     try:
-      obj = parse(body)
+      obj = parse(body, bufferSize = 48)
     except:
       raise newException(ValueError, "Parse JSON error: " & getCurrentExceptionMsg() & "\n" & body)
 
