@@ -6,8 +6,8 @@ addHandler(L)
 
 const API_KEY = slurp("secret.key").strip()
 
-proc updateHandler(bot: TeleBot, e: Update) {.async.} =
-  var response = e.message.get
+proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
+  var response = u.message.get
   if response.text.isSome:
     let
       text = response.text.get
@@ -24,7 +24,7 @@ proc updateHandler(bot: TeleBot, e: Update) {.async.} =
 
     let replyMarkup = newInlineKeyboardMarkup(@[google, bing], @[ddg, searx])
 
-    discard await bot.sendMessage(response.chat.id, text, replyMarkup = replyMarkup)
+    discard await b.sendMessage(response.chat.id, text, replyMarkup = replyMarkup)
 
 when isMainModule:
   let bot = newTeleBot(API_KEY)

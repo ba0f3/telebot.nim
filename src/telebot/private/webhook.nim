@@ -1,4 +1,4 @@
-import asyncdispatch, asynchttpserver, httpclient, strutils, sam, options
+import asyncdispatch, asynchttpserver, httpclient, strutils, json, options
 import utils, types, api
 
 type
@@ -14,16 +14,16 @@ type
 
 proc getWebhookInfo(n: JsonNode): WebhookInfo =
   result.url = $n["url"]
-  result.hasCustomCertificate = n["has_custom_certificate"].toBool
-  result.pendingUpdateCount = n["pending_update_count"].toInt
+  result.hasCustomCertificate = n["has_custom_certificate"].getBool
+  result.pendingUpdateCount = n["pending_update_count"].getInt
   if n.hasKey("ip_address"):
     result.ipAddress = $n["ip_address"]
   if n.hasKey("last_error_date"):
-    result.lastErrorDate = n["last_error_date"].toInt
+    result.lastErrorDate = n["last_error_date"].getInt
   if n.hasKey("last_error_message"):
     result.lastErrorMessage = $n["last_error_message"]
   if n.hasKey("max_connections"):
-    result.maxConnections = n["max_connections"].toInt
+    result.maxConnections = n["max_connections"].getInt
   else:
     result.maxConnections = 40
   if n.hasKey("allowed_updates"):
@@ -52,7 +52,7 @@ proc deleteWebhook*(b: TeleBot, dropPendingUpdates = false): Future[bool] {.asyn
   if dropPendingUpdates:
     data["drop_pending_updates"] = "true"
   let res = await makeRequest(b, procName, data)
-  result = res.toBool
+  result = res.getBool
 
 proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =
   let res = await makeRequest(b, procName)
@@ -76,7 +76,7 @@ proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080), dropPending
     if req.url.path == "/" & secret:
       try:
         let
-          json = parse(req.body)
+          json = parseJson(req.body)
           update = unmarshal(json, Update)
         await b.handleUpdate(update)
         await req.respond(Http200, "OK\n", headers)

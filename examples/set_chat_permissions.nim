@@ -1,14 +1,14 @@
-import ../telebot, asyncdispatch, logging, options, sam
+import telebot, asyncdispatch, logging, options
 from strutils import strip
 
-import ../telebot/utils
+import ../src/telebot/private/utils
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
 addHandler(L)
 
 const API_KEY = slurp("secret.key").strip()
 
-proc commandHandler(b: Telebot, c: Command) {.async.} =
+proc commandHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
   let perms = ChatPermissions(
     canSendMessages: some(true),
     canSendMediaMessages: some(true),

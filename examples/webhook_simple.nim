@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, logging, options, sam
+import telebot, asyncdispatch, logging, options
 from strutils import strip
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
@@ -14,7 +14,7 @@ proc updateHandler(b: Telebot, u: Update) {.async.} =
     discard b.sendMessage(response.chat.id, response.text.get, disableNotification = true, replyToMessageId = response.messageId, parseMode = "markdown")
 
 
-proc greatingHandler(b: Telebot, c: Command) {.async.} =
+proc greatingHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
   discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstName, disableNotification = true, replyToMessageId = c.message.messageId, parseMode = "markdown")
 
 when isMainModule:

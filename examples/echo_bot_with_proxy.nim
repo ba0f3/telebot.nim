@@ -6,13 +6,13 @@ addHandler(L)
 
 const API_KEY = slurp("secret.key").strip()
 
-proc updateHandler(b: Telebot, u: Update) {.async.} =
+proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
   var response = u.message.get
   if response.text.isSome:
     discard await b.sendMessage(response.chat.id, response.text.get)
 
 
-proc greatingHandler(b: Telebot, c: Command) {.async.} =
+proc greatingHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
   discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstName)
 
 when isMainModule:

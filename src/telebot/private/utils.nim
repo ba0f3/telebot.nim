@@ -1,5 +1,4 @@
-import macros, httpclient, asyncdispatch, sam, strutils, types, options, logging, strtabs, random
-from json import escapeJson
+import macros, httpclient, asyncdispatch, json, strutils, types, options, logging, strtabs, random
 from streams import Stream, readAll
 from parseutils import parseUntil
 
@@ -89,7 +88,7 @@ proc formatName*(s: string): string =
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.}
 
 proc unmarshal*(n: JsonNode, T: typedesc): T =
-  when result is object:
+  when result is object or result is tuple:
     for name, value in result.fieldPairs:
       let jsonKey = formatName(name)
       when value.type is Option:
@@ -102,14 +101,34 @@ proc unmarshal*(n: JsonNode, T: typedesc): T =
         #for item in n[jsonKey]:
         #  put(value, item)
       elif value.type is string:
-        value = n[jsonKey].toStr
+        value = n[jsonKey].getStr
       else:
-        value = to[value.type](n[jsonKey])
-  elif result is seq:
-    for item in n.items:
-      result.put(item)
-    #for item in n:
-    #  result.put(item)
+        value = unmarshal(n[jsonKey], value.type)
+  elif result is ref:
+    if n.kind != JNull:
+      new(result)
+      unmarshal(n, result[])
+  elif result is array or result is seq:
+    when result is seq:
+      newSeq(result, n.len)
+    for i in 0..<n.len:
+      result[i] = unmarshal(n[i], result[0].type)
+  elif result is SomeInteger:
+    result = cast[result.type](n.getInt)
+  elif result is SomeFloat:
+    result = n.getFloat
+  elif result is string:
+    result = n.getStr
+  elif result is bool:
+    result = n.getBool
+  elif result is char:
+    result = n.getStr()[0]
+  elif result is enum:
+    let value = n.getStr
+    for e in low(result.type)..high(result.type):
+      if $e == value:
+        result = e
+
 
 proc marshal*[T](t: T, s: var string) =
   when t is Option:
@@ -175,11 +194,11 @@ proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
   when T is TelegramObject:
     o = some(unmarshal(n, T))
   elif T is int:
-    o = some(n.toInt)
+    o = some(n.getInt)
   elif T is string:
-    o = some(n.toStr)
+    o = some(n.getStr)
   elif T is bool:
-    o = some(n.toBool)
+    o = some(n.getBool)
   elif T is seq:
     var arr: T = @[]
     for item in n:
@@ -192,22 +211,22 @@ proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
 proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
   let endpoint = API_URL % [b.serverUrl, b.token, `method`]
   d("Making request to ", endpoint)
-  let client = newAsyncHttpClient(userAgent="telebot.nim/1.1.0 Nim/" & NimVersion & " +https://github.com/ba0f3/telebot.nim", proxy=b.proxy)
+  let client = newAsyncHttpClient(userAgent="telebot.nim/1.1.0 Nim/" & NimVersion, proxy=b.proxy)
   defer: client.close()
   let r = await client.post(endpoint, multipart=data)
   if r.code == Http200 or r.code == Http400:
     let body = await r.body
     var obj: JsonNode
     try:
-      obj = parse(body, bufferSize = 48)
+      obj = parseJson(body)
     except:
       raise newException(ValueError, "Parse JSON error: " & getCurrentExceptionMsg() & "\n" & body)
 
-    if obj.hasKey("ok") and obj["ok"].toBool:
+    if obj.hasKey("ok") and obj["ok"].getBool:
       result = obj["result"]
       d("Result: ", $result)
     else:
-      raise newException(IOError, obj["description"].toStr)
+      raise newException(IOError, obj["description"].getStr)
   else:
     raise newException(IOError, r.status)
 

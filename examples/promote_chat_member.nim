@@ -1,4 +1,4 @@
-import ../telebot, asyncdispatch, logging, options, sam
+import telebot, asyncdispatch, logging, options
 from strutils import strip
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
@@ -6,7 +6,7 @@ addHandler(L)
 
 const API_KEY = slurp("secret.key").strip()
 
-proc promoteHandler(b: Telebot, c: Command) {.async.} =
+proc promoteHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
     try:
         echo waitFor b.promoteChatMember($c.message.chat.id, c.message.fromUser.get().id,
             canChangeInfo=true,
