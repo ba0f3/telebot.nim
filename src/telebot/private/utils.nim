@@ -91,19 +91,13 @@ proc unmarshal*(n: JsonNode, T: typedesc): T =
   when result is object or result is tuple:
     for name, value in result.fieldPairs:
       let jsonKey = formatName(name)
-      when value.type is Option:
-        if n.hasKey(jsonKey):
-          toOption(value, n[jsonKey])
-      elif value.type is TelegramObject:
-        value = unmarshal(n[jsonKey], value.type)
-      elif value.type is seq:
-        value = unmarshal(n[jsonKey], value.type)
-        #for item in n[jsonKey]:
-        #  put(value, item)
-      elif value.type is string:
-        value = n[jsonKey].getStr
-      else:
-        value = unmarshal(n[jsonKey], value.type)
+      # DIRTY hack to make internal fields invisible
+      if jsonKey != "type":
+        when value.type is Option:
+          if n.hasKey(jsonKey):
+            toOption(value, n[jsonKey])
+        else:
+          value = unmarshal(n[jsonKey], value.type)
   elif result is ref:
     if n.kind != JNull:
       new(result)
