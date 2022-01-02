@@ -197,7 +197,7 @@ type
     isAnonymous*: bool
     kind*: string
     allowsMultipleAnswers*: bool
-    correctOptionId*: int
+    correctOptionId*: Option[int]
     explanation*: Option[string]
     explanationEntities*: Option[seq[MessageEntity]]
     openPeriod*: Option[int]
