@@ -4,6 +4,8 @@ from asyncdispatch import Future
 
 converter optionToBool*[T](o: Option[T]): bool = o.isSome()
 
+template telebotInternalUse* {.pragma.}
+
 type
   TelegramObject* = object of RootObj
 
@@ -259,7 +261,7 @@ type
     kInlineKeyboardMarkup
 
   KeyboardMarkup* = ref object of TelegramObject
-    `type`*: KeyboardKind
+    kind* {.telebotInternalUse.}: KeyboardKind
     selective*: Option[bool]
 
   ReplyKeyboardMarkup* = ref object of KeyboardMarkup
@@ -597,7 +599,7 @@ type
     InvoiceMessage
 
   InputMessageContent* = ref object of TelegramObject
-    case `type`*: InputMessageContentKind
+    case kind* {.telebotInternalUse.}: InputMessageContentKind
     of TextMessage:
       messageText*: string
       parseMode*: Option[string]

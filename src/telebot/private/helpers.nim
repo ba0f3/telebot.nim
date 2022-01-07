@@ -5,18 +5,18 @@ import types
 # -------------
 func InputTextMessageContent*(messageText: string): InputMessageContent =
   new(result)
-  result.`type` = TextMessage
+  result.kind = TextMessage
   result.messageText = messageText
 
 func InputLocationMessageContent*(latitude, longitude: float): InputMessageContent =
   new(result)
-  result.`type` = LocationMessage
+  result.kind = LocationMessage
   result.latitude = latitude
   result.longitude = longitude
 
 func InputVenueMessageContent*(latitude, longitude: float, title, address: string): InputMessageContent =
   new(result)
-  result.`type` = VenueMessage
+  result.kind = VenueMessage
   result.latitude = latitude
   result.longitude = longitude
   result.venueTitle = title
@@ -24,13 +24,13 @@ func InputVenueMessageContent*(latitude, longitude: float, title, address: strin
 
 func InputContactMessageContent*(phoneNumber, firstName: string): InputMessageContent =
   new(result)
-  result.`type` = ContactMessage
+  result.kind = ContactMessage
   result.phoneNumber = phoneNumber
   result.firstName = firstName
 
 func InputInvoiceMessageContent*(title, description, payload, providerToken, currrency: string, prices: seq[LabeledPrice]): InputMessageContent =
   new(result)
-  result.`type` = InvoiceMessage
+  result.kind = InvoiceMessage
   result.title = title
   result.description = description
   result.payload = payload

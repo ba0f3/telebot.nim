@@ -5,7 +5,7 @@ proc initKeyBoardButton*(text: string): KeyboardButton =
 
 proc newReplyKeyboardMarkup*(keyboards: varargs[seq[KeyboardButton]], inputFieldPlaceholder = ""): ReplyKeyboardMarkup =
   new(result)
-  result.type = kReplyKeyboardMarkup
+  result.kind = kReplyKeyboardMarkup
   for keyboard in keyboards:
     result.keyboard.add(keyboard)
   if inputFieldPlaceholder.len != 0:
@@ -16,25 +16,25 @@ proc initInlineKeyBoardButton*(text: string): InlineKeyboardButton =
 
 proc newInlineKeyboardMarkup*(keyboards: varargs[seq[InlineKeyBoardButton]]): InlineKeyboardMarkup =
   new(result)
-  result.type = kInlineKeyboardMarkup
+  result.kind = kInlineKeyboardMarkup
   for keyboard in keyboards:
     result.inlineKeyboard.add(keyboard)
 
 
 proc newReplyKeyboardRemove*(selective: bool): ReplyKeyboardRemove =
   new(result)
-  result.type = kReplyKeyboardRemove
+  result.kind = kReplyKeyboardRemove
   result.selective = some(selective)
 
 proc newForceReply*(selective: bool, inputFieldPlaceholder = ""): ForceReply =
   new(result)
-  result.type = kForceReply
+  result.kind = kForceReply
   result.selective = some(selective)
   if inputFieldPlaceholder.len != 0:
     result.inputFieldPlaceholder = some(inputFieldPlaceholder)
 
 proc `$`*(k: KeyboardMarkup): string =
-  case k.type:
+  case k.kind:
   of kInlineKeyboardMarkup:
     marshal(InlineKeyboardMarkup(k), result)
   of kReplyKeyboardMarkup:

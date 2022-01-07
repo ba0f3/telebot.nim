@@ -9,7 +9,7 @@ var L = newConsoleLogger(fmtStr = "$levelname, [$time] ")
 addHandler(L)
 
 func singleReply*(btn: KeyboardButton): ReplyKeyboardMarkup =
-  ReplyKeyboardMarkup(`type`: kReplyKeyboardMarkup, keyboard: @[@[btn]])
+  ReplyKeyboardMarkup(kind: kReplyKeyboardMarkup, keyboard: @[@[btn]])
 
 const API_KEY = slurp("secret.key").strip()
 
@@ -23,7 +23,7 @@ proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
         response.chat.id,
         $response.contact.get,
       )
-    
+
     else:
       # send help
       discard await b.sendMessage(

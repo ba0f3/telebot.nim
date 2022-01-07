@@ -77,22 +77,31 @@ proc formatName*(s: string): string =
   if s == "fromUser":
     return "from"
 
-  result = newStringOfCap(s.len + 5)
-  for c in s:
-    if c in {'A'..'Z'}:
-      result.add("_")
-      result.add(c.toLowerAscii)
-    else:
-      result.add(c)
+  # optimize: dont alloc new string if not needed
+  var hasUpperChar = false
+  for i in 0..<s.len:
+    if s[i] in {'A'..'Z'}:
+      hasUpperChar = true
+      break
+
+  if hasUpperChar:
+    result = newStringOfCap(s.len + 5)
+    for c in s:
+      if c in {'A'..'Z'}:
+        result.add("_")
+        result.add(c.toLowerAscii)
+      else:
+        result.add(c)
+  else:
+    return s
 
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.}
 
 proc unmarshal*(n: JsonNode, T: typedesc): T =
-  when result is object or result is tuple:
+  when T is TelegramObject:
     for name, value in result.fieldPairs:
-      let jsonKey = formatName(name)
-      # DIRTY hack to make internal fields invisible
-      if jsonKey != "type":
+      when not value.hasCustomPragma(telebotInternalUse):
+        let jsonKey = formatName(name)
         when value.type is Option:
           if n.hasKey(jsonKey):
             toOption(value, n[jsonKey])
@@ -101,7 +110,7 @@ proc unmarshal*(n: JsonNode, T: typedesc): T =
   elif result is ref:
     if n.kind != JNull:
       new(result)
-      unmarshal(n, result[])
+      result[] = unmarshal(n, result[].type)
   elif result is array or result is seq:
     when result is seq:
       newSeq(result, n.len)
@@ -131,9 +140,8 @@ proc marshal*[T](t: T, s: var string) =
   elif t is object:
     s.add "{"
     for name, value in t.fieldPairs:
-      const jsonKey = formatName(name)
-      # DIRTY hack to make internal fields invisible
-      if name != "type":
+      when not value.hasCustomPragma(telebotInternalUse):
+        let jsonKey = formatName(name)
         when value is Option:
           if value.isSome:
             s.add("\"" & jsonKey & "\":")
@@ -169,38 +177,8 @@ proc marshal*[T](t: T, s: var string) =
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.} =
   s.add(unmarshal(n, T))
 
-proc unref*[T: TelegramObject](r: ref T, n: JsonNode ): ref T {.inline.} =
-  new(result)
-  result[] =  unmarshal(n, T)
-
-  # DIRTY hack to unmarshal keyboard markups
-  when result is InlineKeyboardMarkup:
-    result.type = kInlineKeyboardMarkup
-  elif result is ReplyKeyboardMarkup:
-    result.type = kReplyKeyboardMarkup
-  elif result is ReplyKeyboardRemove:
-    result.type = kReplyKeyboardRemove
-  elif result is ForceReply:
-    result.type = kForceReply
-
-
 proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
-  when T is TelegramObject:
-    o = some(unmarshal(n, T))
-  elif T is int:
-    o = some(n.getInt)
-  elif T is string:
-    o = some(n.getStr)
-  elif T is bool:
-    o = some(n.getBool)
-  elif T is seq:
-    var arr: T = @[]
-    for item in n:
-      arr.put(item)
-    o = some(arr)
-  elif T is ref:
-    var res: T
-    o = some(unref(res, n))
+  o = some(unmarshal(n, T))
 
 proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
   let endpoint = API_URL % [b.serverUrl, b.token, `method`]
