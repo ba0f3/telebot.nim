@@ -466,7 +466,7 @@ type
 
   ChatJoinRequest* = object of TelegramObject
     chat*: Chat
-    fomrUser*: User
+    fromUser*: User
     date*: int
     bio*: Option[string]
     inviteLink*: Option[ChatInviteLink]
