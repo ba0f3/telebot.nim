@@ -71,29 +71,49 @@ proc isSet*(value: auto): bool {.inline.} =
 template d*(args: varargs[string, `$`]) =
   debug(args)
 
-proc formatName*(s: string): string =
+proc formatName(s: string): string =
   if s == "kind":
     return "type"
   if s == "fromUser":
     return "from"
-
   # optimize: dont alloc new string if not needed
   var hasUpperChar = false
   for i in 0..<s.len:
-    if s[i] in {'A'..'Z'}:
+    if s[i].isUpperAscii:
       hasUpperChar = true
       break
-
-  if hasUpperChar:
-    result = newStringOfCap(s.len + 5)
-    for c in s:
-      if c in {'A'..'Z'}:
-        result.add("_")
-        result.add(c.toLowerAscii)
-      else:
-        result.add(c)
-  else:
+  if not hasUpperChar:
     return s
+  result = newStringOfCap(s.len)
+  for c in s:
+    case c
+    of 'A': result.add("_a")
+    of 'B': result.add("_b")
+    of 'C': result.add("_c")
+    of 'D': result.add("_d")
+    of 'E': result.add("_e")
+    of 'F': result.add("_f")
+    of 'G': result.add("_g")
+    of 'H': result.add("_h")
+    of 'I': result.add("_i")
+    of 'J': result.add("_j")
+    of 'K': result.add("_k")
+    of 'L': result.add("_l")
+    of 'M': result.add("_m")
+    of 'N': result.add("_n")
+    of 'O': result.add("_o")
+    of 'P': result.add("_p")
+    of 'Q': result.add("_q")
+    of 'R': result.add("_r")
+    of 'S': result.add("_s")
+    of 'T': result.add("_t")
+    of 'U': result.add("_u")
+    of 'V': result.add("_v")
+    of 'W': result.add("_w")
+    of 'X': result.add("_x")
+    of 'Y': result.add("_y")
+    of 'Z': result.add("_z")
+    else: result.add(c)
 
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.}
 
@@ -132,12 +152,11 @@ proc unmarshal*(n: JsonNode, T: typedesc): T =
       if $e == value:
         result = e
 
-
 proc marshal*[T](t: T, s: var string) =
   when t is Option:
     if t.isSome:
       marshal(t.get, s)
-  elif t is object:
+  elif t is TelegramObject:
     s.add "{"
     for name, value in t.fieldPairs:
       when not value.hasCustomPragma(telebotInternalUse):
@@ -183,7 +202,7 @@ proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
 proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
   let endpoint = API_URL % [b.serverUrl, b.token, `method`]
   d("Making request to ", endpoint)
-  let client = newAsyncHttpClient(userAgent="telebot.nim/1.1.0 Nim/" & NimVersion, proxy=b.proxy)
+  let client = newAsyncHttpClient(userAgent="telebot.nim/2022.01 Nim/" & NimVersion, proxy=b.proxy)
   defer: client.close()
   let r = await client.post(endpoint, multipart=data)
   if r.code == Http200 or r.code == Http400:
