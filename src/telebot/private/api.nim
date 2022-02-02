@@ -731,7 +731,7 @@ proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: string): Future[typ
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, types.File)
 
-proc createNewStickerSet*(b: TeleBot, userId: int, name: string, title: string, pngSticker: string, tgsSticker: string,
+proc createNewStickerSet*(b: TeleBot, userId: int, name: string, title: string, pngSticker, tgsSticker, webmSticker: string,
                           emojis: string, containsMasks = false, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
   var data = newMultipartData()
   data["user_id"] = $userId
@@ -741,8 +741,10 @@ proc createNewStickerSet*(b: TeleBot, userId: int, name: string, title: string, 
     data.addData("png_sticker", pngSticker, true)
   elif tgsSticker.len != 0:
     data.addData("tgs_sticker", tgsSticker, true)
+  elif webmSticker.len != 0:
+    data.addData("webm_sticker", tgsSticker, true)
   else:
-    raise newException(ValueError, "Either png_sticker or tgs_sticker must be set")
+    raise newException(ValueError, "png_sticker, tgs_sticker or webm_sticker must be set")
   data["emojis"] = emojis
   if containsMasks:
     data["contains_masks"] = "true"
@@ -753,7 +755,7 @@ proc createNewStickerSet*(b: TeleBot, userId: int, name: string, title: string, 
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc addStickerToSet*(b: TeleBot, userId: int, name: string, pngSticker: string, tgsSticker: string, emojis: string, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
+proc addStickerToSet*(b: TeleBot, userId: int, name: string, pngSticker, tgsSticker, webmSticker, emojis: string, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
   var data = newMultipartData()
   data["user_id"] = $userId
   data["name"] = name
@@ -761,8 +763,10 @@ proc addStickerToSet*(b: TeleBot, userId: int, name: string, pngSticker: string,
     data.addData("png_sticker", pngSticker, true)
   elif tgsSticker.len != 0:
     data.addData("tgs_sticker", tgsSticker, true)
+  elif webmSticker.len != 0:
+    data.addData("webm_sticker", tgsSticker, true)
   else:
-    raise newException(ValueError, "Either png_sticker or tgs_sticker must be set")
+    raise newException(ValueError, "png_sticker, tgs_sticker or webm_sticker must be set")
   data["emojis"] = emojis
   if maskPosition.isSome():
     var tmp = ""

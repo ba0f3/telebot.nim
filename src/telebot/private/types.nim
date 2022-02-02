@@ -111,6 +111,7 @@ type
     width*: int
     height*: int
     isAnimated*: bool
+    isVideo*: bool
     thumb*: Option[PhotoSize]
     emoji*: Option[string]
     setName*: Option[string]
@@ -121,6 +122,7 @@ type
     name*: string
     title*: string
     isAnimated*: bool
+    isVideo*: bool
     containsMasks*: bool
     stickers*: seq[Sticker]
     thumb*: Option[PhotoSize]
