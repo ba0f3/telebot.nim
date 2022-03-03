@@ -17,11 +17,12 @@ Usage
 
 ## echo bot
 ```nim
-import telebot, asyncdispatch, logging, options
+import telebot, asyncdispatch, logging, options, strutils
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
 addHandler(L)
 
-const API_KEY = slurp("secret.key")
+# remember to strip your secret key to avoid HTTP error
+const API_KEY = strip(slurp("secret.key"))
 
 proc updateHandler(b: Telebot, u: Update): Future[bool] {.async.} =
   if not u.message.isSome:
@@ -40,9 +41,10 @@ bot.poll(timeout=300)
 
 ## send local photo
 ```nim
-import telebot, asyncdispatch, options, logging
+import telebot, asyncdispatch, options, logging, strutils
 
-const API_KEY = slurp("secret.key")
+# remember to strip your secret key to avoid HTTP error
+const API_KEY = strip(slurp("secret.key"))
 
 proc updateHandler(bot: TeleBot, update: Update): Future[bool] {.async.} =
   discard await bot.sendPhoto(response.chat.id, "file:///path/to/photo.jpg")
