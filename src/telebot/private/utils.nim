@@ -137,7 +137,7 @@ proc unmarshal*(n: JsonNode, T: typedesc): T =
     for i in 0..<n.len:
       result[i] = unmarshal(n[i], result[0].type)
   elif result is SomeInteger:
-    result = cast[result.type](n.getInt)
+    result = type(result)(n.getBiggestInt)
   elif result is SomeFloat:
     result = n.getFloat
   elif result is string:
