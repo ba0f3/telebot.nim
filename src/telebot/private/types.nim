@@ -240,17 +240,19 @@ type
     fileSize*: Option[int]
     filePath*: Option[string]
 
-  KeyboardButton* = object
+  KeyboardButton* = object of TelegramObject
     text*: string
     requestContact*: Option[bool]
     requestLocation*: Option[bool]
     requestPoll*: Option[KeyboardButtonPollType]
+    webApp*: Option[WebAppInfo]
 
   InlineKeyboardButton* = object
     text*: string
     url*: Option[string]
     loginUrl*: Option[LoginUrl]
     callbackData*: Option[string]
+    webApp*: Option[WebAppInfo]
     switchInlineQuery*: Option[string]
     switchInlineQueryCurrentChat*: Option[string]
     callbackGame*: Option[CallbackGame]
@@ -367,10 +369,11 @@ type
     connectedWebsite*: Option[string]
     passportData*: Option[PassportData]
     proximityAlertTriggered*: Option[ProximityAlertTriggered]
-    voiceChatScheduled*: Option[VoiceChatScheduled]
-    voiceChatStarted*: Option[VoiceChatStarted]
-    voiceChatEnded*: Option[VoiceChatEnded]
-    voiceChatParticipantsInvited*: Option[VoiceChatParticipantsInvited]
+    videoChatScheduled*: Option[VoiceChatScheduled]
+    videoChatStarted*: Option[VoiceChatStarted]
+    videoChatEnded*: Option[VoiceChatEnded]
+    videoChatParticipantsInvited*: Option[VoiceChatParticipantsInvited]
+    webAppData*: Option[WebAppData]
     replyMarkup*: Option[InlineKeyboardMarkup]
 
   MessageId* = object of TelegramObject
@@ -393,6 +396,19 @@ type
     memberLimit*: Option[int]
     pendingJoinRequestCount*: Option[int]
 
+  ChatAdministratorRights* = object of TelegramObject
+    isAnonymous*: bool
+    canManageChat*: bool
+    canDeleteMessages*: bool
+    canManageVideoChats*: bool
+    canRestrictMembers*: bool
+    canPromoteMembers*: bool
+    canChangeInfo*: bool
+    canInviteUsers*: bool
+    canpostMessages*: Option[bool]
+    canEditMessages*: Option[bool]
+    canPinMessages*: Option[bool]
+
   ChatMember* = object of TelegramObject
     user*: User
     status*: string
@@ -405,7 +421,7 @@ type
     canPostMessages*: Option[bool]
     canEditMessages*: Option[bool]
     canDeleteMessages*: Option[bool]
-    canManageVoiceChats*: Option[bool]
+    canManageVideoChats*: Option[bool]
     canRestrictMembers*: Option[bool]
     canPromoteMembers*: Option[bool]
     canChangeInfo*: Option[bool]
@@ -919,3 +935,33 @@ type
     COMMAND_SCOPE_CHAT = "chat"
     COMMAND_SCOPE_CHAT_ADMINISTARTORS = "chat_administrators"
     COMMAND_SCOPE_CHAT_MEMBER = "chat_member"
+
+  #------------------
+  # Web APp
+  #------------------
+  MenuButton* = ref object of TelegramObject
+
+  MenuButtonCommands* = ref object of MenuButton
+    kind*: string
+
+  MenuButtonWebApp* = ref object of MenuButton
+    kind*: string
+    text*: string
+    webApp*: WebAppInfo
+
+  MenuButtonDefault* = ref object of MenuButton
+    kind*: string
+
+
+
+
+
+  WebAppInfo* = ref object of TelegramObject
+    url*: string
+
+  SentWebAppMessage* = ref object of TelegramObject
+    inlineMessageId*: Option[string]
+
+  WebAppData* = ref object of TelegramObject
+    data*: string
+    buttonText*: string

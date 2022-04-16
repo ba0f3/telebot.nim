@@ -9,6 +9,7 @@ type
     ipAddress*: string
     lastErrorDate*: int
     lastErrorMessage*: string
+    lastSynchronizationErrorDate*: int
     maxConnections*: int
     allowedUpdates*: seq[string]
 

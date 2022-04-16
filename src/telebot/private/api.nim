@@ -619,7 +619,7 @@ proc restrictChatMember*(b: TeleBot, chatId: string, userId: int, permissions: C
   result = res.getBool
 
 proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, isAnonymous = false, canManageChat = false, canChangeInfo = false,
-                        canPostMessages = false, canEditMessages = false, canDeleteMessages = false, canManageVoiceChats = false,
+                        canPostMessages = false, canEditMessages = false, canDeleteMessages = false, canManageVideoChats = false,
                         canInviteUsers = false, canRestrictMembers = false, canPinMessages = false, canPromoteMembers = false): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
@@ -636,8 +636,8 @@ proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, isAnonymous = f
     data["can_edit_messages"] = "true"
   if canDeleteMessages:
     data["can_delete_messages"] = "true"
-  if canManageVoiceChats:
-    data["can_manage_voice_chats"] = "true"
+  if canManageVideoChats:
+    data["can_manage_video_chats"] = "true"
   if canInviteUsers:
     data["can_invite_users"] = "true"
   if canRestrictMembers:
@@ -1105,7 +1105,7 @@ proc deleteMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "", u
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc answerInlineQuery*[T](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
+proc answerInlineQuery*[T: InlineQueryResult](b: TeleBot, id: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   if results.len == 0:
     return false
 
@@ -1336,3 +1336,48 @@ proc declineChatJoinRequest*(b: Telebot, chatId: ChatId, userId: int): Future[bo
 
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, bool)
+
+
+proc answerWebAppQuery*(b: Telebot, webAppQueryId: string, res: InlineQueryResult): Future[SentWebAppMessage] {.async.} =
+  var data = newMultipartData()
+
+  data["web_app_query_id"] = webAppQueryId
+  var s = ""
+  marshal(res, s)
+  data["result"] = s
+
+  let res = await makeRequest(b, procName, data)
+  result = unmarshal(res, SentWebAppMessage)
+
+proc setChatMenuButon*(b: TeleBot, chatId: string, menuButton: MenuButton): Future[bool] {.async.} =
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  var s = ""
+  marshal(menuButton, s)
+  data["menu_buton"] = s
+  let res = await makeRequest(b, procName, data)
+  result = res.getBool
+
+proc getChatMenuButon*(b: TeleBot, chatId: string): Future[MenuButton] {.async.} =
+  var data = newMultipartData()
+  data["chat_id"] = chatId
+  let res = await makeRequest(b, procName, data)
+  result = unmarshal(res, MenuButton)
+
+proc setMyDefaultAdministratorRights*(b: TeleBot, rights: ChatAdministratorRights, forChannels = false): Future[bool] {.async.} =
+  var data = newMultipartData()
+
+  var s = ""
+  marshal(rights, s)
+  data["rights"] = s
+  if forChannels:
+    data["for_channels"] = "True"
+  let res = await makeRequest(b, procName, data)
+  result = res.getBool
+
+proc getMyDefaultAdministratorRights*(b: TeleBot, forChannels = false): Future[ChatAdministratorRights] {.async.} =
+  var data = newMultipartData()
+  if forChannels:
+    data["for_channels"] = "True"
+  let res = await makeRequest(b, procName, data)
+  result = unmarshal(res, ChatAdministratorRights)
