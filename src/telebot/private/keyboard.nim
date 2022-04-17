@@ -20,7 +20,6 @@ proc newInlineKeyboardMarkup*(keyboards: varargs[seq[InlineKeyBoardButton]]): In
   for keyboard in keyboards:
     result.inlineKeyboard.add(keyboard)
 
-
 proc newReplyKeyboardRemove*(selective: bool): ReplyKeyboardRemove =
   new(result)
   result.kind = kReplyKeyboardRemove

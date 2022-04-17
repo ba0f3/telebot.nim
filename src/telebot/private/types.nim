@@ -247,7 +247,7 @@ type
     requestPoll*: Option[KeyboardButtonPollType]
     webApp*: Option[WebAppInfo]
 
-  InlineKeyboardButton* = object
+  InlineKeyboardButton* = object of TelegramObject
     text*: string
     url*: Option[string]
     loginUrl*: Option[LoginUrl]
