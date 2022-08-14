@@ -121,14 +121,15 @@ type
     setName*: Option[string]
     premiumAnimation*: Option[File]
     maskPosition*: Option[MaskPosition]
+    customEmojiId*: Option[string]
     fileSize*: Option[int]
 
   StickerSet* = object of TelegramObject
     name*: string
     title*: string
+    stickerType*: string
     isAnimated*: bool
     isVideo*: bool
-    containsMasks*: bool
     stickers*: seq[Sticker]
     thumb*: Option[PhotoSize]
 
@@ -319,6 +320,7 @@ type
     url*: Option[string]
     user*: Option[User]
     language*: Option[string]
+    customEmojiId*: Option[string]
 
   Message* = object of TelegramObject
     messageId*: int

@@ -805,6 +805,12 @@ proc getStickerSet*(b: TeleBot, name: string): Future[StickerSet] {.async.} =
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, StickerSet)
 
+proc getCustomEmojiStickers*(b: TeleBot, customEmojiIds: seq[string]): Future[seq[Sticker]] {.async.} =
+  var data = newMultipartData()
+  data["custom_emoji_ids"] = $customEmojiIds
+  let res = await makeRequest(b, procName, data)
+  result = unmarshal(res, seq[Sticker])
+
 proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: string): Future[types.File] {.async.} =
   var data = newMultipartData()
   data["user_id"] = $userId
@@ -812,23 +818,23 @@ proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: string): Future[typ
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, types.File)
 
-proc createNewStickerSet*(b: TeleBot, userId: int, name: string, title: string, pngSticker, tgsSticker, webmSticker: string,
-                          emojis: string, containsMasks = false, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
+proc createNewStickerSet*(b: TeleBot, userId: int, name, title, emojis: string, pngSticker, tgsSticker, webmSticker, stickerType = "",
+                          containsMasks = false, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
   var data = newMultipartData()
   data["user_id"] = $userId
   data["name"] = name
   data["title"] = title
+  data["emojis"] = emojis
   if pngSticker.len != 0:
     data.addData("png_sticker", pngSticker, true)
   elif tgsSticker.len != 0:
     data.addData("tgs_sticker", tgsSticker, true)
   elif webmSticker.len != 0:
-    data.addData("webm_sticker", tgsSticker, true)
+    data.addData("webm_sticker", webmSticker, true)
   else:
     raise newException(ValueError, "png_sticker, tgs_sticker or webm_sticker must be set")
-  data["emojis"] = emojis
-  if containsMasks:
-    data["contains_masks"] = "true"
+  if stickerType.len != 0:
+    data["sticker_type"] = stickerType
   if maskPosition.isSome():
     var tmp = ""
     maskPosition.marshal(tmp)
