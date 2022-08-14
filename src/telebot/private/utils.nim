@@ -200,9 +200,12 @@ proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
   o = some(unmarshal(n, T))
 
 proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
-  let endpoint = API_URL % [b.serverUrl, b.token, `method`]
+  when defined(telebotTestMode):
+    let endpoint = API_URL % [b.serverUrl, b.token, "test/" & `method`]
+  else:
+    let endpoint = API_URL % [b.serverUrl, b.token, `method`]
   d("Making request to ", endpoint)
-  let client = newAsyncHttpClient(userAgent="telebot.nim/2022.01 Nim/" & NimVersion, proxy=b.proxy)
+  let client = newAsyncHttpClient(userAgent="telebot.nim/2022.08 Nim/" & NimVersion, proxy=b.proxy)
   defer: client.close()
   let r = await client.post(endpoint, multipart=data)
   if r.code == Http200 or r.code == Http400:
