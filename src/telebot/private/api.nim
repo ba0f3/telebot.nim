@@ -396,6 +396,53 @@ proc sendInvoice*(b: TeleBot, chatId: int64, title: string, description: string,
   let res = await makeRequest(b, procName, data)
   result = getMessage(res)
 
+proc createInvoiceLink*(b: TeleBot, title: string, description: string, payload: string, providerToken: string, currency: string, prices: seq[LabeledPrice], maxTipAmount = 0,
+                        suggestedTipAmounts: seq[int] = @[], providerData = "", photoUrl = "", photoSize = 0, photoWidth = 0, photoHeight = 0,
+                        needName = false, needPhoneNumber = false, needEmail = false, needShippingAddress = false,
+                        sendPhoneNumberToProvider = false, sendEmailToProvider = false, isFlexible = false): Future[string] {.async.} =
+  var data = newMultipartData()
+  data["title"] = title
+  data["description"] = description
+  data["payload"] = payload
+  data["provider_token"] = providerToken
+  data["currency"] = currency
+  var  json = ""
+  marshal(prices, json)
+  data["prices"] = json
+  data["max_tip_amount"] = $maxTipAmount
+  if suggestedTipAmounts.len != 0:
+    json = ""
+    marshal(suggestedTipAmounts, json)
+    data["suggested_top_amounts"] = json
+  if providerData.len > 0:
+    data["provider_data"] = providerData
+  if photoUrl.len > 0:
+    data["photo_url"] = photoUrl
+  if photoSize > 0:
+    data["photo_size"] = $photoSize
+  if photoWidth > 0:
+    data["photo_width"] = $photoWidth
+  if photoHeight > 0:
+    data["photo_height"] = $photoHeight
+  if needName:
+    data["need_name"] = "true"
+  if needPhoneNumber:
+    data["need_phone_number"] = "true"
+  if needEmail:
+    data["need_email"] = "true"
+  if needShippingAddress:
+    data["need_shipping_address"] = "true"
+  if sendPhoneNumberToProvider:
+    data["send_phone_number_to_provider"] = "true"
+  if sendEmailToProvider:
+    data["send_email_to_provider"] = "true"
+  if isFlexible:
+    data["is_flexible"] = "true"
+
+  let res = await makeRequest(b, procName, data)
+  result = res.getStr
+
+
 proc sendAnimation*(b: TeleBot, chatId: int64, animation: string, duration = 0, width = 0, height = 0, thumb = "",
                    caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[], disableNotification = false,
                    protectContent = false, replyToMessageId = 0,

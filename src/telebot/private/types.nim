@@ -53,6 +53,8 @@ type
     lastName*: Option[string]
     username*: Option[string]
     languageCode*: Option[string]
+    isPremium*: Option[bool]
+    addedToAttachmentMenu*: Option[bool]
     canJoinGroups: Option[bool]
     canReadAllGroupMessages: Option[bool]
     supportsInlineQueries: Option[bool]
@@ -67,6 +69,8 @@ type
     photo*: Option[ChatPhoto]
     bio*: Option[string]
     hasPrivateForwards*: Option[bool]
+    joinToSendMessages*: Option[bool]
+    joinByRequest*: Option[bool]
     description*: Option[string]
     inviteLink*: Option[string]
     pinnedMessage*: Option[ref Message]
@@ -115,6 +119,7 @@ type
     thumb*: Option[PhotoSize]
     emoji*: Option[string]
     setName*: Option[string]
+    premiumAnimation*: Option[File]
     maskPosition*: Option[MaskPosition]
     fileSize*: Option[int]
 
@@ -237,7 +242,7 @@ type
   File* = object of TelegramObject
     fileId*: string
     fileUniqueId*: string
-    fileSize*: Option[int]
+    fileSize*: Option[int64]
     filePath*: Option[string]
 
   KeyboardButton* = object of TelegramObject

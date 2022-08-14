@@ -32,7 +32,7 @@ proc getWebhookInfo(n: JsonNode): WebhookInfo =
     for i in n["allowed_udpates"]:
       result.allowedUpdates.add($i)
 
-proc setWebhook*(b: TeleBot, url: string, certificate = "", ipAddress = "", maxConnections = -1, allowedUpdates: seq[string] = @[], dropPendingUpdates = false) {.async.} =
+proc setWebhook*(b: TeleBot, url: string, certificate = "", ipAddress = "", maxConnections = -1, allowedUpdates: seq[string] = @[], dropPendingUpdates = false, secretToken = "") {.async.} =
   var data = newMultipartData()
   data["url"] = url
   if certificate.len > 0:
@@ -45,6 +45,8 @@ proc setWebhook*(b: TeleBot, url: string, certificate = "", ipAddress = "", maxC
     data["allowed_updates"] = $allowedUpdates
   if dropPendingUpdates:
     data["drop_pending_updates"] = "true"
+  if secretToken.len > 0:
+    data["secret_token"] = secretToken
 
   discard await makeRequest(b, procName, data)
 
