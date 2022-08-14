@@ -28,6 +28,7 @@ proc newReplyKeyboardRemove*(selective: bool): ReplyKeyboardRemove =
 proc newForceReply*(selective: bool, inputFieldPlaceholder = ""): ForceReply =
   new(result)
   result.kind = kForceReply
+  result.forceReply = some(true)
   result.selective = some(selective)
   if inputFieldPlaceholder.len != 0:
     result.inputFieldPlaceholder = some(inputFieldPlaceholder)

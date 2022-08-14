@@ -285,6 +285,7 @@ type
 
   ReplyKeyboardRemove* = ref object of KeyboardMarkup
   ForceReply* = ref object of KeyboardMarkup
+    forceReply*: Option[bool]
     inputFieldPlaceholder*: Option[string]
 
 
