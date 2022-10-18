@@ -117,7 +117,7 @@ proc formatName(s: string): string =
 
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.}
 
-proc unmarshal*(n: JsonNode, T: typedesc): T =
+proc unmarshal*(n: JsonNode, T: typedesc): T {.gcsafe.} =
   when T is TelegramObject:
     for name, value in result.fieldPairs:
       when not value.hasCustomPragma(telebotInternalUse):
