@@ -66,7 +66,10 @@ type
     username*: Option[string]
     firstName*: Option[string]
     lastName*: Option[string]
+    isForum*:Option[bool]
     photo*: Option[ChatPhoto]
+    activeUsernames*: Option[seq[string]]
+    emojiStatusCustomEmojiId: Option[string]
     bio*: Option[string]
     hasPrivateForwards*: Option[bool]
     joinToSendMessages*: Option[bool]
@@ -221,6 +224,15 @@ type
   MessageAutoDeleteTimerChanged* = object of TelegramObject
     messageAutoDeleteTime*: int
 
+  ForumTopicCreated* = object of TelegramObject
+    name*: string
+    iconColor*: int
+    iconCustomEmojiId*: string
+
+  ForumTopicClosed* = object of TelegramObject
+
+  ForumTopicReopened* = object of TelegramObject
+
   VoiceChatScheduled* = object of TelegramObject
     startDate*: int
 
@@ -325,6 +337,7 @@ type
 
   Message* = object of TelegramObject
     messageId*: int
+    messageThreadId*: Option[int]
     fromUser*: Option[User]
     senderChat*: Option[Chat]
     date*: int
@@ -335,6 +348,7 @@ type
     forwardSignature*: Option[string]
     forwardSenderName*: Option[string]
     forwardDate*: Option[int]
+    isTopicMessage*: Option[bool]
     isAutomaticForward*: Option[bool]
     replyToMessage*: Option[ref Message]
     viaBot*: Option[User]
@@ -377,6 +391,9 @@ type
     connectedWebsite*: Option[string]
     passportData*: Option[PassportData]
     proximityAlertTriggered*: Option[ProximityAlertTriggered]
+    forumTopicCreated*: Option[ForumTopicCreated]
+    forumTopicClosed*: Option[ForumTopicClosed]
+    forumTopicReopened*: Option[ForumTopicReopened]
     videoChatScheduled*: Option[VoiceChatScheduled]
     videoChatStarted*: Option[VoiceChatStarted]
     videoChatEnded*: Option[VoiceChatEnded]
@@ -416,6 +433,7 @@ type
     canpostMessages*: Option[bool]
     canEditMessages*: Option[bool]
     canPinMessages*: Option[bool]
+    canManageTopics*: Option[bool]
 
   ChatMember* = object of TelegramObject
     user*: User
@@ -508,10 +526,17 @@ type
     canChangeInfo*: Option[bool]
     canInviteUsers*: Option[bool]
     canPinMessages*: Option[bool]
+    canManageTopics*: Option[bool]
 
   ChatLocation* = object of TelegramObject
     location*: Location
     address*: string
+
+  ForumTopic* = object of TelegramObject
+    messageThreadId*: int
+    name*: string
+    iconColor*: int
+    iconCustomEmojiId*: Option[string]
 
   BotCommand* = object of TelegramObject
     command*: string
