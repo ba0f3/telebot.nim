@@ -39,7 +39,6 @@ proc `$`*(k: KeyboardMarkup): string =
     marshal(InlineKeyboardMarkup(k), result)
   of kReplyKeyboardMarkup:
     marshal(ReplyKeyboardMarkup(k), result)
-    echo result
   of kReplyKeyboardRemove:
     if k.selective.get(false):
       result = "{\"remove_keyboard\": true, \"selective\": true}"
