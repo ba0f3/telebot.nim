@@ -13,7 +13,9 @@ template procName*: string =
     var internalProcName {.exportc, inject.}: cstring
     {.emit: "`internalProcName` = __func__;".}
     var realProcName {.inject.}: string
-    discard parseUntil($internalProcName, realProcName, "Iter_")
+    const newAsyncSuffix = "X20X28AsyncX29" # " (Async)" in ASCII
+    let suffix = if newAsyncSuffix in $internalProcName: newAsyncSuffix else: "Iter_"
+    discard parseUntil($internalProcName, realProcName, suffix)
   realProcName
 
 template hasCommand*(update: Update, username: string): bool =
