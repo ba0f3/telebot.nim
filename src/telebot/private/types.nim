@@ -80,6 +80,8 @@ type
     permissions*: Option[ChatPermissions]
     slowModeDelay*: Option[int]
     messageAutoDeleteTime*: Option[int]
+    hasAggressiveAntiSpamEnabled*: Option[bool]
+    hasHiddenMembers*: Option[bool]
     hasProtectedContent*: Option[bool]
     stickerSetName*: Option[string]
     canSetStickerSet*: Option[bool]
@@ -231,7 +233,17 @@ type
 
   ForumTopicClosed* = object of TelegramObject
 
+  ForumTopicEdited* = object of TelegramObject
+    name*: Option[string]
+    iconCustomEmojiId*: Option[string]
+
   ForumTopicReopened* = object of TelegramObject
+
+  GeneralForumTopicHidden* = object of TelegramObject
+
+  GeneralForumTopicUnhidden* = object of TelegramObject
+
+  WriteAccessAllowed* = object of TelegramObject
 
   VoiceChatScheduled* = object of TelegramObject
     startDate*: int
@@ -288,6 +300,7 @@ type
 
   ReplyKeyboardMarkup* = ref object of KeyboardMarkup
     keyboard*: seq[seq[KeyboardButton]]
+    isPersistent*: Option[bool]
     resizeKeyboard*: Option[bool]
     oneTimeKeyboard*: Option[bool]
     inputFieldPlaceholder*: Option[string]
@@ -368,6 +381,7 @@ type
     voice*: Option[Voice]
     caption*: Option[string]
     captionEntities*: Option[seq[MessageEntity]]
+    hasMediaSpoiler*: Option[bool]
     contact*: Option[Contact]
     dice*: Option[Dice]
     game*: Option[Game]
@@ -389,11 +403,15 @@ type
     invoice*: Option[Invoice]
     successfulPayment*: Option[SuccessfulPayment]
     connectedWebsite*: Option[string]
+    writeAccessAllowed*: Option[WriteAccessAllowed]
     passportData*: Option[PassportData]
     proximityAlertTriggered*: Option[ProximityAlertTriggered]
     forumTopicCreated*: Option[ForumTopicCreated]
+    forumTopicEdited*: Option[ForumTopicEdited]
     forumTopicClosed*: Option[ForumTopicClosed]
     forumTopicReopened*: Option[ForumTopicReopened]
+    generalForumTopicHidden*: Option[GeneralForumTopicHidden]
+    generalForumTopicUnhidden*: Option[GeneralForumTopicUnhidden]
     videoChatScheduled*: Option[VoiceChatScheduled]
     videoChatStarted*: Option[VoiceChatStarted]
     videoChatEnded*: Option[VoiceChatEnded]
@@ -870,17 +888,20 @@ type
     captionEntities*: Option[seq[MessageEntity]]
 
   InputMediaPhoto* = ref object of InputMedia
+    hasSpoiler*: Option[bool]
 
   InputMediaVideo* = ref object of InputMedia
     width*: Option[int]
     height*: Option[int]
     duration*: Option[int]
     supportsStreaming*: Option[bool]
+    hasSpoiler*: Option[bool]
 
   InputMediaAnimation* = ref object of InputMedia
     width*: Option[int]
     height*: Option[int]
     duration*: Option[int]
+    hasSpoiler*: Option[bool]
 
   InputMediaAudio* = ref object of InputMedia
     duration*: Option[int]
@@ -984,9 +1005,6 @@ type
 
   MenuButtonDefault* = ref object of MenuButton
     kind*: string
-
-
-
 
 
   WebAppInfo* = ref object of TelegramObject

@@ -9,6 +9,8 @@ type
     SETTINGS_BUTTON_CLICKED = "settingsButtonClicked"
     INVOICE_CLOSE = "invoiceClosed"
     POPUP_CLOSED = "popupClosed"
+    QR_TEXT_RECEIVED = "qrTextReceived"
+    CLIPBOARD_TEXT_RECEIVED = "clipboardTextReceived"
 
   WebAppInitData* = object
     query_id*: string
@@ -70,11 +72,15 @@ type
     message*: string
     buttons*: seq[PopupButton]
 
+  ScanQrPopupParams* {.importc, nodecl.} = object
+    text*: string
+
   WebApp* = ref WebAppObj
   WebAppObj* {.importc, nodecl.} = object of RootObj
     initData*: string
     initDataUnsafe*: WebAppInitData
     version*: string
+    platform*: string
     colorScheme*: string
     themeParams*: ThemeParams
     isExpanded*: bool
@@ -107,11 +113,14 @@ proc disableClosingConfirmation*(w: WebApp) {.importc, nodecl.}
 proc onEvent*(w: WebApp, eventType: string, eventHandler: EventHandler) {.importc, nodecl.}
 proc offEvent*(w: WebApp, eventType: string, eventHandler: EventHandler) {.importc, nodecl.}
 proc sendData*(w: WebApp, data: string) {.importc, nodecl.}
-proc openLink*(w: WebApp, url: string) {.importc, nodecl.}
+proc openLink*(w: WebApp, url: string, options: JsObject) {.importc, nodecl.}
 proc openTelegramLink*(w: WebApp, url: string) {.importc, nodecl.}
 proc openInvoice*(w: WebApp, url: string, callback: EventHandler = nil) {.importc, nodecl.}
 proc showPopup*(w: WebApp, params: PopupParams, callback: EventHandler = nil) {.importc, nodecl.}
 proc showAlert*(w: WebApp, message: string, callback: EventHandler = nil) {.importc, nodecl.}
+proc showScanQrPopup*(w: WebApp, params: ScanQrPopupParams, callbback: EventHandler) {.importc, nodecl.}
+proc closeScanQrPopup*(w: WebApp) {.importc, nodecl.}
+proc readTextFromClipboard*(w: WebApp, callbback: EventHandler) {.importc, nodecl.}
 proc showConfirm*(w: WebApp, message: string, callback: EventHandler = nil) {.importc, nodecl.}
 proc ready*(w: WebApp): bool {.importc, nodecl.}
 proc expand*(w: WebApp) {.importc, nodecl.}
