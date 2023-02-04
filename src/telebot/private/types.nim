@@ -243,6 +243,14 @@ type
 
   GeneralForumTopicUnhidden* = object of TelegramObject
 
+  UserShared* = object of TelegramObject
+    requestId*: int
+    userId*: int64
+
+  ChatShared* = object of TelegramObject
+    requestId*: int
+    chatId*: int64
+
   WriteAccessAllowed* = object of TelegramObject
 
   VoiceChatScheduled* = object of TelegramObject
@@ -272,6 +280,8 @@ type
 
   KeyboardButton* = object of TelegramObject
     text*: string
+    requestUser*: Option[KeyboardButtonRequestUser]
+    requestChat*: Option[KeyboardButtonRequestChat]
     requestContact*: Option[bool]
     requestLocation*: Option[bool]
     requestPoll*: Option[KeyboardButtonPollType]
@@ -304,6 +314,24 @@ type
     resizeKeyboard*: Option[bool]
     oneTimeKeyboard*: Option[bool]
     inputFieldPlaceholder*: Option[string]
+
+  KeyboardButtonRequestUser* = ref object of TelegramObject
+    requestId*: int
+    userIsBot*: Option[bool]
+    userIsPremium*: Option[bool]
+
+  KeyboardButtonRequestChat* = ref object of TelegramObject
+    requestId*: int
+    chatIsChannel*: bool
+    chatIsForum*: bool
+    chatHasUsername*: bool
+    chatIsCreated*: bool
+    userAdministratorRights*: ChatAdministratorRights
+    botAdministratorRights*: ChatAdministratorRights
+    botIsMember*: bool
+
+
+
 
   KeyboardButtonPollType* = ref object of TelegramObject
     kind*: string
@@ -402,6 +430,8 @@ type
     pinnedMessage*: Option[ref Message]
     invoice*: Option[Invoice]
     successfulPayment*: Option[SuccessfulPayment]
+    userShared*: Option[UserShared]
+    chatShared*: Option[ChatShared]
     connectedWebsite*: Option[string]
     writeAccessAllowed*: Option[WriteAccessAllowed]
     passportData*: Option[PassportData]
@@ -531,13 +561,19 @@ type
   ChatJoinRequest* = object of TelegramObject
     chat*: Chat
     fromUser*: User
+    userChatId*: int64
     date*: int
     bio*: Option[string]
     inviteLink*: Option[ChatInviteLink]
 
   ChatPermissions* = object of TelegramObject
     canSendMessages*: Option[bool]
-    canSendMediaMessages*: Option[bool]
+    canSendAudios*: Option[bool]
+    canSendDocuments*: Option[bool]
+    canSendPhotos*: Option[bool]
+    canSendVideos*: Option[bool]
+    canSendVideoNotes*: Option[bool]
+    canSendVoiceNotes*: Option[bool]
     canSendPolls*: Option[bool]
     canSendOtherMessages*: Option[bool]
     canAddWebPagePreviews*: Option[bool]

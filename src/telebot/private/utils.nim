@@ -8,7 +8,7 @@ const
   API_URL = "$#/bot$#/$#"
   #FILE_PATH = "file/bot$#/$#"
 
-template procName*: string =
+template PROC_NAME*: string =
   when not declaredInScope(internalProcName):
     var internalProcName {.exportc, inject.}: cstring
     {.emit: "`internalProcName` = __func__;".}

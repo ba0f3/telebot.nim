@@ -48,17 +48,17 @@ proc setWebhook*(b: TeleBot, url: string, certificate = "", ipAddress = "", maxC
   if secretToken.len > 0:
     data["secret_token"] = secretToken
 
-  discard await makeRequest(b, procName, data)
+  discard await makeRequest(b, PROC_NAME, data)
 
 proc deleteWebhook*(b: TeleBot, dropPendingUpdates = false): Future[bool] {.async.} =
   var data = newMultipartData()
   if dropPendingUpdates:
     data["drop_pending_updates"] = "true"
-  let res = await makeRequest(b, procName, data)
+  let res = await makeRequest(b, PROC_NAME, data)
   result = res.getBool
 
 proc getWebhookInfo*(b: TeleBot): Future[WebhookInfo] {.async.} =
-  let res = await makeRequest(b, procName)
+  let res = await makeRequest(b, PROC_NAME)
   result = getWebhookInfo(res)
 
 
