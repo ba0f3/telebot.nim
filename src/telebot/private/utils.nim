@@ -125,8 +125,12 @@ proc formatName*(s: string): string {.compileTime.} =
 
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.}
 
+proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.}
+
 proc unmarshal*(n: JsonNode, T: typedesc): T {.gcsafe.} =
-  when T is TelegramObject:
+  when T is Option:
+    toOption(result, n)
+  elif T is TelegramObject:
     for name, value in result.fieldPairs:
       when not value.hasCustomPragma(telebotInternalUse):
         let jsonKey = formatName(name)
@@ -204,7 +208,7 @@ proc marshal*[T](t: T, s: var string) {.inline.} =
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.} =
   s.add(unmarshal(n, T))
 
-proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.} =
+proc toOption*[T](o: var Option[T], n: JsonNode) =
   o = some(unmarshal(n, T))
 
 proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
@@ -234,13 +238,25 @@ proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Futu
   else:
     raise newException(IOError, r.status)
 
+proc uploadInputMedia*(p: var MultipartData, m: InputMedia)
+
 proc addData*(p: var MultipartData, name: string, content: auto) {.inline.} =
   when content is InputFileOrString:
     if content.startsWith("file://"):
       p.addFiles({name: content[7..content.len-1]})
     else:
       p.add(name, content)
+  elif content is InputMediaSet:
+    p.uploadInputMedia(content)
+    var value = ""
+    marshal(content, value)
+    p.add(name, value)
   elif content is object or content is seq:
+    when content is seq:
+      when content[0].type is InputMediaSet:
+        for m in content:
+          p.uploadInputMedia(m)
+
     var value = ""
     marshal(content, value)
     p.add(name, value)
@@ -390,13 +406,22 @@ macro api*(body: untyped) : untyped =
       )
     ))
 
-  procBody.add(nnkAsgn.newTree(
-    newIdentNode("result"),
-    nnkCall.newTree(newIdentNode("unmarshal"), newIdentNode("res"), returnType)
-  ))
+  if returnType.kind == nnkBracketExpr and $returnType[0] == "Option":
+    let retObj = returnType[1]
+    procBody.add quote do:
+      if res.kind == JBool:
+        result = none(`retObj`)
+      else:
+        result = unmarshal(res, `returnType`)
+
+  else:
+    procBody.add(nnkAsgn.newTree(
+      newIdentNode("result"),
+      nnkCall.newTree(newIdentNode("unmarshal"), newIdentNode("res"), returnType)
+    ))
 
   #echo treeRepr body
-  #echo repr body
+  echo repr body
   #echo astGenRepr(body)
   result = body
 
@@ -404,5 +429,5 @@ macro api*(body: untyped) : untyped =
 when isMainModule:
   proc sendMessage*(b: TeleBot, chatId: ChatId, text: string, messageThreadId = 0, parseMode = "", entities: seq[MessageEntity] = @[],
                   disableWebPagePreview = false, disableNotification = false, protectContent = false, replyToMessageId = 0,
-                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
+                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.api, async.}
 
