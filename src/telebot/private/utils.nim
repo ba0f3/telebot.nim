@@ -79,7 +79,7 @@ proc isSet*(value: auto): bool {.inline.} =
 
 template d*(args: varargs[string, `$`]) = debug(args)
 
-proc formatName*(s: string): string =
+proc formatName*(s: string): string {.compileTime.} =
   if s == "kind":
     return "type"
   if s == "fromUser":
