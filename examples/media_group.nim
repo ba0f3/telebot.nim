@@ -8,11 +8,11 @@ addHandler(newConsoleLogger(fmtStr="$levelname, [$time] "))
 
 proc updateHandler(bot: TeleBot, e: Update): Future[bool] {.async.} =
   var media: seq[InputMediaPhoto]
-  media.add(newInputMediaPhoto("file://" & getAppDir() & "/sample.jpg", "test photo"))
+  media.add(newInputMediaPhoto("file://" & getAppDir() & "/photo_send_bot/sample.jpg", "test photo"))
   let messages = await bot.sendMediaGroup(e.message.get.chat.id, media)
 
   if messages.len  > 0:
-    var editedPhoto = newInputMediaPhoto("file://" & getAppDir() & "/sample.jpg", "edited photo")
+    var editedPhoto = newInputMediaPhoto("file://" & getAppDir() & "/photo_send_bot/sample.jpg", "edited photo")
     echo await bot.editMessageMedia(editedPhoto, $e.message.get.chat.id, messages[0].messageId)
 
 let bot = newTeleBot(API_KEY)
