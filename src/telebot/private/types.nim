@@ -24,6 +24,8 @@ type
 
   ChatId* = int64|string
 
+  InputFileOrString* = string
+
   UpdateCallback* = proc(bot: Telebot, update: Update): Future[bool] {.gcsafe.}
   CommandCallback* = proc(bot: Telebot, command: Command): Future[bool] {.gcsafe.}
   CatchallCommandCallback* = proc(bot: Telebot, command: Command): Future[bool] {.gcsafe.}
@@ -272,7 +274,7 @@ type
     emoji*: string
     value*: int
 
-  File* = object of TelegramObject
+  FileObj* = object of TelegramObject
     fileId*: string
     fileUniqueId*: string
     fileSize*: Option[int64]
@@ -1025,6 +1027,29 @@ type
     COMMAND_SCOPE_CHAT = "chat"
     COMMAND_SCOPE_CHAT_ADMINISTARTORS = "chat_administrators"
     COMMAND_SCOPE_CHAT_MEMBER = "chat_member"
+
+  #[
+  BotCommandScope* = object of TelegramObject
+    kind*: string
+
+  BotCommandScopeDefault* = ref object of BotCommandScope
+
+  BotCommandScopeAllPrivateChats* = ref object of BotCommandScope
+
+  BotCommandScopeAllGroupChats* = ref object of BotCommandScope
+
+  BotCommandScopeAllChatAdministrators* = ref object of BotCommandScope
+
+  BotCommandScopeChat* = ref object of BotCommandScope
+    chatId*: ChatId
+
+  BotCommandScopeChatAdministrators* = ref object of BotCommandScope
+    chatId*: ChatId
+
+  BotCommandScopeChatMember* = ref object of BotCommandScope
+    chatId*: ChatId
+    userId*: int
+  ]#
 
   #------------------
   # Web APp

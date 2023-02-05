@@ -11,7 +11,7 @@ const API_KEY = slurp("secret.key").strip()
 proc commandHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
   let perms = ChatPermissions(
     canSendMessages: some(true),
-    canSendMediaMessages: some(true),
+    canSendAudios: some(true),
     canSendOtherMessages: some(true),
     canAddWebPagePreviews: some(true))
 

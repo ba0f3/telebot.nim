@@ -9,7 +9,7 @@ const API_KEY = slurp("../secret.key").strip()
 proc buildFile(file_id: string) =
   let
     metadata_url = fmt"https://api.telegram.org/bot{API_KEY}/getFile?file_id={file_id}"
-    body = await newAsyncHttpClient().getContent(metadata_url) # file_id > file_path
+    body = waitFor newAsyncHttpClient().getContent(metadata_url) # file_id > file_path
     file_path = parseJson(body)["result"]["file_path"].getStr()
     download_url = fmt"https://api.telegram.org/file/bot{API_KEY}/{file_path}"
 

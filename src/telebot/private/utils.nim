@@ -59,8 +59,14 @@ proc isSet*(value: auto): bool {.inline.} =
     result = value.len > 0
   elif value is int:
     result = value != 0
+  elif value is int64:
+    result = value != 0
   elif value is bool:
     result = value
+  elif value.type is Option:
+    result = isSome(value)
+  elif value.type is seq:
+    result = value.len > 0
   elif value is object:
     result = true
   elif value is float:
@@ -68,12 +74,12 @@ proc isSet*(value: auto): bool {.inline.} =
   elif value is enum:
       result = true
   else:
-    result = not value.isNil
+    result = value != nil
 
-template d*(args: varargs[string, `$`]) =
-  debug(args)
 
-proc formatName(s: string): string =
+template d*(args: varargs[string, `$`]) = debug(args)
+
+proc formatName*(s: string): string =
   if s == "kind":
     return "type"
   if s == "fromUser":
@@ -154,7 +160,7 @@ proc unmarshal*(n: JsonNode, T: typedesc): T {.gcsafe.} =
       if $e == value:
         result = e
 
-proc marshal*[T](t: T, s: var string) =
+proc marshal*[T](t: T, s: var string) {.inline.} =
   when t is Option:
     if t.isSome:
       marshal(t.get, s)
@@ -207,7 +213,9 @@ proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Futu
   else:
     let endpoint = API_URL % [b.serverUrl, b.token, `method`]
   d("Making request to ", endpoint)
-  let client = newAsyncHttpClient(userAgent="telebot.nim/2022.08 Nim/" & NimVersion, proxy=b.proxy)
+  #if data != nil:
+  #  echo $data
+  let client = newAsyncHttpClient(userAgent="telebot.nim/2023.02 Nim/" & NimVersion, proxy=b.proxy)
   defer: client.close()
   let r = await client.post(endpoint, multipart=data)
   if r.code == Http200 or r.code == Http400:
@@ -226,15 +234,16 @@ proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Futu
   else:
     raise newException(IOError, r.status)
 
-proc getMessage*(n: JsonNode): Message {.inline.} =
-  result = unmarshal(n, Message)
-
-proc addData*(p: var MultipartData, name: string, content: auto, fileCheck = false) {.inline.} =
-  when content is string:
-    if fileCheck and content.startsWith("file://"):
+proc addData*(p: var MultipartData, name: string, content: auto) {.inline.} =
+  when content is InputFileOrString:
+    if content.startsWith("file://"):
       p.addFiles({name: content[7..content.len-1]})
     else:
       p.add(name, content)
+  elif content is object or content is seq:
+    var value = ""
+    marshal(content, value)
+    p.add(name, value)
   else:
     p.add(name, $content)
 
@@ -271,3 +280,129 @@ macro genInputMedia*(mediaType: untyped): untyped =
       if parseMode.len > 0:
         inputMedia.parseMode = some(parseMode)
       return inputMedia
+
+proc addRequiredParam(stmtList, paramName, paramType: NimNode) =
+  let jsonName = newStrLitNode(formatName($paramName))
+  stmtList.add(nnkCall.newTree(
+      nnkDotExpr.newTree(
+        ident("data"),
+        ident("addData")
+      ),
+      jsonName,
+      paramName
+    )
+  )
+
+proc addOptionalParam(stmtList, paramName, paramType: NimNode) =
+  let jsonName = newStrLitNode(formatName($paramName))
+  stmtList.add(nnkIfStmt.newTree(
+    nnkElifBranch.newTree(
+      nnkDotExpr.newTree(
+        paramName,
+        ident("isSet")
+      ),
+      nnkStmtList.newTree(
+        nnkCall.newTree(
+          nnkDotExpr.newTree(
+            ident("data"),
+            ident("addData")
+          ),
+          jsonName,
+          paramName
+        )
+      ))
+    ))
+
+macro api*(body: untyped) : untyped =
+  if body.kind != nnkProcDef:
+    return
+
+  var
+    procName: NimNode
+    formalParams = body[3]
+    returnType = formalParams[0][1]
+    procBody = newStmtList()
+
+  body[6] = procBody
+
+  if body[0].kind == nnkIdent:
+    procName = body[0]
+  else:
+    procName = body[0][1]
+
+  if formalParams.len > 2:
+    procBody.add(nnkVarSection.newTree(
+      nnkIdentDefs.newTree(
+        newIdentNode("data"),
+        newEmptyNode(),
+        nnkCall.newTree(newIdentNode("newMultipartData"))
+      )
+    ))
+
+    for i in 2..<formalParams.len:
+      let param = formalParams[i]
+
+      if param.len == 3:
+        # single param
+        let
+          paramName = param[0]
+          paramType = param[1]
+          defaultValue = param[2]
+
+        if defaultValue.kind == nnkEmpty:
+          # required params
+          procBody.addRequiredParam(paramName, paramType)
+        #elif paramType.kind == nnkEmpty:
+        else:
+          procBody.addOptionalParam(paramName, paramType)
+      elif param.len > 3:
+        # multiple params
+        let
+          paramType = param[param.len - 2]
+          defaultValue = param[param.len - 1]
+
+        for j in 0..<(param.len - 2):
+          if defaultValue.kind == nnkEmpty:
+            # last node is empty, this is a required param
+            procBody.addRequiredParam(param[j], paramType)
+          else:
+            procBody.addOptionalParam(param[j], paramType)
+
+    procBody.add(nnkLetSection.newTree(
+      nnkIdentDefs.newTree(
+        newIdentNode("res"),
+        newEmptyNode(),
+        nnkCommand.newTree(
+          newIdentNode("await"),
+          nnkCall.newTree(newIdentNode("makeRequest"), newIdentNode("b"), newStrLitNode($procName), newIdentNode("data"))
+        )
+      )
+    ))
+  else:
+    procBody.add(nnkLetSection.newTree(
+      nnkIdentDefs.newTree(
+        newIdentNode("res"),
+        newEmptyNode(),
+        nnkCommand.newTree(
+          newIdentNode("await"),
+          nnkCall.newTree(newIdentNode("makeRequest"), newIdentNode("b"), newStrLitNode($procName))
+        )
+      )
+    ))
+
+  procBody.add(nnkAsgn.newTree(
+    newIdentNode("result"),
+    nnkCall.newTree(newIdentNode("unmarshal"), newIdentNode("res"), returnType)
+  ))
+
+  #echo treeRepr body
+  #echo repr body
+  #echo astGenRepr(body)
+  result = body
+
+
+when isMainModule:
+  proc sendMessage*(b: TeleBot, chatId: ChatId, text: string, messageThreadId = 0, parseMode = "", entities: seq[MessageEntity] = @[],
+                  disableWebPagePreview = false, disableNotification = false, protectContent = false, replyToMessageId = 0,
+                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
+

@@ -32,13 +32,13 @@ proc getWebhookInfo(n: JsonNode): WebhookInfo =
     for i in n["allowed_udpates"]:
       result.allowedUpdates.add($i)
 
-proc setWebhook*(b: TeleBot, url: string, certificate = "", ipAddress = "", maxConnections = -1, allowedUpdates: seq[string] = @[], dropPendingUpdates = false, secretToken = "") {.async.} =
+proc setWebhook*(b: TeleBot, url: string, certificate: InputFileOrString = "", ipAddress = "", maxConnections = -1, allowedUpdates: seq[string] = @[], dropPendingUpdates = false, secretToken = "") {.async.} =
   var data = newMultipartData()
   data["url"] = url
   if certificate.len > 0:
-    data.addData("certificate", certificate, true)
+    data.addData("certificate", certificate)
   if ipAddress.len > 0:
-    data.addData("ip_address", ipAddress, true)
+    data.addData("ip_address", ipAddress)
   if maxConnections > 0 and maxConnections != 40:
     data["max_connections"] = $maxConnections
   if allowedUpdates.len > 0:
