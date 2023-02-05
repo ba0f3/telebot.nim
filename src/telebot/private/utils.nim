@@ -421,7 +421,7 @@ macro api*(body: untyped) : untyped =
     ))
 
   #echo treeRepr body
-  echo repr body
+  #echo repr body
   #echo astGenRepr(body)
   result = body
 
