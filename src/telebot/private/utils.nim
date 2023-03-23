@@ -36,7 +36,7 @@ template hasCommand*(update: Update, username: string): bool =
   else:
     result = false
 
-  if hasMessage and message.entities.isSome:
+  if hasMessage and message.entities.isSome and message.entities.get.len > 0:
     let
       entities = message.entities.get()
       messageText = message.text.get()
