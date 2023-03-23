@@ -106,12 +106,12 @@ type
     fileName*: Option[string]
     mimeType*: Option[string]
     fileSize*: Option[int]
-    thumb*: Option[PhotoSize]
+    thumbnail*: Option[PhotoSize]
 
   Document* = object of TelegramObject
     fileId*: string
     fileUniqueId*: string
-    thumb*: Option[PhotoSize]
+    thumbnail*: Option[PhotoSize]
     fileName*: Option[string]
     mimeType*: Option[string]
     fileSize*: Option[int]
@@ -123,12 +123,13 @@ type
     height*: int
     isAnimated*: bool
     isVideo*: bool
-    thumb*: Option[PhotoSize]
+    thumbnail*: Option[PhotoSize]
     emoji*: Option[string]
     setName*: Option[string]
     premiumAnimation*: Option[File]
     maskPosition*: Option[MaskPosition]
     customEmojiId*: Option[string]
+    needsRepainting*: Option[bool]
     fileSize*: Option[int]
 
   StickerSet* = object of TelegramObject
@@ -138,7 +139,7 @@ type
     isAnimated*: bool
     isVideo*: bool
     stickers*: seq[Sticker]
-    thumb*: Option[PhotoSize]
+    thumbnail*: Option[PhotoSize]
 
   MaskPosition* = object of TelegramObject
     point*: string
@@ -146,13 +147,19 @@ type
     yShift*: float
     scale*: float
 
+  InputSticker* = object of TelegramObject
+    sticker*: InputFileOrString
+    emojiList*: seq[string]
+    maskPosition*: MaskPosition
+    keywords*: seq[string]
+
   Video* = object of TelegramObject
     fileId*: string
     fileUniqueId*: string
     width*: int
     height*: int
     duration*: int
-    thumb*: Option[PhotoSize]
+    thumbnail*: Option[PhotoSize]
     fileName*: Option[string]
     mimeType*: Option[string]
     fileSize*: Option[int]
@@ -169,7 +176,7 @@ type
     fileUniqueId*: string
     length*: int
     duration*: int
-    thumb*: Option[PhotoSize]
+    thumbnail*: Option[PhotoSize]
     fileSize*: Option[int]
 
   Contact* = object of TelegramObject
@@ -625,7 +632,7 @@ type
   Animation* = object of TelegramObject
     fileId*: string
     fileUniqueId*: string
-    thumb*: Option[PhotoSize]
+    thumbnail*: Option[PhotoSize]
     fileName*: Option[string]
     mimeType*: Option[string]
     fileSize*: Option[int]
@@ -762,9 +769,9 @@ type
     replyMarkup*: Option[KeyboardMarkup]
 
   InlineQueryResultWithThumb* = object of InlineQueryResult
-    thumbUrl*: Option[string]
-    thumbWidth*: Option[int]
-    thumbHeight*: Option[int]
+    thumbnailUrl*: Option[string]
+    thumbnailWidth*: Option[int]
+    thumbnailHeight*: Option[int]
 
   InlineQueryResultArticle* = object of InlineQueryResultWithThumb
     title*: string
@@ -774,7 +781,7 @@ type
 
   InlineQueryResultPhoto* = object of InlineQueryResult
     photoUrl*: string
-    thumbUrl*: string
+    thumbnailUrl*: string
     photoWidth*: Option[int]
     photoHeight*: Option[int]
     title*: Option[string]
@@ -786,7 +793,8 @@ type
     gifWidth*: Option[int]
     gifHeight*: Option[int]
     gifDuration*: Option[int]
-    thumbUrl*: string
+    thumbnailUrl*: string
+    thumbnailMimeType*: Option[string]
     title*: Option[string]
     caption*: Option[string]
 
@@ -795,14 +803,15 @@ type
     mpeg4Width*: Option[int]
     mpeg4Height*: Option[int]
     mpeg4Duration*: Option[int]
-    thumbUrl*: string
+    thumbnailUrl*: string
+    thumbnailMimeType*: Option[string]
     title*: Option[string]
     caption*: Option[string]
 
   InlineQueryResultVideo* = object of InlineQueryResult
     videoUrl*: string
     mimeType*: string
-    thumbUrl*: string
+    thumbnailUrl*: string
     title*: string
     caption*: Option[string]
     videoWidth*: Option[int]
@@ -920,7 +929,7 @@ type
   InputMedia* = ref object of TelegramObject
     kind*: string
     media*: string
-    thumb*: Option[string]
+    thumbnail*: Option[string]
     caption*: Option[string]
     parseMode*: Option[string]
     captionEntities*: Option[seq[MessageEntity]]
@@ -1051,8 +1060,14 @@ type
     userId*: int
   ]#
 
+  BotDescription* = object of TelegramObject
+    description*: string
+
+  BotShortDescription* = object of TelegramObject
+    shortDescription*: string
+
   #------------------
-  # Web APp
+  # Web App
   #------------------
   MenuButton* = ref object of TelegramObject
 

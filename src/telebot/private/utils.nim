@@ -272,12 +272,12 @@ proc uploadInputMedia*(p: var MultipartData, m: InputMedia) =
     p.addFiles({name: m.media[7..<m.media.len]})
     m.media = "attach://" & name
 
-  if m.thumb.isSome:
-    let thumb = m.thumb.get()
-    if thumb.startsWith("file://"):
+  if m.thumbnail.isSome:
+    let thumbnail = m.thumbnail.get()
+    if thumbnail.startsWith("file://"):
       name = "file_upload_" & $rand(high(int))
-      p.addFiles({name: thumb[7..<thumb.len]})
-      m.thumb = some("attach://" & name)
+      p.addFiles({name: thumbnail[7..<thumbnail.len]})
+      m.thumbnail = some("attach://" & name)
 
 macro genInputMedia*(mediaType: untyped): untyped =
   let
