@@ -238,7 +238,7 @@ type
   ForumTopicCreated* = object of TelegramObject
     name*: string
     iconColor*: int
-    iconCustomEmojiId*: string
+    iconCustomEmojiId*: Option[string]
 
   ForumTopicClosed* = object of TelegramObject
 
