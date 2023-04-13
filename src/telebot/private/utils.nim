@@ -211,7 +211,23 @@ proc put*[T](s: var seq[T], n: JsonNode) {.inline.} =
 proc toOption*[T](o: var Option[T], n: JsonNode) =
   o = some(unmarshal(n, T))
 
-proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Future[JsonNode] {.async.} =
+proc postWithTimeout(client: AsyncHttpClient, endpoint: string, data: MultipartData, timeoutMs: int): Future[AsyncResponse] =
+  result = newFuture[AsyncResponse]()
+  let res = result
+  let freq = client.post(endpoint, multipart=data)
+  freq.addCallback() do():
+    if not res.finished:
+      if freq.failed:
+        res.fail(freq.error)
+      else:
+        res.complete(freq.read())
+
+  if timeoutMs >= 0:
+    sleepAsync(timeoutMs).addCallback() do():
+      if not res.finished:
+        res.fail(newException(IOError, "HTTP response timeout exceeded"))
+
+proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil, timeoutMs = -1): Future[JsonNode] {.async.} =
   when defined(telebotTestMode):
     let endpoint = API_URL % [b.serverUrl, b.token, "test/" & `method`]
   else:
@@ -221,7 +237,7 @@ proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil): Futu
   #  echo $data
   let client = newAsyncHttpClient(userAgent="telebot.nim/2023.02 Nim/" & NimVersion, proxy=b.proxy)
   defer: client.close()
-  let r = await client.post(endpoint, multipart=data)
+  let r = await client.postWithTimeout(endpoint, data, timeoutMs)
   if r.code == Http200 or r.code == Http400:
     let body = await r.body
     var obj: JsonNode
