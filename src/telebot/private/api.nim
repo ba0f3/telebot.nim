@@ -1,4 +1,4 @@
-import httpclient, json, asyncdispatch, utils, strutils, options, strtabs
+import httpclient, json, asyncdispatch, utils, strutils, options, strtabs, logging
 from tables import hasKey, `[]`
 import types, keyboard
 
@@ -309,7 +309,7 @@ proc getUpdates*(b: TeleBot, offset, limit = 0, timeout = 50, allowedUpdates: se
   if allowedUpdates.len > 0:
     data["allowed_updates"] = $allowedUpdates
 
-  result = await makeRequest(b, PROC_NAME, data)
+  result = await makeRequest(b, PROC_NAME, data, timeoutMs = (timeout + 10) * 1000)
 
   if result.len > 0:
     b.lastUpdateId = result[result.len - 1]["update_id"].getInt
@@ -353,7 +353,11 @@ proc loop(b: TeleBot, timeout = 50, offset, limit = 0) {.async.} =
     d("Unable to fetch my info ", getCurrentExceptionMsg())
 
   while true:
-    let updates = await b.getUpdates(timeout=timeout, offset=offset, limit=limit)
+    let updates = try:
+                    await b.getUpdates(timeout=timeout, offset=offset, limit=limit)
+                  except IOError as e:
+                    warn e.msg
+                    %[]
     for item in updates:
       let update = unmarshal(item, Update)
       asyncCheck b.handleUpdate(update)
