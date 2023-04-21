@@ -12,15 +12,10 @@ proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
     let
       text = response.text.get
     var
-      google = initInlineKeyboardButton("Google")
-      bing = initInlineKeyboardButton("Bing")
-      ddg = initInlineKeyboardButton("DuckDuckGo")
-      searx = initInlineKeyboardButton("searx.me")
-
-    google.url = some("https://www.google.com/search?q=" & text)
-    bing.url = some("https://www.bing.com/search?q=" & text)
-    ddg.url = some("https://duckduckgo.com/?q=" & text)
-    searx.url = some("https://searx.me/?q=" & text)
+      google = initInlineKeyboardButton("Google", url = "https://www.google.com/search?q=" & text)
+      bing = initInlineKeyboardButton("Bing", url = "https://www.bing.com/search?q=" & text)
+      ddg = initInlineKeyboardButton("DuckDuckGo", url = "https://duckduckgo.com/?q=" & text)
+      searx = initInlineKeyboardButton("searx.me", url = "https://searx.me/?q=" & text)
 
     let replyMarkup = newInlineKeyboardMarkup(@[google, bing], @[ddg, searx])
 

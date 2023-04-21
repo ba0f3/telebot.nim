@@ -180,7 +180,7 @@ proc sendMediaGroup*(b: TeleBot, chatId: ChatId, media: seq[InputMediaSet], mess
 
 proc editMessageMedia*(b: TeleBot, media: InputMediaSet, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.api, async.}
 
-proc editMessageText*(b: TeleBot, text: string, chatId = "", messageId = 0, inlineMessageId = "", parseMode = "", entities: seq[MessageEntity] = @[],
+proc editMessageText*(b: TeleBot, text: string, chatId: ChatId = DefaultChatId, messageId = 0, inlineMessageId = "", parseMode = "", entities: seq[MessageEntity] = @[],
                       replyMarkup: KeyboardMarkup = nil, disableWebPagePreview=false): Future[Option[Message]] {.api, async.}
 
 proc editMessageCaption*(b: TeleBot, caption = "", chatId = "", messageId = 0, inlineMessageId = "", parseMode="",

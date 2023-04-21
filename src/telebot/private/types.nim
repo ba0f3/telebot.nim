@@ -315,7 +315,6 @@ type
 
   KeyboardMarkup* = ref object of TelegramObject
     kind* {.telebotInternalUse.}: KeyboardKind
-    selective*: Option[bool]
 
   ReplyKeyboardMarkup* = ref object of KeyboardMarkup
     keyboard*: seq[seq[KeyboardButton]]
@@ -323,6 +322,7 @@ type
     resizeKeyboard*: Option[bool]
     oneTimeKeyboard*: Option[bool]
     inputFieldPlaceholder*: Option[string]
+    selective*: Option[bool]
 
   KeyboardButtonRequestUser* = ref object of TelegramObject
     requestId*: int
@@ -339,17 +339,16 @@ type
     botAdministratorRights*: ChatAdministratorRights
     botIsMember*: bool
 
-
-
-
   KeyboardButtonPollType* = ref object of TelegramObject
     kind*: string
 
   ReplyKeyboardRemove* = ref object of KeyboardMarkup
+    selective*: Option[bool]
+
   ForceReply* = ref object of KeyboardMarkup
     forceReply*: Option[bool]
     inputFieldPlaceholder*: Option[string]
-
+    selective*: Option[bool]
 
   InlineKeyboardMarkup* = ref object of KeyboardMarkup
     inlineKeyboard*: seq[seq[InlineKeyboardButton]]
@@ -360,9 +359,9 @@ type
     botUsername*: Option[string]
     requestWriteAccess*: Option[bool]
 
-  CallbackGame* = object of TelegramObject
+  CallbackGame* = ref object of TelegramObject
 
-  GameHighScore* = object of TelegramObject
+  GameHighScore* = ref object of TelegramObject
     position*: int
     user*: User
     score*: int
@@ -1092,3 +1091,5 @@ type
   WebAppData* = ref object of TelegramObject
     data*: string
     buttonText*: string
+
+const DefaultChatId*: ChatId = 0
