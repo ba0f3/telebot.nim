@@ -1,6 +1,7 @@
 import httpclient, json, asyncdispatch, utils, strutils, options, strtabs, logging
+import types
 from tables import hasKey, `[]`
-import types, keyboard
+from keyboard import `$`
 
 proc sendMessage*(b: TeleBot, chatId: ChatId, text: string, messageThreadId = 0, parseMode = "", entities: seq[MessageEntity] = @[],
                   disableWebPagePreview = false, disableNotification = false, protectContent = false, replyToMessageId = 0,
@@ -266,6 +267,9 @@ proc deleteMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "", u
   let res = await makeRequest(b, PROC_NAME, data)
   result = res.getBool
 
+proc setMyName*(b: TeleBot, name = "", languageCode = ""): Future[bool] {.api, async.}
+
+proc getMyName*(b: TeleBot, languageCode = ""): Future[BotName] {.api, async.}
 
 proc setMyDescription*(b: TeleBot, description = "", languageCode = ""): Future[bool] {.api, async.}
 
@@ -287,7 +291,7 @@ proc setCustomEmojiStickerSetThumbnail*(b: TeleBot, name: string, customEmojiId 
 
 proc deleteStickerSet*(b: TeleBot, name: string): Future[bool] {.api, async.}
 
-proc answerInlineQuery*[T: InlineQueryResult](b: TeleBot, inlineQueryId: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.api, async.}
+proc answerInlineQuery*[T: InlineQueryResult](b: TeleBot, inlineQueryId: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", button: InlineQueryResultsButton = nil): Future[bool] {.api, async.}
 
 proc setChatAdministratorCustomTitle*(b: TeleBot, chatId: ChatId, userId: int, customTitle: string): Future[bool] {.api, async.}
 

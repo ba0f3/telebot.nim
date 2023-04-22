@@ -261,6 +261,7 @@ type
     chatId*: int64
 
   WriteAccessAllowed* = object of TelegramObject
+    webAppName*: Option[string]
 
   VoiceChatScheduled* = object of TelegramObject
     startDate*: int
@@ -304,6 +305,7 @@ type
     webApp*: Option[WebAppInfo]
     switchInlineQuery*: Option[string]
     switchInlineQueryCurrentChat*: Option[string]
+    switchInlineQueryChosenChat*: Option[SwitchInlineQueryChosenChat]
     callbackGame*: Option[CallbackGame]
     pay*: Option[bool]
 
@@ -365,6 +367,14 @@ type
     position*: int
     user*: User
     score*: int
+
+  SwitchInlineQueryChosenChat* = ref object of TelegramObject
+    query*: Option[string]
+    allowUserChats*: Option[bool]
+    allowBotChats*: Option[bool]
+    allowGroupChats*: Option[bool]
+    allowChannelChats*: Option[bool]
+
 
   CallbackQuery* = ref object of TelegramObject
     id*: string
@@ -565,6 +575,7 @@ type
     oldChatMember*: ChatMember
     newChatMember*: ChatMember
     inviteLink*: Option[ChatInviteLink]
+    viaChatFolderInviteLink*: Option[bool]
 
   ChatJoinRequest* = object of TelegramObject
     chat*: Chat
@@ -759,7 +770,6 @@ type
       sendEmailToProvider*: Option[bool]
       isFlexible*: Option[bool]
 
-
   InlineQueryResult* = object of TelegramObject
     kind*: string
     id*: string
@@ -914,13 +924,17 @@ type
     chatType: Option[string]
     location*: Option[Location]
 
-
   ChosenInlineResult* = object of TelegramObject
     resultId*: string
     fromUser*: User
     location*: Option[Location]
     inlineMessageId*: Option[string]
     query*: string
+
+  InlineQueryResultsButton* = ref object of TelegramObject
+    text*: string
+    webApp*: Option[WebAppInfo]
+    startParameter*: Option[string]
 
   #------------------
   # Input Media
@@ -1058,6 +1072,9 @@ type
     chatId*: ChatId
     userId*: int
   ]#
+
+  BotName* = object of TelegramObject
+    name*: string
 
   BotDescription* = object of TelegramObject
     description*: string
