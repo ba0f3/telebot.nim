@@ -85,7 +85,9 @@ proc formatName*(s: string): string {.compileTime.} =
   result = newStringOfCap(s.len)
   for c in s:
     case c
-    of 'A'..'Z': result.add('_' & toLowerAscii c)
+    of 'A'..'Z': 
+      result.add('_')
+      result.add(toLowerAscii c)
     else: result.add(c)
 
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.}
