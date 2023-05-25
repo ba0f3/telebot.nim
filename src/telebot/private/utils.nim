@@ -55,26 +55,16 @@ template hasCommand*(update: Update, username: string): bool =
   result
 
 proc isSet*(value: auto): bool {.inline.} =
-  when value is string:
-    result = value.len > 0
-  elif value is int:
-    result = value != 0
-  elif value is int64:
-    result = value != 0
-  elif value is bool:
-    result = value
-  elif value.type is Option:
-    result = isSome(value)
-  elif value.type is seq:
-    result = value.len > 0
-  elif value is object:
-    result = true
-  elif value is float:
-    result = value != 0
-  elif value is enum:
-      result = true
-  else:
-    result = value != nil
+  when value is string: value.len > 0
+  elif value is int: value != 0
+  elif value is int64: value != 0
+  elif value is bool: value
+  elif value.type is Option: isSome(value)
+  elif value.type is seq: value.len > 0
+  elif value is object: true
+  elif value is float: value != 0
+  elif value is enum: true
+  else: value != nil
 
 
 template d*(args: varargs[string, `$`]) = debug(args)
@@ -95,32 +85,7 @@ proc formatName*(s: string): string {.compileTime.} =
   result = newStringOfCap(s.len)
   for c in s:
     case c
-    of 'A': result.add("_a")
-    of 'B': result.add("_b")
-    of 'C': result.add("_c")
-    of 'D': result.add("_d")
-    of 'E': result.add("_e")
-    of 'F': result.add("_f")
-    of 'G': result.add("_g")
-    of 'H': result.add("_h")
-    of 'I': result.add("_i")
-    of 'J': result.add("_j")
-    of 'K': result.add("_k")
-    of 'L': result.add("_l")
-    of 'M': result.add("_m")
-    of 'N': result.add("_n")
-    of 'O': result.add("_o")
-    of 'P': result.add("_p")
-    of 'Q': result.add("_q")
-    of 'R': result.add("_r")
-    of 'S': result.add("_s")
-    of 'T': result.add("_t")
-    of 'U': result.add("_u")
-    of 'V': result.add("_v")
-    of 'W': result.add("_w")
-    of 'X': result.add("_x")
-    of 'Y': result.add("_y")
-    of 'Z': result.add("_z")
+    of 'A'..'Z': result.add('_' & toLowerAscii c)
     else: result.add(c)
 
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.}
