@@ -85,7 +85,7 @@ proc formatName*(s: string): string {.compileTime.} =
   result = newStringOfCap(s.len)
   for c in s:
     case c
-    of 'A'..'Z': 
+    of 'A'..'Z':
       result.add('_')
       result.add(toLowerAscii c)
     else: result.add(c)
@@ -229,8 +229,11 @@ proc addData*(p: var MultipartData, name: string, content: auto) {.inline.} =
       p.addFiles({name: content[7..content.len-1]})
     else:
       p.add(name, content)
-  elif content is InputMediaSet:
-    p.uploadInputMedia(content)
+  elif  content is ref:
+    p.addData(name, content[])
+  elif content is TelegramObject:
+    when content is InputMediaSet:
+      p.uploadInputMedia(content)
     var value = ""
     marshal(content, value)
     p.add(name, value)
