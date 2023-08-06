@@ -775,7 +775,7 @@ type
     id*: string
     captionEntities*: Option[seq[MessageEntity]]
     inputMessageContent*: Option[InputMessageContent]
-    replyMarkup*: Option[KeyboardMarkup]
+    replyMarkup*: Option[InlineKeyboardMarkup]
 
   InlineQueryResultWithThumb* = object of InlineQueryResult
     thumbnailUrl*: Option[string]
