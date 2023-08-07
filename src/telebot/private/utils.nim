@@ -229,8 +229,6 @@ proc addData*(p: var MultipartData, name: string, content: auto) {.inline.} =
       p.addFiles({name: content[7..content.len-1]})
     else:
       p.add(name, content)
-  elif  content is ref:
-    p.addData(name, content[])
   elif content is TelegramObject:
     when content is InputMediaSet:
       p.uploadInputMedia(content)
