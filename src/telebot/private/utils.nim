@@ -223,6 +223,8 @@ proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil, timeo
 
 proc uploadInputMedia*(p: var MultipartData, m: InputMedia)
 
+proc `$`*[T](k: ref T): string {.inline.} = marshal(k, result)
+
 proc addData*(p: var MultipartData, name: string, content: auto) {.inline.} =
   when content is InputFileOrString:
     if content.startsWith("file://"):
