@@ -299,7 +299,7 @@ proc banChatSenderChat*(b: TeleBot, chatId: ChatId, senderChatId: int, untilDate
 
 proc unbanChatSenderChat*(b: TeleBot, chatId: ChatId, senderChatId: int): Future[bool] {.api, async.}
 
-proc getUpdates*(b: TeleBot, offset, limit = 0, timeout = 50, allowedUpdates: seq[string] = @[]): Future[JsonNode] {.async.} =
+proc getUpdates*(b: TeleBot, offset = 0, limit = 0, timeout = 50, allowedUpdates: seq[string] = @[]): Future[JsonNode] {.async.} =
   var data = newMultipartData()
 
   if offset > 0:
@@ -347,7 +347,7 @@ proc cleanUpdates*(b: TeleBot) {.async.} =
   while updates.len >= 100:
     updates = await b.getUpdates()
 
-proc loop(b: TeleBot, timeout = 50, offset, limit = 0) {.async.} =
+proc loop(b: TeleBot, timeout = 50, offset = 0, limit = 0) {.async.} =
   try:
     let me = waitFor b.getMe()
     b.id = me.id
@@ -366,12 +366,12 @@ proc loop(b: TeleBot, timeout = 50, offset, limit = 0) {.async.} =
       let update = unmarshal(item, Update)
       asyncCheck b.handleUpdate(update)
 
-proc poll*(b: TeleBot, timeout = 50, offset, limit = 0, clean = false) =
+proc poll*(b: TeleBot, timeout = 50, offset = 0, limit = 0, clean = false) =
   if clean:
     waitFor b.cleanUpdates()
   waitFor loop(b, timeout, offset, limit)
 
-proc pollAsync*(b: TeleBot, timeout = 50, offset, limit = 0, clean = false) {.async.} =
+proc pollAsync*(b: TeleBot, timeout = 50, offset = 0, limit = 0, clean = false) {.async.} =
   if clean:
     await b.cleanUpdates()
   await loop(b, timeout, offset, limit)
@@ -415,3 +415,5 @@ proc reopenGeneralForumTopic*(b: TeleBot, chatId: ChatId): Future[bool] {.api, a
 proc hideGeneralForumTopic*(b: TeleBot, chatId: ChatId): Future[bool] {.api, async.}
 
 proc unhideGeneralForumTopic*(b: TeleBot, chatId: ChatId): Future[bool] {.api, async.}
+
+proc unpinAllGeneralForumTopicMessages*(b: TeleBot, chatId: ChatId): Future[bool] {.api, async.}

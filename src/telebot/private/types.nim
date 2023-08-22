@@ -71,7 +71,8 @@ type
     isForum*:Option[bool]
     photo*: Option[ChatPhoto]
     activeUsernames*: Option[seq[string]]
-    emojiStatusCustomEmojiId: Option[string]
+    emojiStatusCustomEmojiId*: Option[string]
+    emojiStatusExpirationDate*: Option[int]
     bio*: Option[string]
     hasPrivateForwards*: Option[bool]
     joinToSendMessages*: Option[bool]
@@ -111,6 +112,17 @@ type
   Document* = object of TelegramObject
     fileId*: string
     fileUniqueId*: string
+    thumbnail*: Option[PhotoSize]
+    fileName*: Option[string]
+    mimeType*: Option[string]
+    fileSize*: Option[int]
+
+  Story* = object of TelegramObject
+    fileId*: string
+    fileUniqueId*: string
+    width*: int
+    height*: int
+    duration*: int
     thumbnail*: Option[PhotoSize]
     fileName*: Option[string]
     mimeType*: Option[string]
@@ -209,7 +221,8 @@ type
 
   PollAnswer* = object of TelegramObject
     pollId*: string
-    user*: User
+    voterChat*: Option[Chat]
+    user*: Option[User]
     optionIds*: seq[int]
 
   Poll* = object of TelegramObject
@@ -422,6 +435,7 @@ type
     document*: Option[Document]
     photo*: Option[seq[PhotoSize]]
     sticker*: Option[Sticker]
+    story*: Option[Story]
     video*: Option[Video]
     videoNote*: Option[VideoNote]
     voice*: Option[Voice]
