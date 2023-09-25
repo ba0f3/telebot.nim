@@ -11,6 +11,8 @@ type
     POPUP_CLOSED = "popupClosed"
     QR_TEXT_RECEIVED = "qrTextReceived"
     CLIPBOARD_TEXT_RECEIVED = "clipboardTextReceived"
+    WRITE_ACCESS_REQUESTED = "writeAccessRequested"
+    CONTACT_REQUESTED = "contactRequested"
 
   WebAppInitData* = object
     query_id*: string
@@ -30,6 +32,8 @@ type
     username*: string
     language_code*: string
     isPremium*: bool
+    addedToAttachmentMenu*: bool
+    allowsWriteToPm*: bool
     photo_url*: string
 
   WebAppChat* {.importc, nodecl.} = object
@@ -52,6 +56,8 @@ type
     isProgressVisible*: bool
 
   HapticFeedback* {.importc, nodecl.} = object
+
+  CloudStorage* {.importc, nodecl.} = object
 
   ThemeParams* {.importc, nodecl.} = object
     bg_color*: string
@@ -92,6 +98,8 @@ type
     BackButton*: BackButton
     MainButton*: MainButton
     HapticFeedback*: HapticFeedback
+    CloudStorage*: CloudStorage
+
 
   TelegramObj* {.importc, nodecl.} = object of RootObj
     WebApp*: WebApp
@@ -121,6 +129,8 @@ proc showAlert*(w: WebApp, message: string, callback: EventHandler = nil) {.impo
 proc showScanQrPopup*(w: WebApp, params: ScanQrPopupParams, callbback: EventHandler) {.importc, nodecl.}
 proc closeScanQrPopup*(w: WebApp) {.importc, nodecl.}
 proc readTextFromClipboard*(w: WebApp, callbback: EventHandler) {.importc, nodecl.}
+proc requestWriteAccess*(w: WebApp, callback: EventHandler) {.importc, nodecl.}
+proc requestContact*(w: WebApp, callback: EventHandler) {.importc, nodecl.}
 proc showConfirm*(w: WebApp, message: string, callback: EventHandler = nil) {.importc, nodecl.}
 proc ready*(w: WebApp): bool {.importc, nodecl.}
 proc expand*(w: WebApp) {.importc, nodecl.}
@@ -154,4 +164,14 @@ proc setParams*(b: MainButton, params: JsObject): MainButton {.importc, nodecl.}
 proc impactOccurred*(h: HapticFeedback, style: string): HapticFeedback {.importc, nodecl.}
 proc notificationOccurred*(h: HapticFeedback, kind: string): HapticFeedback {.importc, nodecl.}
 proc selectionChanged*(h: HapticFeedback): HapticFeedback {.importc, nodecl.}
+
+#--------
+# CloudStorage
+#--------
+proc setItem*(c: CloudStorage, key: string, value: string, callback: EventHandler) {.importc, nodecl.}
+proc getItem*(c: CloudStorage, key: string, callback: EventHandler) {.importc, nodecl.}
+proc getItems*(c: CloudStorage, keys: seq[string], callback: EventHandler) {.importc, nodecl.}
+proc removeItem*(c: CloudStorage, key: string, callback: EventHandler) {.importc, nodecl.}
+proc removeItems*(c: CloudStorage, keys: seq[string], callback: EventHandler) {.importc, nodecl.}
+proc getKeys*(c: CloudStorage, callback: EventHandler) {.importc, nodecl.}
 

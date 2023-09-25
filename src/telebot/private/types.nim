@@ -274,7 +274,9 @@ type
     chatId*: int64
 
   WriteAccessAllowed* = object of TelegramObject
+    fromRequest*: Option[bool]
     webAppName*: Option[string]
+    fromAttachmentMenu*: Option[bool]
 
   VoiceChatScheduled* = object of TelegramObject
     startDate*: int
@@ -513,6 +515,9 @@ type
     canpostMessages*: Option[bool]
     canEditMessages*: Option[bool]
     canPinMessages*: Option[bool]
+    canPostStories*: Option[bool]
+    canEditStories*: Option[bool]
+    canDeleteStories*: Option[bool]
     canManageTopics*: Option[bool]
 
   ChatMember* = object of TelegramObject
@@ -560,7 +565,11 @@ type
     canInviteUsers*: Option[bool]
     canPostMessages*: Option[bool]
     canEditMessages*: Option[bool]
+    canPostStories*: Option[bool]
+    canEditStories*: Option[bool]
+    canDeleteStories*: Option[bool]
     canPinMessages*: Option[bool]
+    customTitle*: Option[string]
 
   ChatMemberMember* = object of ChatMember
 

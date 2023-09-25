@@ -102,7 +102,8 @@ proc unbanChatMember*(b: TeleBot, chatId: ChatId, userId: int, onlyIfBanned = fa
 proc restrictChatMember*(b: TeleBot, chatId: ChatId, userId: int, permissions: ChatPermissions, useIndependentChatPermissions = false, untilDate = 0): Future[bool] {.api, async.}
 
 proc promoteChatMember*(b: TeleBot, chatId: ChatId, userId: int, isAnonymous = false, canManageChat = false, canChangeInfo = false,
-                        canPostMessages = false, canEditMessages = false, canDeleteMessages = false, canManageVideoChats = false,
+                        canPostMessages = false, canEditMessages = false, canDeleteMessages = false,
+                        canPostStories = false, canEditStories = false, canDeleteStories = false, canManageVideoChats = false,
                         canInviteUsers = false, canRestrictMembers = false, canPinMessages = false, canPromoteMembers = false,
                         canManageTopics = false): Future[bool] {.api, async.}
 
