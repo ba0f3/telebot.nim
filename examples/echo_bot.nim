@@ -12,12 +12,12 @@ proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
     if response.text.isSome:
       let text = response.text.get
       echo text
-      discard await b.sendMessage(response.chat.id, "text:" & text, parseMode = "markdown", disableNotification = true, replyToMessageId = response.messageId)
+      discard await b.sendMessage(response.chat.id, "text:" & text, parseMode = "markdown", disableNotification = true, replyParameters = ReplyParameters(messageId: response.messageId))
   return true
 
 
 proc greatingHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
-  discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstname, disableNotification = true, replyToMessageId = c.message.messageId)
+  discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstname, disableNotification = true, replyParameters = ReplyParameters(messageId: c.message.messageId))
   result = true
 
 when isMainModule:

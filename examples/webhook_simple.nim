@@ -6,16 +6,17 @@ addHandler(L)
 
 const API_KEY = slurp("secret.key").strip()
 
-proc updateHandler(b: Telebot, u: Update) {.async.} =
-  if not u.message.isSome:
-    return
+proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
+  if u.message.isNone:
+    return true
   var response = u.message.get
   if response.text.isSome:
-    discard b.sendMessage(response.chat.id, response.text.get, disableNotification = true, replyToMessageId = response.messageId, parseMode = "markdown")
+    discard b.sendMessage(response.chat.id, response.text.get, disableNotification = true, replyParameters = ReplyParameters(messageId: response.messageId), parseMode = "markdown")
+  return true
 
 
 proc greatingHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
-  discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstName, disableNotification = true, replyToMessageId = c.message.messageId, parseMode = "markdown")
+  discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstName, disableNotification = true, replyParameters = ReplyParameters(messageId: c.message.messageId), parseMode = "markdown")
 
 when isMainModule:
   let bot = newTeleBot(API_KEY)

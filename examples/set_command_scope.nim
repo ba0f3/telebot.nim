@@ -7,7 +7,7 @@ addHandler(L)
 const API_KEY = slurp("secret.key").strip()
 
 proc greatingHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
-  discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstname, disableNotification = true, replyToMessageId = c.message.messageId)
+  discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstname, disableNotification = true, replyParameters = ReplyParameters(messageId: c.message.messageId))
   result = true
 
 

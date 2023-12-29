@@ -1,6 +1,6 @@
-import telebot, asyncdispatch, options
+import telebot, asyncdispatch, options, strutils
 
-const API_KEY = slurp("../secret.key")
+const API_KEY = slurp("../secret.key").strip()
 
 proc geoHandler(bot: TeleBot, e: Command): Future[bool] {.async.} =
   discard await bot.sendLocation(e.message.chat.id, longitude=42.0, latitude=42.0)

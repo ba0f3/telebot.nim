@@ -37,3 +37,14 @@ func InputInvoiceMessageContent*(title, description, payload, providerToken, cur
   result.providerToken = providerToken
   result.currrency = currrency
   result.prices = prices
+
+# -------------
+# ReactionType
+# -------------
+func ReactionTypeEmoji*(emoji: string): ReactionType =
+  result.kind = kindReactionTypeEmoji
+  result.emoji = emoji
+
+func ReactionTypeCustomEmoji*(emoji: string): ReactionType =
+  result.kind = kindReactionTypeCustomEmoji
+  result.customEmoji = emoji

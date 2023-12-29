@@ -24,7 +24,7 @@ proc queryHandler(b: TeleBot, q: InlineQuery): Future[bool] {.async, gcsafe.} =
       photo.kind = "photo"
       photo.id = child["data"]["id"].str
       photo.photoUrl = child["data"]["url"].str
-      photo.thumbUrl = child["data"]["thumbnail"].str
+      photo.thumbnailUrl = child["data"]["thumbnail"].str
       photo.title = some($child["data"]["title"])
 
       photos.add(photo)

@@ -10,7 +10,7 @@ proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
   var response = u.message.get
   if response.text.isSome:
     let text = response.text.get
-    var google = KeyboardButton(text: "Search the web", webApp: some WebAppInfo(url: "https://google.com"))
+    var google = KeyboardButton(text: "Search the web", webApp: some WebAppInfo(url: "https://quick-loops-prove-116-110-41-44.loca.lt/webapp.html"))
 
     let replyMarkup = ReplyKeyboardMarkup(kind: kReplyKeyboardMarkup, keyboard: @[@[google]])
 

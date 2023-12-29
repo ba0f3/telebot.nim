@@ -71,6 +71,11 @@ type
     isForum*:Option[bool]
     photo*: Option[ChatPhoto]
     activeUsernames*: Option[seq[string]]
+    availableReactions*: Option[seq[ReactionType]]
+    accentColorId*: Option[int]
+    backgroundCustomEmojiId*: Option[string]
+    profileAccentColorId*: Option[int]
+    profileBackgroundCustomEmojiId*: Option[string]
     emojiStatusCustomEmojiId*: Option[string]
     emojiStatusExpirationDate*: Option[int]
     bio*: Option[string]
@@ -86,6 +91,7 @@ type
     hasAggressiveAntiSpamEnabled*: Option[bool]
     hasHiddenMembers*: Option[bool]
     hasProtectedContent*: Option[bool]
+    hasVisibleHistory*: Option[bool]
     stickerSetName*: Option[string]
     canSetStickerSet*: Option[bool]
     linkedChatId*: Option[int]
@@ -265,9 +271,9 @@ type
 
   GeneralForumTopicUnhidden* = object of TelegramObject
 
-  UserShared* = object of TelegramObject
+  UsersShared* = object of TelegramObject
     requestId*: int
-    userId*: int64
+    userIds*: seq[int64]
 
   ChatShared* = object of TelegramObject
     requestId*: int
@@ -289,6 +295,45 @@ type
   VoiceChatParticipantsInvited* = object of TelegramObject
     users*: seq[User]
 
+  GiveawayCreated* = object of TelegramObject
+
+  Giveaway* = object of TelegramObject
+    chats*: seq[Chat]
+    winnersSelectionDate: int
+    winnerCount*: int
+    onlyNewMembers*: Option[bool]
+    hasPublicWinners*: Option[bool]
+    prizeDescription*: Option[string]
+    countryCodes*: Option[seq[string]]
+    premiumSubscriptionMonthCount*: Option[int]
+
+  GiveawayWinners* = ref object of TelegramObject
+    chat*: Chat
+    giveawayMessageId*: int
+    winnersSelectionDate*: int
+    winnerCount*: int
+    winners*: seq[User]
+    additionChatCount*: Option[int]
+    premiumSubscriptionMonthCount*: Option[int]
+    unclaimedPrizeCount*: Option[int]
+    onlyNewMembers*: Option[bool]
+    wasRefunded*: Option[bool]
+    prizeDescription*: Option[string]
+
+  GiveawayCompleted* = ref object of TelegramObject
+    winnerCount*: int
+    unclaimedPrizeCount*: Option[int]
+    giveawayMessage*: Option[Message]
+
+  LinkPreviewOptions* = ref object of TelegramObject
+    isDisabled*: Option[bool]
+    url*: Option[string]
+    preferSmallMedia*: Option[bool]
+    preferLargeMedia*: Option[bool]
+    showAboveText*: Option[bool]
+
+
+
   UserProfilePhotos* = object of TelegramObject
     totalCount*: int
     photos*: seq[seq[PhotoSize]]
@@ -305,7 +350,7 @@ type
 
   KeyboardButton* = object of TelegramObject
     text*: string
-    requestUser*: Option[KeyboardButtonRequestUser]
+    requestUsers*: Option[KeyboardButtonRequestUsers]
     requestChat*: Option[KeyboardButtonRequestChat]
     requestContact*: Option[bool]
     requestLocation*: Option[bool]
@@ -341,10 +386,11 @@ type
     inputFieldPlaceholder*: Option[string]
     selective*: Option[bool]
 
-  KeyboardButtonRequestUser* = ref object of TelegramObject
+  KeyboardButtonRequestUsers* = ref object of TelegramObject
     requestId*: int
     userIsBot*: Option[bool]
     userIsPremium*: Option[bool]
+    maxQuantity*: Option[int]
 
   KeyboardButtonRequestChat* = ref object of TelegramObject
     requestId*: int
@@ -394,7 +440,7 @@ type
   CallbackQuery* = ref object of TelegramObject
     id*: string
     fromUser*: User
-    message*: Option[Message]
+    message*: Option[ref Message]
     inlineMessageId*: Option[string]
     chatInstance*: Option[string]
     data*: Option[string]
@@ -409,6 +455,69 @@ type
     language*: Option[string]
     customEmojiId*: Option[string]
 
+  TextQuote* = object of TelegramObject
+    text*: string
+    entities*: Option[seq[MessageEntity]]
+    positon*: int
+    isManual*: Option[bool]
+
+  MessageOriginKind* = enum
+    kindMessageOriginUser
+    kindMessageOriginHiddenUser
+    kindMessageOriginChat
+    kindMessageOriginChannel
+
+  MessageOrigin* = object of TelegramObject
+    date*: int
+    case kind*: MessageOriginKind
+    of kindMessageOriginUser:
+      senderUser*: User
+    of kindMessageOriginHiddenUser:
+      senderUserName*: string
+    of kindMessageOriginChat:
+      senderChat*: Chat
+    of kindMessageOriginChannel:
+      chat*: Chat
+      messageId*: int
+    # only available for MessageOriginChat and MessageOriginChannel
+    authorSignature*: Option[string]
+
+
+
+  ExternalReplyInfo* = object of TelegramObject
+    origin*: MessageOrigin
+    chat*: Option[Chat]
+    messageId*: Option[int]
+    linkPreviewOptions*: Option[LinkPreviewOptions]
+    animation*: Option[Animation]
+    audio*: Option[Audio]
+    document*: Option[Document]
+    photo*: Option[seq[PhotoSize]]
+    sticker*: Option[Sticker]
+    story*: Option[Story]
+    video*: Option[Video]
+    videoNote*: Option[VideoNote]
+    voice*: Option[Voice]
+    hasMediaSpoiler*: Option[bool]
+    contact*: Option[Contact]
+    dice*: Option[Dice]
+    game*: Option[Game]
+    giveaway*: Option[Giveaway]
+    giveawayWinners*: Option[GiveawayWinners]
+    invoice*: Option[Invoice]
+    location*: Option[Location]
+    poll*: Option[Poll]
+    venue*: Option[Venue]
+
+  ReplyParameters* = ref object of TelegramObject
+    messageId*: int
+    chatId*: Option[seq[int]]
+    allowSendingWithoutReply*: Option[bool]
+    quote*: Option[string]
+    quoteParseMode*: Option[string]
+    quoteEntities*: Option[seq[MessageEntity]]
+    quotePostion*: Option[int]
+
   Message* = object of TelegramObject
     messageId*: int
     messageThreadId*: Option[int]
@@ -416,15 +525,12 @@ type
     senderChat*: Option[Chat]
     date*: int
     chat*: Chat
-    forwardFrom*: Option[User]
-    forwardFromChat*: Option[Chat]
-    forwardFromMessageId*: Option[int]
-    forwardSignature*: Option[string]
-    forwardSenderName*: Option[string]
-    forwardDate*: Option[int]
+    forwardOrigin*: Option[MessageOrigin]
     isTopicMessage*: Option[bool]
     isAutomaticForward*: Option[bool]
     replyToMessage*: Option[ref Message]
+    externalReply*: Option[ExternalReplyInfo]
+    quote*: Option[TextQuote]
     viaBot*: Option[User]
     editDate*: Option[int]
     hasProtectedContent*: Option[bool]
@@ -432,6 +538,7 @@ type
     authorSignature*: Option[string]
     text*: Option[string]
     entities*: Option[seq[MessageEntity]]
+    linkPreviewOptions*: Option[LinkPreviewOptions]
     animation*: Option[Animation]
     audio*: Option[Audio]
     document*: Option[Document]
@@ -464,7 +571,7 @@ type
     pinnedMessage*: Option[ref Message]
     invoice*: Option[Invoice]
     successfulPayment*: Option[SuccessfulPayment]
-    userShared*: Option[UserShared]
+    usersShared*: Option[UsersShared]
     chatShared*: Option[ChatShared]
     connectedWebsite*: Option[string]
     writeAccessAllowed*: Option[WriteAccessAllowed]
@@ -476,6 +583,10 @@ type
     forumTopicReopened*: Option[ForumTopicReopened]
     generalForumTopicHidden*: Option[GeneralForumTopicHidden]
     generalForumTopicUnhidden*: Option[GeneralForumTopicUnhidden]
+    giveawayCreated*: Option[GiveawayCreated]
+    giveaway*: Option[Giveaway]
+    giveawayWinners*: Option[GiveawayWinners]
+    giveawayCompleted*: Option[GiveawayCompleted]
     videoChatScheduled*: Option[VoiceChatScheduled]
     videoChatStarted*: Option[VoiceChatStarted]
     videoChatEnded*: Option[VoiceChatEnded]
@@ -485,6 +596,13 @@ type
 
   MessageId* = object of TelegramObject
     messageId*: int
+
+  #InaccessibleMessage* = object of TelegramObject
+  #  chat*: Chat
+  #  messageId*: int
+  #  date*: int
+
+  #MaybeInaccessibleMessage* = Message|InaccessibleMessage
 
   ChatPhoto* = object of TelegramObject
     smallFileId*: string
@@ -628,6 +746,37 @@ type
     location*: Location
     address*: string
 
+  ReactionTypeKind* = enum
+    kindReactionTypeEmoji = "emoji"
+    kindReactionTypeCustomEmoji = "custom_emoji"
+
+  ReactionType* = object of TelegramObject
+    case kind*: ReactionTypeKind
+    of kindReactionTypeEmoji:
+      emoji*: string
+    of kindReactionTypeCustomEmoji:
+      customEmoji*: string
+
+  ReactionCount* = object of TelegramObject
+    kind*: ReactionType
+    totalCount*: int
+
+  MessageReactionUpdated* = object of TelegramObject
+    chat*: Chat
+    messageId*: int
+    user*: Option[User]
+    actorChat*: Option[Chat]
+    date*: int
+    oldReaction*: seq[ReactionType]
+    newReaction*: seq[ReactionType]
+
+  MessageReactionCountUpdated* = object of TelegramObject
+    chat*: Chat
+    messageId*: int
+    date*: int
+    reactions*: seq[ReactionCount]
+
+
   ForumTopic* = object of TelegramObject
     messageThreadId*: int
     name*: string
@@ -648,6 +797,8 @@ type
     editedMessage*: Option[Message]
     channelPost*: Option[Message]
     editedChannelPost*: Option[Message]
+    messageReaction*: Option[MessageReactionUpdated]
+    messageReactionCount*: Option[MessageReactionCountUpdated]
     inlineQuery*: Option[InlineQuery]
     chosenInlineResult*: Option[ChosenInlineResult]
     callbackQuery*: Option[CallbackQuery]
@@ -750,7 +901,7 @@ type
     of TextMessage:
       messageText*: string
       parseMode*: Option[string]
-      disableWebPagePreview*: Option[bool]
+      linkPreviewOptions: Option[LinkPreviewOptions]
       captionEntities*: Option[seq[MessageEntity]]
     of LocationMessage:
       latitude*: float
@@ -1121,7 +1272,6 @@ type
   MenuButtonDefault* = ref object of MenuButton
     kind*: string
 
-
   WebAppInfo* = ref object of TelegramObject
     url*: string
 
@@ -1132,4 +1282,44 @@ type
     data*: string
     buttonText*: string
 
+  #------------------
+  # Chat Boost
+  #------------------
+  ChatBoostSource* = ref object of TelegramObject
+
+  ChatBoostSourcePremium* = ref object of ChatBoostSource
+    source*: string
+    user*: User
+
+  ChatBoostSourceGiftCode* = ref object of ChatBoostSource
+    source*: string
+    user*: User
+
+  ChatBoostSourceGiveaway* = ref object of ChatBoostSource
+    source*: string
+    giveawayMessageId*: int
+    user*: Option[User]
+    isUncaimed*: Option[bool]
+
+  ChatBoost* = object of ChatBoostSource
+    boostId*: string
+    addDate*: int
+    expireDate*: int
+    source*: ChatBoostSource
+
+  ChatBoostUpdated* = object of TelegramObject
+    chat*: Chat
+    boost*: ChatBoost
+
+  ChatBoostRemoved* = object of TelegramObject
+    chat*: Chat
+    boostId*: string
+    removeDate*: int
+    source*: ChatBoostSource
+
+  UserChatBoosts* = object of TelegramObject
+    boosts*: seq[ChatBoost]
+
+
 const DefaultChatId*: ChatId = 0
+

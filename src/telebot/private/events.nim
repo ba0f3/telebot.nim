@@ -1,3 +1,6 @@
+import tables
+from types import TeleBot, UpdateCallBack, CommandCallback, CatchallCommandCallback, InlineQueryCallback
+
 proc onUpdate*(b: TeleBot, cb: UpdateCallback) =
   b.updateCallbacks.add(cb)
 

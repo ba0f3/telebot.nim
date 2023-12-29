@@ -1,7 +1,7 @@
-import telebot, asyncdispatch, options, logging, os
+import telebot, asyncdispatch, options, logging, os, strutils
 
 
-const API_KEY = strip(slurp("../secret.key"))
+const API_KEY = slurp("../secret.key").strip()
 
 
 addHandler(newConsoleLogger(fmtStr="$levelname, [$time] "))

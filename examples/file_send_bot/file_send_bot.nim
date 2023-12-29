@@ -1,7 +1,7 @@
 # This Bot Sends itself as Document file, responds on chat with source file to download.
-import telebot, asyncdispatch, options, os
+import telebot, asyncdispatch, options, os, strutils
 
-const API_KEY = slurp("../secret.key")
+const API_KEY = slurp("../secret.key").strip()
 
 
 proc updateHandler(bot: TeleBot, e: Update): Future[bool] {.async.} =
