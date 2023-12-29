@@ -31,7 +31,7 @@ proc updateHandler(b: Telebot, u: Update): Future[bool] {.async.} =
   var response = u.message.get
   if response.text.isSome:
     let text = response.text.get
-    discard await b.sendMessage(response.chat.id, text, parseMode = "markdown", disableNotification = true, replyToMessageId = response.messageId)
+    discard await b.sendMessage(response.chat.id, text, parseMode = "markdown", disableNotification = true, replyParameters = ReplyParameters(messageId: response.messageId))
 
 let bot = newTeleBot(API_KEY)
 bot.onUpdate(updateHandler)
