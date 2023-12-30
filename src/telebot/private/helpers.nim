@@ -42,9 +42,11 @@ func InputInvoiceMessageContent*(title, description, payload, providerToken, cur
 # ReactionType
 # -------------
 func ReactionTypeEmoji*(emoji: string): ReactionType =
+  new(result)
   result.kind = kindReactionTypeEmoji
   result.emoji = emoji
 
 func ReactionTypeCustomEmoji*(emoji: string): ReactionType =
+  new(result)
   result.kind = kindReactionTypeCustomEmoji
   result.customEmoji = emoji

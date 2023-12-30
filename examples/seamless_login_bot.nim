@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, logging, options
+import telebot, asyncdispatch, logging
 from strutils import strip
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
@@ -13,7 +13,7 @@ const API_KEY = slurp("secret.key").strip()
 
 proc loginHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
   var loginButton = initInlineKeyBoardButton("Login")
-  loginButton.loginUrl = some(newLoginUrl("https://huy.im"))
+  loginButton.loginUrl = newLoginUrl("https://huy.im")
   discard await b.sendMessage(c.message.chat.id, "Welcome to Seamless Web Bots", replyMarkup = newInlineKeyboardMarkup(@[loginButton]))
 
 

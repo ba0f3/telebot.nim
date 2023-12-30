@@ -1,8 +1,5 @@
-import options, tables, httpclient
+import tables, httpclient
 from asyncdispatch import Future
-
-
-converter optionToBool*[T](o: Option[T]): bool = o.isSome()
 
 template telebotInternalUse* {.pragma.}
 
@@ -43,195 +40,195 @@ type
     id*: int
     username*: string
 
-  Command* = object of TelegramObject
+  Command* = ref object of TelegramObject
     command*: string
     message*: Message
     params*: string
 
-  User* = object of TelegramObject
+  User* = ref object of TelegramObject
     id*: int
     isBot*: bool
     firstName*: string
-    lastName*: Option[string]
-    username*: Option[string]
-    languageCode*: Option[string]
-    isPremium*: Option[bool]
-    addedToAttachmentMenu*: Option[bool]
-    canJoinGroups: Option[bool]
-    canReadAllGroupMessages: Option[bool]
-    supportsInlineQueries: Option[bool]
+    lastName*: string
+    username*: string
+    languageCode*: string
+    isPremium*: bool
+    addedToAttachmentMenu*: bool
+    canJoinGroups: bool
+    canReadAllGroupMessages: bool
+    supportsInlineQueries: bool
 
-  Chat* = object of TelegramObject
+  Chat* = ref object of TelegramObject
     id*: int64
     kind*: string
-    title*: Option[string]
-    username*: Option[string]
-    firstName*: Option[string]
-    lastName*: Option[string]
-    isForum*:Option[bool]
-    photo*: Option[ChatPhoto]
-    activeUsernames*: Option[seq[string]]
-    availableReactions*: Option[seq[ReactionType]]
-    accentColorId*: Option[int]
-    backgroundCustomEmojiId*: Option[string]
-    profileAccentColorId*: Option[int]
-    profileBackgroundCustomEmojiId*: Option[string]
-    emojiStatusCustomEmojiId*: Option[string]
-    emojiStatusExpirationDate*: Option[int]
-    bio*: Option[string]
-    hasPrivateForwards*: Option[bool]
-    joinToSendMessages*: Option[bool]
-    joinByRequest*: Option[bool]
-    description*: Option[string]
-    inviteLink*: Option[string]
-    pinnedMessage*: Option[ref Message]
-    permissions*: Option[ChatPermissions]
-    slowModeDelay*: Option[int]
-    messageAutoDeleteTime*: Option[int]
-    hasAggressiveAntiSpamEnabled*: Option[bool]
-    hasHiddenMembers*: Option[bool]
-    hasProtectedContent*: Option[bool]
-    hasVisibleHistory*: Option[bool]
-    stickerSetName*: Option[string]
-    canSetStickerSet*: Option[bool]
-    linkedChatId*: Option[int]
-    location*: Option[ChatLocation]
+    title*: string
+    username*: string
+    firstName*: string
+    lastName*: string
+    isForum*:bool
+    photo*: ChatPhoto
+    activeUsernames*: seq[string]
+    availableReactions*: seq[ReactionType]
+    accentColorId*: int
+    backgroundCustomEmojiId*: string
+    profileAccentColorId*: int
+    profileBackgroundCustomEmojiId*: string
+    emojiStatusCustomEmojiId*: string
+    emojiStatusExpirationDate*: int
+    bio*: string
+    hasPrivateForwards*: bool
+    joinToSendMessages*: bool
+    joinByRequest*: bool
+    description*: string
+    inviteLink*: string
+    pinnedMessage*: Message
+    permissions*: ChatPermissions
+    slowModeDelay*: int
+    messageAutoDeleteTime*: int
+    hasAggressiveAntiSpamEnabled*: bool
+    hasHiddenMembers*: bool
+    hasProtectedContent*: bool
+    hasVisibleHistory*: bool
+    stickerSetName*: string
+    canSetStickerSet*: bool
+    linkedChatId*: int
+    location*: ChatLocation
 
-  PhotoSize* = object of TelegramObject
+  PhotoSize* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
     width*: int
     height*: int
-    fileSize*: Option[int]
+    fileSize*: int
 
-  Audio* = object of TelegramObject
+  Audio* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
     duration*: int
-    performer*: Option[string]
-    title*: Option[string]
-    fileName*: Option[string]
-    mimeType*: Option[string]
-    fileSize*: Option[int]
-    thumbnail*: Option[PhotoSize]
+    performer*: string
+    title*: string
+    fileName*: string
+    mimeType*: string
+    fileSize*: int
+    thumbnail*: PhotoSize
 
-  Document* = object of TelegramObject
+  Document* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
-    thumbnail*: Option[PhotoSize]
-    fileName*: Option[string]
-    mimeType*: Option[string]
-    fileSize*: Option[int]
+    thumbnail*: PhotoSize
+    fileName*: string
+    mimeType*: string
+    fileSize*: int
 
-  Story* = object of TelegramObject
+  Story* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
     width*: int
     height*: int
     duration*: int
-    thumbnail*: Option[PhotoSize]
-    fileName*: Option[string]
-    mimeType*: Option[string]
-    fileSize*: Option[int]
+    thumbnail*: PhotoSize
+    fileName*: string
+    mimeType*: string
+    fileSize*: int
 
-  Sticker* = object of TelegramObject
+  Sticker* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
     width*: int
     height*: int
     isAnimated*: bool
     isVideo*: bool
-    thumbnail*: Option[PhotoSize]
-    emoji*: Option[string]
-    setName*: Option[string]
-    premiumAnimation*: Option[File]
-    maskPosition*: Option[MaskPosition]
-    customEmojiId*: Option[string]
-    needsRepainting*: Option[bool]
-    fileSize*: Option[int]
+    thumbnail*: PhotoSize
+    emoji*: string
+    setName*: string
+    premiumAnimation*: File
+    maskPosition*: MaskPosition
+    customEmojiId*: string
+    needsRepainting*: bool
+    fileSize*: int
 
-  StickerSet* = object of TelegramObject
+  StickerSet* = ref object of TelegramObject
     name*: string
     title*: string
     stickerType*: string
     isAnimated*: bool
     isVideo*: bool
     stickers*: seq[Sticker]
-    thumbnail*: Option[PhotoSize]
+    thumbnail*: PhotoSize
 
-  MaskPosition* = object of TelegramObject
+  MaskPosition* = ref object of TelegramObject
     point*: string
     xShift*: float
     yShift*: float
     scale*: float
 
-  InputSticker* = object of TelegramObject
+  InputSticker* = ref object of TelegramObject
     sticker*: InputFileOrString
     emojiList*: seq[string]
     maskPosition*: MaskPosition
     keywords*: seq[string]
 
-  Video* = object of TelegramObject
+  Video* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
     width*: int
     height*: int
     duration*: int
-    thumbnail*: Option[PhotoSize]
-    fileName*: Option[string]
-    mimeType*: Option[string]
-    fileSize*: Option[int]
+    thumbnail*: PhotoSize
+    fileName*: string
+    mimeType*: string
+    fileSize*: int
 
-  Voice* = object of TelegramObject
+  Voice* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
     duration*: int
-    mimeType*: Option[string]
-    fileSize*: Option[int]
+    mimeType*: string
+    fileSize*: int
 
-  VideoNote* = object of TelegramObject
+  VideoNote* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
     length*: int
     duration*: int
-    thumbnail*: Option[PhotoSize]
-    fileSize*: Option[int]
+    thumbnail*: PhotoSize
+    fileSize*: int
 
-  Contact* = object of TelegramObject
+  Contact* = ref object of TelegramObject
     phoneNumber*: string
     firstName*: string
-    lastName*: Option[string]
-    userId*: Option[string]
-    vcard*: Option[string]
+    lastName*: string
+    userId*: string
+    vcard*: string
 
-  Location* = object of TelegramObject
+  Location* = ref object of TelegramObject
     longitude*: float
     latitude*: float
-    horizontalAccuracy*: Option[float]
-    livePeriod*: Option[int]
-    heading*: Option[int]
-    proximityAlertRadius*: Option[int]
+    horizontalAccuracy*: float
+    livePeriod*: int
+    heading*: int
+    proximityAlertRadius*: int
 
-  Venue* = object of TelegramObject
+  Venue* = ref object of TelegramObject
     location*: Location
     title*: string
     address*: string
-    foursquareId*: Option[string]
-    foursquareType*: Option[string]
-    googlePlaceId*: Option[string]
-    googlePlaceType*: Option[string]
+    foursquareId*: string
+    foursquareType*: string
+    googlePlaceId*: string
+    googlePlaceType*: string
 
-  PollOption* = object of TelegramObject
+  PollOption* = ref object of TelegramObject
     text*: string
     voterCount*: int
 
-  PollAnswer* = object of TelegramObject
+  PollAnswer* = ref object of TelegramObject
     pollId*: string
-    voterChat*: Option[Chat]
-    user*: Option[User]
+    voterChat*: Chat
+    user*: User
     optionIds*: seq[int]
 
-  Poll* = object of TelegramObject
+  Poll* = ref object of TelegramObject
     id*: string
     question*: string
     options*: seq[PollOption]
@@ -240,72 +237,72 @@ type
     isAnonymous*: bool
     kind*: string
     allowsMultipleAnswers*: bool
-    correctOptionId*: Option[int]
-    explanation*: Option[string]
-    explanationEntities*: Option[seq[MessageEntity]]
-    openPeriod*: Option[int]
-    closeDate*: Option[int]
+    correctOptionId*: int
+    explanation*: string
+    explanationEntities*: seq[MessageEntity]
+    openPeriod*: int
+    closeDate*: int
 
-  ProximityAlertTriggered* = object of TelegramObject
+  ProximityAlertTriggered* = ref object of TelegramObject
     traveler*: User
     watcher*: User
     distance*: int
 
-  MessageAutoDeleteTimerChanged* = object of TelegramObject
+  MessageAutoDeleteTimerChanged* = ref object of TelegramObject
     messageAutoDeleteTime*: int
 
-  ForumTopicCreated* = object of TelegramObject
+  ForumTopicCreated* = ref object of TelegramObject
     name*: string
     iconColor*: int
-    iconCustomEmojiId*: Option[string]
+    iconCustomEmojiId*: string
 
-  ForumTopicClosed* = object of TelegramObject
+  ForumTopicClosed* = ref object of TelegramObject
 
-  ForumTopicEdited* = object of TelegramObject
-    name*: Option[string]
-    iconCustomEmojiId*: Option[string]
+  ForumTopicEdited* = ref object of TelegramObject
+    name*: string
+    iconCustomEmojiId*: string
 
-  ForumTopicReopened* = object of TelegramObject
+  ForumTopicReopened* = ref object of TelegramObject
 
-  GeneralForumTopicHidden* = object of TelegramObject
+  GeneralForumTopicHidden* = ref object of TelegramObject
 
-  GeneralForumTopicUnhidden* = object of TelegramObject
+  GeneralForumTopicUnhidden* = ref object of TelegramObject
 
-  UsersShared* = object of TelegramObject
+  UsersShared* = ref object of TelegramObject
     requestId*: int
     userIds*: seq[int64]
 
-  ChatShared* = object of TelegramObject
+  ChatShared* = ref object of TelegramObject
     requestId*: int
     chatId*: int64
 
-  WriteAccessAllowed* = object of TelegramObject
-    fromRequest*: Option[bool]
-    webAppName*: Option[string]
-    fromAttachmentMenu*: Option[bool]
+  WriteAccessAllowed* = ref object of TelegramObject
+    fromRequest*: bool
+    webAppName*: string
+    fromAttachmentMenu*: bool
 
-  VoiceChatScheduled* = object of TelegramObject
+  VoiceChatScheduled* = ref object of TelegramObject
     startDate*: int
 
-  VoiceChatStarted* = object of TelegramObject
+  VoiceChatStarted* = ref object of TelegramObject
 
-  VoiceChatEnded* = object of TelegramObject
+  VoiceChatEnded* = ref object of TelegramObject
     duration*: int
 
-  VoiceChatParticipantsInvited* = object of TelegramObject
+  VoiceChatParticipantsInvited* = ref object of TelegramObject
     users*: seq[User]
 
-  GiveawayCreated* = object of TelegramObject
+  GiveawayCreated* = ref object of TelegramObject
 
-  Giveaway* = object of TelegramObject
+  Giveaway* = ref object of TelegramObject
     chats*: seq[Chat]
     winnersSelectionDate: int
     winnerCount*: int
-    onlyNewMembers*: Option[bool]
-    hasPublicWinners*: Option[bool]
-    prizeDescription*: Option[string]
-    countryCodes*: Option[seq[string]]
-    premiumSubscriptionMonthCount*: Option[int]
+    onlyNewMembers*: bool
+    hasPublicWinners*: bool
+    prizeDescription*: string
+    countryCodes*: seq[string]
+    premiumSubscriptionMonthCount*: int
 
   GiveawayWinners* = ref object of TelegramObject
     chat*: Chat
@@ -313,61 +310,61 @@ type
     winnersSelectionDate*: int
     winnerCount*: int
     winners*: seq[User]
-    additionChatCount*: Option[int]
-    premiumSubscriptionMonthCount*: Option[int]
-    unclaimedPrizeCount*: Option[int]
-    onlyNewMembers*: Option[bool]
-    wasRefunded*: Option[bool]
-    prizeDescription*: Option[string]
+    additionChatCount*: int
+    premiumSubscriptionMonthCount*: int
+    unclaimedPrizeCount*: int
+    onlyNewMembers*: bool
+    wasRefunded*: bool
+    prizeDescription*: string
 
   GiveawayCompleted* = ref object of TelegramObject
     winnerCount*: int
-    unclaimedPrizeCount*: Option[int]
-    giveawayMessage*: Option[Message]
+    unclaimedPrizeCount*: int
+    giveawayMessage*: Message
 
   LinkPreviewOptions* = ref object of TelegramObject
-    isDisabled*: Option[bool]
-    url*: Option[string]
-    preferSmallMedia*: Option[bool]
-    preferLargeMedia*: Option[bool]
-    showAboveText*: Option[bool]
+    isDisabled*: bool
+    url*: string
+    preferSmallMedia*: bool
+    preferLargeMedia*: bool
+    showAboveText*: bool
 
 
 
-  UserProfilePhotos* = object of TelegramObject
+  UserProfilePhotos* = ref object of TelegramObject
     totalCount*: int
     photos*: seq[seq[PhotoSize]]
 
-  Dice* = object of TelegramObject
+  Dice* = ref object of TelegramObject
     emoji*: string
     value*: int
 
-  FileObj* = object of TelegramObject
+  FileObj* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
-    fileSize*: Option[int64]
-    filePath*: Option[string]
+    fileSize*: int64
+    filePath*: string
 
-  KeyboardButton* = object of TelegramObject
+  KeyboardButton* = ref object of TelegramObject
     text*: string
-    requestUsers*: Option[KeyboardButtonRequestUsers]
-    requestChat*: Option[KeyboardButtonRequestChat]
-    requestContact*: Option[bool]
-    requestLocation*: Option[bool]
-    requestPoll*: Option[KeyboardButtonPollType]
-    webApp*: Option[WebAppInfo]
+    requestUsers*: KeyboardButtonRequestUsers
+    requestChat*: KeyboardButtonRequestChat
+    requestContact*: bool
+    requestLocation*: bool
+    requestPoll*: KeyboardButtonPollType
+    webApp*: WebAppInfo
 
-  InlineKeyboardButton* = object of TelegramObject
+  InlineKeyboardButton* = ref object of TelegramObject
     text*: string
-    url*: Option[string]
-    loginUrl*: Option[LoginUrl]
-    callbackData*: Option[string]
-    webApp*: Option[WebAppInfo]
-    switchInlineQuery*: Option[string]
-    switchInlineQueryCurrentChat*: Option[string]
-    switchInlineQueryChosenChat*: Option[SwitchInlineQueryChosenChat]
-    callbackGame*: Option[CallbackGame]
-    pay*: Option[bool]
+    url*: string
+    loginUrl*: LoginUrl
+    callbackData*: string
+    webApp*: WebAppInfo
+    switchInlineQuery*: string
+    switchInlineQueryCurrentChat*: string
+    switchInlineQueryChosenChat*: SwitchInlineQueryChosenChat
+    callbackGame*: CallbackGame
+    pay*: bool
 
   KeyboardKind* = enum
     kReplyKeyboardMarkup
@@ -380,17 +377,17 @@ type
 
   ReplyKeyboardMarkup* = ref object of KeyboardMarkup
     keyboard*: seq[seq[KeyboardButton]]
-    isPersistent*: Option[bool]
-    resizeKeyboard*: Option[bool]
-    oneTimeKeyboard*: Option[bool]
-    inputFieldPlaceholder*: Option[string]
-    selective*: Option[bool]
+    isPersistent*: bool
+    resizeKeyboard*: bool
+    oneTimeKeyboard*: bool
+    inputFieldPlaceholder*: string
+    selective*: bool
 
   KeyboardButtonRequestUsers* = ref object of TelegramObject
     requestId*: int
-    userIsBot*: Option[bool]
-    userIsPremium*: Option[bool]
-    maxQuantity*: Option[int]
+    userIsBot*: bool
+    userIsPremium*: bool
+    maxQuantity*: int
 
   KeyboardButtonRequestChat* = ref object of TelegramObject
     requestId*: int
@@ -406,21 +403,21 @@ type
     kind*: string
 
   ReplyKeyboardRemove* = ref object of KeyboardMarkup
-    selective*: Option[bool]
+    selective*: bool
 
   ForceReply* = ref object of KeyboardMarkup
-    forceReply*: Option[bool]
-    inputFieldPlaceholder*: Option[string]
-    selective*: Option[bool]
+    forceReply*: bool
+    inputFieldPlaceholder*: string
+    selective*: bool
 
   InlineKeyboardMarkup* = ref object of KeyboardMarkup
     inlineKeyboard*: seq[seq[InlineKeyboardButton]]
 
   LoginUrl* = ref object of TelegramObject
     url*: string
-    forwardText*: Option[string]
-    botUsername*: Option[string]
-    requestWriteAccess*: Option[bool]
+    forwardText*: string
+    botUsername*: string
+    requestWriteAccess*: bool
 
   CallbackGame* = ref object of TelegramObject
 
@@ -430,44 +427,44 @@ type
     score*: int
 
   SwitchInlineQueryChosenChat* = ref object of TelegramObject
-    query*: Option[string]
-    allowUserChats*: Option[bool]
-    allowBotChats*: Option[bool]
-    allowGroupChats*: Option[bool]
-    allowChannelChats*: Option[bool]
+    query*: string
+    allowUserChats*: bool
+    allowBotChats*: bool
+    allowGroupChats*: bool
+    allowChannelChats*: bool
 
 
   CallbackQuery* = ref object of TelegramObject
     id*: string
     fromUser*: User
-    message*: Option[ref Message]
-    inlineMessageId*: Option[string]
-    chatInstance*: Option[string]
-    data*: Option[string]
-    gameShortName*: Option[string]
+    message*: Message
+    inlineMessageId*: string
+    chatInstance*: string
+    data*: string
+    gameShortName*: string
 
-  MessageEntity* = object of TelegramObject
+  MessageEntity* = ref object of TelegramObject
     kind*: string
     offset*: int
     length*: int
-    url*: Option[string]
-    user*: Option[User]
-    language*: Option[string]
-    customEmojiId*: Option[string]
+    url*: string
+    user*: User
+    language*: string
+    customEmojiId*: string
 
-  TextQuote* = object of TelegramObject
+  TextQuote* = ref object of TelegramObject
     text*: string
-    entities*: Option[seq[MessageEntity]]
+    entities*: seq[MessageEntity]
     positon*: int
-    isManual*: Option[bool]
+    isManual*: bool
 
   MessageOriginKind* = enum
-    kindMessageOriginUser
-    kindMessageOriginHiddenUser
-    kindMessageOriginChat
-    kindMessageOriginChannel
+    kindMessageOriginUser = "user"
+    kindMessageOriginHiddenUser = "hidden_user"
+    kindMessageOriginChat = "chat"
+    kindMessageOriginChannel = "channel"
 
-  MessageOrigin* = object of TelegramObject
+  MessageOrigin* = ref object of TelegramObject
     date*: int
     case kind*: MessageOriginKind
     of kindMessageOriginUser:
@@ -480,148 +477,146 @@ type
       chat*: Chat
       messageId*: int
     # only available for MessageOriginChat and MessageOriginChannel
-    authorSignature*: Option[string]
+    authorSignature*: string
 
-
-
-  ExternalReplyInfo* = object of TelegramObject
+  ExternalReplyInfo* = ref object of TelegramObject
     origin*: MessageOrigin
-    chat*: Option[Chat]
-    messageId*: Option[int]
-    linkPreviewOptions*: Option[LinkPreviewOptions]
-    animation*: Option[Animation]
-    audio*: Option[Audio]
-    document*: Option[Document]
-    photo*: Option[seq[PhotoSize]]
-    sticker*: Option[Sticker]
-    story*: Option[Story]
-    video*: Option[Video]
-    videoNote*: Option[VideoNote]
-    voice*: Option[Voice]
-    hasMediaSpoiler*: Option[bool]
-    contact*: Option[Contact]
-    dice*: Option[Dice]
-    game*: Option[Game]
-    giveaway*: Option[Giveaway]
-    giveawayWinners*: Option[GiveawayWinners]
-    invoice*: Option[Invoice]
-    location*: Option[Location]
-    poll*: Option[Poll]
-    venue*: Option[Venue]
+    chat*: Chat
+    messageId*: int
+    linkPreviewOptions*: LinkPreviewOptions
+    animation*: Animation
+    audio*: Audio
+    document*: Document
+    photo*: seq[PhotoSize]
+    sticker*: Sticker
+    story*: Story
+    video*: Video
+    videoNote*: VideoNote
+    voice*: Voice
+    hasMediaSpoiler*: bool
+    contact*: Contact
+    dice*: Dice
+    game*: Game
+    giveaway*: Giveaway
+    giveawayWinners*: GiveawayWinners
+    invoice*: Invoice
+    location*: Location
+    poll*: Poll
+    venue*: Venue
 
   ReplyParameters* = ref object of TelegramObject
     messageId*: int
-    chatId*: Option[seq[int]]
-    allowSendingWithoutReply*: Option[bool]
-    quote*: Option[string]
-    quoteParseMode*: Option[string]
-    quoteEntities*: Option[seq[MessageEntity]]
-    quotePostion*: Option[int]
+    chatId*: seq[int]
+    allowSendingWithoutReply*: bool
+    quote*: string
+    quoteParseMode*: string
+    quoteEntities*: seq[MessageEntity]
+    quotePostion*: int
 
-  Message* = object of TelegramObject
+  Message* = ref object of TelegramObject
     messageId*: int
-    messageThreadId*: Option[int]
-    fromUser*: Option[User]
-    senderChat*: Option[Chat]
+    messageThreadId*: int
+    fromUser*: User
+    senderChat*: Chat
     date*: int
     chat*: Chat
-    forwardOrigin*: Option[MessageOrigin]
-    isTopicMessage*: Option[bool]
-    isAutomaticForward*: Option[bool]
-    replyToMessage*: Option[ref Message]
-    externalReply*: Option[ExternalReplyInfo]
-    quote*: Option[TextQuote]
-    viaBot*: Option[User]
-    editDate*: Option[int]
-    hasProtectedContent*: Option[bool]
-    mediaGroupId*: Option[string]
-    authorSignature*: Option[string]
-    text*: Option[string]
-    entities*: Option[seq[MessageEntity]]
-    linkPreviewOptions*: Option[LinkPreviewOptions]
-    animation*: Option[Animation]
-    audio*: Option[Audio]
-    document*: Option[Document]
-    photo*: Option[seq[PhotoSize]]
-    sticker*: Option[Sticker]
-    story*: Option[Story]
-    video*: Option[Video]
-    videoNote*: Option[VideoNote]
-    voice*: Option[Voice]
-    caption*: Option[string]
-    captionEntities*: Option[seq[MessageEntity]]
-    hasMediaSpoiler*: Option[bool]
-    contact*: Option[Contact]
-    dice*: Option[Dice]
-    game*: Option[Game]
-    poll*: Option[Poll]
-    venue*: Option[Venue]
-    location*: Option[Location]
-    newChatMembers*: Option[seq[User]]
-    leftChatMember*: Option[User]
-    newChatTitle*: Option[string]
-    newChatPhoto*: Option[seq[PhotoSize]]
-    deleteChatPhoto*: Option[bool]
-    groupChatCreated*: Option[bool]
-    superGroupChatCreated*: Option[bool]
-    chanelChatCreated*: Option[bool]
-    messageAutoDeleteTimerChanged*: Option[MessageAutoDeleteTimerChanged]
-    migrateToChatId*: Option[int64]
-    migrateFromChatId*: Option[int64]
-    pinnedMessage*: Option[ref Message]
-    invoice*: Option[Invoice]
-    successfulPayment*: Option[SuccessfulPayment]
-    usersShared*: Option[UsersShared]
-    chatShared*: Option[ChatShared]
-    connectedWebsite*: Option[string]
-    writeAccessAllowed*: Option[WriteAccessAllowed]
-    passportData*: Option[PassportData]
-    proximityAlertTriggered*: Option[ProximityAlertTriggered]
-    forumTopicCreated*: Option[ForumTopicCreated]
-    forumTopicEdited*: Option[ForumTopicEdited]
-    forumTopicClosed*: Option[ForumTopicClosed]
-    forumTopicReopened*: Option[ForumTopicReopened]
-    generalForumTopicHidden*: Option[GeneralForumTopicHidden]
-    generalForumTopicUnhidden*: Option[GeneralForumTopicUnhidden]
-    giveawayCreated*: Option[GiveawayCreated]
-    giveaway*: Option[Giveaway]
-    giveawayWinners*: Option[GiveawayWinners]
-    giveawayCompleted*: Option[GiveawayCompleted]
-    videoChatScheduled*: Option[VoiceChatScheduled]
-    videoChatStarted*: Option[VoiceChatStarted]
-    videoChatEnded*: Option[VoiceChatEnded]
-    videoChatParticipantsInvited*: Option[VoiceChatParticipantsInvited]
-    webAppData*: Option[WebAppData]
-    replyMarkup*: Option[InlineKeyboardMarkup]
+    forwardOrigin*: MessageOrigin
+    isTopicMessage*: bool
+    isAutomaticForward*: bool
+    replyToMessage*: Message
+    externalReply*: ExternalReplyInfo
+    quote*: TextQuote
+    viaBot*: User
+    editDate*: int
+    hasProtectedContent*: bool
+    mediaGroupId*: string
+    authorSignature*: string
+    text*: string
+    entities*: seq[MessageEntity]
+    linkPreviewOptions*: LinkPreviewOptions
+    animation*: Animation
+    audio*: Audio
+    document*: Document
+    photo*: seq[PhotoSize]
+    sticker*: Sticker
+    story*: Story
+    video*: Video
+    videoNote*: VideoNote
+    voice*: Voice
+    caption*: string
+    captionEntities*: seq[MessageEntity]
+    hasMediaSpoiler*: bool
+    contact*: Contact
+    dice*: Dice
+    game*: Game
+    poll*: Poll
+    venue*: Venue
+    location*: Location
+    newChatMembers*: seq[User]
+    leftChatMember*: User
+    newChatTitle*: string
+    newChatPhoto*: seq[PhotoSize]
+    deleteChatPhoto*: bool
+    groupChatCreated*: bool
+    superGroupChatCreated*: bool
+    chanelChatCreated*: bool
+    messageAutoDeleteTimerChanged*: MessageAutoDeleteTimerChanged
+    migrateToChatId*: int64
+    migrateFromChatId*: int64
+    pinnedMessage*: Message
+    invoice*: Invoice
+    successfulPayment*: SuccessfulPayment
+    usersShared*: UsersShared
+    chatShared*: ChatShared
+    connectedWebsite*: string
+    writeAccessAllowed*: WriteAccessAllowed
+    passportData*: PassportData
+    proximityAlertTriggered*: ProximityAlertTriggered
+    forumTopicCreated*: ForumTopicCreated
+    forumTopicEdited*: ForumTopicEdited
+    forumTopicClosed*: ForumTopicClosed
+    forumTopicReopened*: ForumTopicReopened
+    generalForumTopicHidden*: GeneralForumTopicHidden
+    generalForumTopicUnhidden*: GeneralForumTopicUnhidden
+    giveawayCreated*: GiveawayCreated
+    giveaway*: Giveaway
+    giveawayWinners*: GiveawayWinners
+    giveawayCompleted*: GiveawayCompleted
+    videoChatScheduled*: VoiceChatScheduled
+    videoChatStarted*: VoiceChatStarted
+    videoChatEnded*: VoiceChatEnded
+    videoChatParticipantsInvited*: VoiceChatParticipantsInvited
+    webAppData*: WebAppData
+    replyMarkup*: InlineKeyboardMarkup
 
-  MessageId* = object of TelegramObject
+  MessageId* = ref object of TelegramObject
     messageId*: int
 
-  #InaccessibleMessage* = object of TelegramObject
+  #InaccessibleMessage* = ref object of TelegramObject
   #  chat*: Chat
   #  messageId*: int
   #  date*: int
 
   #MaybeInaccessibleMessage* = Message|InaccessibleMessage
 
-  ChatPhoto* = object of TelegramObject
+  ChatPhoto* = ref object of TelegramObject
     smallFileId*: string
     smallFileUniqueId*: string
     bigFileId*: string
     bigFileUniqueId*: string
 
-  ChatInviteLink* = object of TelegramObject
+  ChatInviteLink* = ref object of TelegramObject
     inviteLink*: string
     creator*: User
     createsJoinRequest*: bool
     isPrimary*: bool
     isRevoked*: bool
-    name*: Option[string]
-    expireDate*: Option[int]
-    memberLimit*: Option[int]
-    pendingJoinRequestCount*: Option[int]
+    name*: string
+    expireDate*: int
+    memberLimit*: int
+    pendingJoinRequestCount*: int
 
-  ChatAdministratorRights* = object of TelegramObject
+  ChatAdministratorRights* = ref object of TelegramObject
     isAnonymous*: bool
     canManageChat*: bool
     canDeleteMessages*: bool
@@ -630,119 +625,119 @@ type
     canPromoteMembers*: bool
     canChangeInfo*: bool
     canInviteUsers*: bool
-    canpostMessages*: Option[bool]
-    canEditMessages*: Option[bool]
-    canPinMessages*: Option[bool]
-    canPostStories*: Option[bool]
-    canEditStories*: Option[bool]
-    canDeleteStories*: Option[bool]
-    canManageTopics*: Option[bool]
+    canpostMessages*: bool
+    canEditMessages*: bool
+    canPinMessages*: bool
+    canPostStories*: bool
+    canEditStories*: bool
+    canDeleteStories*: bool
+    canManageTopics*: bool
 
-  ChatMember* = object of TelegramObject
+  ChatMember* = ref object of TelegramObject
     user*: User
     status*: string
     #TODO these properties below will be removed infavor of 6 types of chat members
-    customTitle*: Option[string]
-    isAnonymous*: Option[bool]
-    untilDate*: Option[int]
-    canBeEdited*: Option[bool]
-    canManageChat*: Option[bool]
-    canPostMessages*: Option[bool]
-    canEditMessages*: Option[bool]
-    canDeleteMessages*: Option[bool]
-    canManageVideoChats*: Option[bool]
-    canRestrictMembers*: Option[bool]
-    canPromoteMembers*: Option[bool]
-    canChangeInfo*: Option[bool]
-    canInviteUsers*: Option[bool]
-    canPinMessages*: Option[bool]
-    isMember*: Option[bool]
-    canSendMessages*: Option[bool]
-    canSendMediaMessages*: Option[bool]
-    canSendPolls*: Option[bool]
-    canSendOtherMessages*: Option[bool]
-    canAddWebPagePreviews*: Option[bool]
+    customTitle*: string
+    isAnonymous*: bool
+    untilDate*: int
+    canBeEdited*: bool
+    canManageChat*: bool
+    canPostMessages*: bool
+    canEditMessages*: bool
+    canDeleteMessages*: bool
+    canManageVideoChats*: bool
+    canRestrictMembers*: bool
+    canPromoteMembers*: bool
+    canChangeInfo*: bool
+    canInviteUsers*: bool
+    canPinMessages*: bool
+    isMember*: bool
+    canSendMessages*: bool
+    canSendMediaMessages*: bool
+    canSendPolls*: bool
+    canSendOtherMessages*: bool
+    canAddWebPagePreviews*: bool
 
   #[ I dont know how these types work yet
-  ChatMember* = object of TelegramObject
+  ChatMember* = ref object of TelegramObject
     user*: User
     status*: string
 
-  ChatMemberOwner* = object of ChatMember
-    customTitle*: Option[string]
-    isAnonymous*: Option[bool]
+  ChatMemberOwner* = ref object of ChatMember
+    customTitle*: string
+    isAnonymous*: bool
 
-  ChatMemberAdministrator* = object of ChatMemberOwner
-    canBeEdited*: Option[bool]
-    canManageChat*: Option[bool]
-    canDeleteMessages*: Option[bool]
-    canManageVoiceChats*: Option[bool]
-    canRestrictMembers*: Option[bool]
-    canPromoteMembers*: Option[bool]
-    canChangeInfo*: Option[bool]
-    canInviteUsers*: Option[bool]
-    canPostMessages*: Option[bool]
-    canEditMessages*: Option[bool]
-    canPostStories*: Option[bool]
-    canEditStories*: Option[bool]
-    canDeleteStories*: Option[bool]
-    canPinMessages*: Option[bool]
-    customTitle*: Option[string]
+  ChatMemberAdministrator* = ref object of ChatMemberOwner
+    canBeEdited*: bool
+    canManageChat*: bool
+    canDeleteMessages*: bool
+    canManageVoiceChats*: bool
+    canRestrictMembers*: bool
+    canPromoteMembers*: bool
+    canChangeInfo*: bool
+    canInviteUsers*: bool
+    canPostMessages*: bool
+    canEditMessages*: bool
+    canPostStories*: bool
+    canEditStories*: bool
+    canDeleteStories*: bool
+    canPinMessages*: bool
+    customTitle*: string
 
-  ChatMemberMember* = object of ChatMember
+  ChatMemberMember* = ref object of ChatMember
 
-  ChatMemberRestricted* = object of ChatMember
-    isMember*: Option[bool]
-    canChangeInfo*: Option[bool]
-    canInviteUsers*: Option[bool]
-    canPinMessages*: Option[bool]
-    canSendMessages*: Option[bool]
-    canSendMediaMessages*: Option[bool]
-    canSendPolls*: Option[bool]
-    canSendOtherMessages*: Option[bool]
-    canAddWebPagePreviews*: Option[bool]
-    untilDate*: Option[int]
+  ChatMemberRestricted* = ref object of ChatMember
+    isMember*: bool
+    canChangeInfo*: bool
+    canInviteUsers*: bool
+    canPinMessages*: bool
+    canSendMessages*: bool
+    canSendMediaMessages*: bool
+    canSendPolls*: bool
+    canSendOtherMessages*: bool
+    canAddWebPagePreviews*: bool
+    untilDate*: int
 
-  ChatMemberLeft* = object of ChatMember
+  ChatMemberLeft* = ref object of ChatMember
 
-  ChatMemberBanned* = object of ChatMember
-    untilDate*: Option[int]
+  ChatMemberBanned* = ref object of ChatMember
+    untilDate*: int
   ]#
 
-  ChatMemberUpdated* = object of TelegramObject
+  ChatMemberUpdated* = ref object of TelegramObject
     chat*: Chat
     fromUser*: User
     date*: int
     oldChatMember*: ChatMember
     newChatMember*: ChatMember
-    inviteLink*: Option[ChatInviteLink]
-    viaChatFolderInviteLink*: Option[bool]
+    inviteLink*: ChatInviteLink
+    viaChatFolderInviteLink*: bool
 
-  ChatJoinRequest* = object of TelegramObject
+  ChatJoinRequest* = ref object of TelegramObject
     chat*: Chat
     fromUser*: User
     userChatId*: int64
     date*: int
-    bio*: Option[string]
-    inviteLink*: Option[ChatInviteLink]
+    bio*: string
+    inviteLink*: ChatInviteLink
 
-  ChatPermissions* = object of TelegramObject
-    canSendMessages*: Option[bool]
-    canSendAudios*: Option[bool]
-    canSendDocuments*: Option[bool]
-    canSendPhotos*: Option[bool]
-    canSendVideos*: Option[bool]
-    canSendVideoNotes*: Option[bool]
-    canSendVoiceNotes*: Option[bool]
-    canSendPolls*: Option[bool]
-    canSendOtherMessages*: Option[bool]
-    canAddWebPagePreviews*: Option[bool]
-    canChangeInfo*: Option[bool]
-    canInviteUsers*: Option[bool]
-    canPinMessages*: Option[bool]
-    canManageTopics*: Option[bool]
+  ChatPermissions* = ref object of TelegramObject
+    canSendMessages*: bool
+    canSendAudios*: bool
+    canSendDocuments*: bool
+    canSendPhotos*: bool
+    canSendVideos*: bool
+    canSendVideoNotes*: bool
+    canSendVoiceNotes*: bool
+    canSendPolls*: bool
+    canSendOtherMessages*: bool
+    canAddWebPagePreviews*: bool
+    canChangeInfo*: bool
+    canInviteUsers*: bool
+    canPinMessages*: bool
+    canManageTopics*: bool
 
-  ChatLocation* = object of TelegramObject
+  ChatLocation* = ref object of TelegramObject
     location*: Location
     address*: string
 
@@ -750,96 +745,96 @@ type
     kindReactionTypeEmoji = "emoji"
     kindReactionTypeCustomEmoji = "custom_emoji"
 
-  ReactionType* = object of TelegramObject
+  ReactionType* = ref object of TelegramObject
     case kind*: ReactionTypeKind
     of kindReactionTypeEmoji:
       emoji*: string
     of kindReactionTypeCustomEmoji:
       customEmoji*: string
 
-  ReactionCount* = object of TelegramObject
+  ReactionCount* = ref object of TelegramObject
     kind*: ReactionType
     totalCount*: int
 
-  MessageReactionUpdated* = object of TelegramObject
+  MessageReactionUpdated* = ref object of TelegramObject
     chat*: Chat
     messageId*: int
-    user*: Option[User]
-    actorChat*: Option[Chat]
+    user*: User
+    actorChat*: Chat
     date*: int
     oldReaction*: seq[ReactionType]
     newReaction*: seq[ReactionType]
 
-  MessageReactionCountUpdated* = object of TelegramObject
+  MessageReactionCountUpdated* = ref object of TelegramObject
     chat*: Chat
     messageId*: int
     date*: int
     reactions*: seq[ReactionCount]
 
 
-  ForumTopic* = object of TelegramObject
+  ForumTopic* = ref object of TelegramObject
     messageThreadId*: int
     name*: string
     iconColor*: int
-    iconCustomEmojiId*: Option[string]
+    iconCustomEmojiId*: string
 
-  BotCommand* = object of TelegramObject
+  BotCommand* = ref object of TelegramObject
     command*: string
     description*: string
 
-  ResponseParameters* = object of TelegramObject
-    migrateToChatId*: Option[int64]
-    retryAfter*: Option[int]
+  ResponseParameters* = ref object of TelegramObject
+    migrateToChatId*: int64
+    retryAfter*: int
 
-  Update* = object of TelegramObject
+  Update* = ref object of TelegramObject
     updateId*: int
-    message*: Option[Message]
-    editedMessage*: Option[Message]
-    channelPost*: Option[Message]
-    editedChannelPost*: Option[Message]
-    messageReaction*: Option[MessageReactionUpdated]
-    messageReactionCount*: Option[MessageReactionCountUpdated]
-    inlineQuery*: Option[InlineQuery]
-    chosenInlineResult*: Option[ChosenInlineResult]
-    callbackQuery*: Option[CallbackQuery]
-    shippingQuery*: Option[ShippingQuery]
-    preCheckoutQuery*: Option[PreCheckoutQuery]
-    poll*: Option[Poll]
-    pollAnswer*: Option[PollAnswer]
-    myChatMember*: Option[ChatMemberUpdated]
-    chatMember*: Option[ChatMemberUpdated]
-    chatJoinRequest*: Option[ChatJoinRequest]
+    message*: Message
+    editedMessage*: Message
+    channelPost*: Message
+    editedChannelPost*: Message
+    messageReaction*: MessageReactionUpdated
+    messageReactionCount*: MessageReactionCountUpdated
+    inlineQuery*: InlineQuery
+    chosenInlineResult*: ChosenInlineResult
+    callbackQuery*: CallbackQuery
+    shippingQuery*: ShippingQuery
+    preCheckoutQuery*: PreCheckoutQuery
+    poll*: Poll
+    pollAnswer*: PollAnswer
+    myChatMember*: ChatMemberUpdated
+    chatMember*: ChatMemberUpdated
+    chatJoinRequest*: ChatJoinRequest
 
   #------------------
   # Game
   #------------------
-  Animation* = object of TelegramObject
+  Animation* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
-    thumbnail*: Option[PhotoSize]
-    fileName*: Option[string]
-    mimeType*: Option[string]
-    fileSize*: Option[int]
+    thumbnail*: PhotoSize
+    fileName*: string
+    mimeType*: string
+    fileSize*: int
 
-  Game* = object of TelegramObject
+  Game* = ref object of TelegramObject
     title*: string
     description*: string
     photo*: seq[PhotoSize]
-    text*: Option[string]
-    textEntities*: Option[seq[MessageEntity]]
-    animation*: Option[Animation]
+    text*: string
+    textEntities*: seq[MessageEntity]
+    animation*: Animation
 
   #------------------
   # Payment
   #------------------
-  Invoice* = object of TelegramObject
+  Invoice* = ref object of TelegramObject
     title*: string
     description*: string
     startParameter*: string
     currency*: string
     totalAmount*: int
 
-  ShippingAddress* = object of TelegramObject
+  ShippingAddress* = ref object of TelegramObject
     countryCode*: string
     state*: string
     city*: string
@@ -847,44 +842,44 @@ type
     streetLine2*: string
     postCode*: string
 
-  OrderInfo* = object of TelegramObject
-    name*: Option[string]
-    phoneNumber*: Option[string]
-    email*: Option[string]
-    shippingAddress*: Option[ShippingAddress]
+  OrderInfo* = ref object of TelegramObject
+    name*: string
+    phoneNumber*: string
+    email*: string
+    shippingAddress*: ShippingAddress
 
-  LabeledPrice* = object of TelegramObject
+  LabeledPrice* = ref object of TelegramObject
     label*: string
     amount*: int
 
-  ShippingOption* = object of TelegramObject
+  ShippingOption* = ref object of TelegramObject
     id*: string
     title*: string
     prices*: seq[LabeledPrice]
 
-  SuccessfulPayment* = object of TelegramObject
+  SuccessfulPayment* = ref object of TelegramObject
     currentcy*: string
     totalAmount*: int
     invoicePayload*: string
-    shippingOptionId*: Option[string]
-    orderInfo*: Option[OrderInfo]
+    shippingOptionId*: string
+    orderInfo*: OrderInfo
     telegramPaymentChargeId*: string
     providerPaymentChargeId*: string
 
-  ShippingQuery* = object of TelegramObject
+  ShippingQuery* = ref object of TelegramObject
     id*: string
     fromUser*: User
     invoicePayload*: string
     shippingAddress*: ShippingAddress
 
-  PreCheckoutQuery* = object of TelegramObject
+  PreCheckoutQuery* = ref object of TelegramObject
     id*: string
     fromUser*: User
     currency*: string
     totalAmount*: int
     invoicePayload*: string
-    shippingOptionId*: Option[string]
-    orderInfo*: Option[OrderInfo]
+    shippingOptionId*: string
+    orderInfo*: OrderInfo
 
   #------------------
   # Inline Query
@@ -900,28 +895,28 @@ type
     case kind* {.telebotInternalUse.}: InputMessageContentKind
     of TextMessage:
       messageText*: string
-      parseMode*: Option[string]
-      linkPreviewOptions: Option[LinkPreviewOptions]
-      captionEntities*: Option[seq[MessageEntity]]
+      parseMode*: string
+      linkPreviewOptions: LinkPreviewOptions
+      captionEntities*: seq[MessageEntity]
     of LocationMessage:
       latitude*: float
       longitude*: float
-      livePeriod*: Option[int]
-      heading*: Option[int]
+      livePeriod*: int
+      heading*: int
     of VenueMessage:
       venueLatitude*: float
       venueLongitude*: float
       venueTitle*: string
       venueAddress*: string
-      foursquareId*: Option[string]
-      foursquareType*: Option[string]
-      googlePlaceId*: Option[string]
-      googlePlaceType*: Option[string]
+      foursquareId*: string
+      foursquareType*: string
+      googlePlaceId*: string
+      googlePlaceType*: string
     of ContactMessage:
       phoneNumber*: string
       firstName*: string
-      lastName*: Option[string]
-      vcard*: Option[string]
+      lastName*: string
+      vcard*: string
     of InvoiceMessage:
       title*: string
       description*: string
@@ -929,186 +924,186 @@ type
       providerToken*: string
       currrency*: string
       prices*: seq[LabeledPrice]
-      maxTipAmount*: Option[int]
-      suggestedTipAmounts*: Option[seq[int]]
-      providerData*: Option[string]
-      photoUrl*: Option[string]
-      photoSize*: Option[int]
-      photoWidth*: Option[int]
-      photoHeight*: Option[int]
-      needName*: Option[bool]
-      needPhoneNumber*: Option[bool]
-      needEmail*: Option[bool]
-      needShippingAddress*: Option[bool]
-      sendPhoneNumberToProvider*: Option[bool]
-      sendEmailToProvider*: Option[bool]
-      isFlexible*: Option[bool]
+      maxTipAmount*: int
+      suggestedTipAmounts*: seq[int]
+      providerData*: string
+      photoUrl*: string
+      photoSize*: int
+      photoWidth*: int
+      photoHeight*: int
+      needName*: bool
+      needPhoneNumber*: bool
+      needEmail*: bool
+      needShippingAddress*: bool
+      sendPhoneNumberToProvider*: bool
+      sendEmailToProvider*: bool
+      isFlexible*: bool
 
-  InlineQueryResult* = object of TelegramObject
+  InlineQueryResult* = ref object of TelegramObject
     kind*: string
     id*: string
-    captionEntities*: Option[seq[MessageEntity]]
-    inputMessageContent*: Option[InputMessageContent]
-    replyMarkup*: Option[InlineKeyboardMarkup]
+    captionEntities*: seq[MessageEntity]
+    inputMessageContent*: InputMessageContent
+    replyMarkup*: InlineKeyboardMarkup
 
-  InlineQueryResultWithThumb* = object of InlineQueryResult
-    thumbnailUrl*: Option[string]
-    thumbnailWidth*: Option[int]
-    thumbnailHeight*: Option[int]
+  InlineQueryResultWithThumb* = ref object of InlineQueryResult
+    thumbnailUrl*: string
+    thumbnailWidth*: int
+    thumbnailHeight*: int
 
-  InlineQueryResultArticle* = object of InlineQueryResultWithThumb
+  InlineQueryResultArticle* = ref object of InlineQueryResultWithThumb
     title*: string
-    url*: Option[string]
-    hideUrl*: Option[bool]
-    description*: Option[string]
+    url*: string
+    hideUrl*: bool
+    description*: string
 
-  InlineQueryResultPhoto* = object of InlineQueryResult
+  InlineQueryResultPhoto* = ref object of InlineQueryResult
     photoUrl*: string
     thumbnailUrl*: string
-    photoWidth*: Option[int]
-    photoHeight*: Option[int]
-    title*: Option[string]
-    description*: Option[string]
-    caption*: Option[string]
+    photoWidth*: int
+    photoHeight*: int
+    title*: string
+    description*: string
+    caption*: string
 
-  InlineQueryResultGif* = object of InlineQueryResult
+  InlineQueryResultGif* = ref object of InlineQueryResult
     gifUrl*: string
-    gifWidth*: Option[int]
-    gifHeight*: Option[int]
-    gifDuration*: Option[int]
+    gifWidth*: int
+    gifHeight*: int
+    gifDuration*: int
     thumbnailUrl*: string
-    thumbnailMimeType*: Option[string]
-    title*: Option[string]
-    caption*: Option[string]
+    thumbnailMimeType*: string
+    title*: string
+    caption*: string
 
-  InlineQueryResultMpeg4Gif* = object of InlineQueryResult
+  InlineQueryResultMpeg4Gif* = ref object of InlineQueryResult
     mpeg4Url*: string
-    mpeg4Width*: Option[int]
-    mpeg4Height*: Option[int]
-    mpeg4Duration*: Option[int]
+    mpeg4Width*: int
+    mpeg4Height*: int
+    mpeg4Duration*: int
     thumbnailUrl*: string
-    thumbnailMimeType*: Option[string]
-    title*: Option[string]
-    caption*: Option[string]
+    thumbnailMimeType*: string
+    title*: string
+    caption*: string
 
-  InlineQueryResultVideo* = object of InlineQueryResult
+  InlineQueryResultVideo* = ref object of InlineQueryResult
     videoUrl*: string
     mimeType*: string
     thumbnailUrl*: string
     title*: string
-    caption*: Option[string]
-    videoWidth*: Option[int]
-    videoHeight*: Option[int]
-    videoDuration*: Option[int]
-    description*: Option[string]
+    caption*: string
+    videoWidth*: int
+    videoHeight*: int
+    videoDuration*: int
+    description*: string
 
-  InlineQueryResultAudio* = object of InlineQueryResult
+  InlineQueryResultAudio* = ref object of InlineQueryResult
     audioUrl*: string
     title*: string
-    caption*: Option[string]
-    performer*: Option[string]
-    audioDuration*: Option[int]
+    caption*: string
+    performer*: string
+    audioDuration*: int
 
-  InlineQueryResultVoice* = object of InlineQueryResult
+  InlineQueryResultVoice* = ref object of InlineQueryResult
     voiceUrl*: string
     title*: string
-    caption*: Option[string]
-    voiceDuration*: Option[int]
+    caption*: string
+    voiceDuration*: int
 
-  InlineQueryResultDocument* = object of InlineQueryResultWithThumb
+  InlineQueryResultDocument* = ref object of InlineQueryResultWithThumb
     title*: string
-    caption*: Option[string]
+    caption*: string
     documentUrl*: string
     mimeType*: string
-    description*: Option[string]
+    description*: string
 
-  InlineQueryResultLocation* = object of InlineQueryResultWithThumb
+  InlineQueryResultLocation* = ref object of InlineQueryResultWithThumb
     latitude*: float
     longitude*: float
     title*: string
-    horizontalAccuracy*: Option[float]
-    livePeriod*: Option[int]
-    heading*: Option[int]
-    proximityAlertRadius*: Option[int]
+    horizontalAccuracy*: float
+    livePeriod*: int
+    heading*: int
+    proximityAlertRadius*: int
 
-  InlineQueryResultVenue* = object of InlineQueryResultWithThumb
+  InlineQueryResultVenue* = ref object of InlineQueryResultWithThumb
     latitude*: float
     longitude*: float
     title*: string
     address*: string
-    foursquareId*: Option[string]
-    foursquareType*: Option[string]
-    googlePlaceId*: Option[string]
-    googlePlaceType*: Option[string]
+    foursquareId*: string
+    foursquareType*: string
+    googlePlaceId*: string
+    googlePlaceType*: string
 
-  InlineQueryResultContact* = object of InlineQueryResultWithThumb
+  InlineQueryResultContact* = ref object of InlineQueryResultWithThumb
     phoneNumber*: string
     firstName*: string
-    lastName*: Option[string]
-    vcard*: Option[string]
+    lastName*: string
+    vcard*: string
 
-  InlineQueryResultGame* = object of InlineQueryResult
+  InlineQueryResultGame* = ref object of InlineQueryResult
     gameShortName*: string
 
-  InlineQueryResultCachedPhoto* = object of InlineQueryResult
+  InlineQueryResultCachedPhoto* = ref object of InlineQueryResult
     photoFileId*: string
-    title*: Option[string]
-    description*: Option[string]
-    caption*: Option[string]
+    title*: string
+    description*: string
+    caption*: string
 
-  InlineQueryResultCachedGif* = object of InlineQueryResult
+  InlineQueryResultCachedGif* = ref object of InlineQueryResult
     gifFileId*: string
-    title*: Option[string]
-    caption*: Option[string]
+    title*: string
+    caption*: string
 
-  InlineQueryResultCachedMpeg4Gif* = object of InlineQueryResult
+  InlineQueryResultCachedMpeg4Gif* = ref object of InlineQueryResult
     mpeg4FileId*: string
-    title*: Option[string]
-    caption*: Option[string]
+    title*: string
+    caption*: string
 
-  InlineQueryResultCachedSticker* = object of InlineQueryResult
+  InlineQueryResultCachedSticker* = ref object of InlineQueryResult
     stickerFileId*: string
 
-  InlineQueryResultCachedVideo* = object of InlineQueryResult
+  InlineQueryResultCachedVideo* = ref object of InlineQueryResult
     videoFileId*: string
     title*: string
-    caption*: Option[string]
-    description*: Option[string]
+    caption*: string
+    description*: string
 
-  InlineQueryResultCachedAudio* = object of InlineQueryResult
+  InlineQueryResultCachedAudio* = ref object of InlineQueryResult
     audioFileId*: string
-    caption*: Option[string]
+    caption*: string
 
-  InlineQueryResultCachedVoice* = object of InlineQueryResult
+  InlineQueryResultCachedVoice* = ref object of InlineQueryResult
     voiceFileId*: string
     title*: string
-    caption*: Option[string]
+    caption*: string
 
-  InlineQueryResultCachedDocument* = object of InlineQueryResult
+  InlineQueryResultCachedDocument* = ref object of InlineQueryResult
     title*: string
-    caption*: Option[string]
+    caption*: string
     documentFileId*: string
-    description*: Option[string]
+    description*: string
 
-  InlineQuery* = object of TelegramObject
+  InlineQuery* = ref object of TelegramObject
     id*: string
     fromUser*: User
     query*: string
     offset*: string
-    chatType: Option[string]
-    location*: Option[Location]
+    chatType: string
+    location*: Location
 
-  ChosenInlineResult* = object of TelegramObject
+  ChosenInlineResult* = ref object of TelegramObject
     resultId*: string
     fromUser*: User
-    location*: Option[Location]
-    inlineMessageId*: Option[string]
+    location*: Location
+    inlineMessageId*: string
     query*: string
 
   InlineQueryResultsButton* = ref object of TelegramObject
     text*: string
-    webApp*: Option[WebAppInfo]
-    startParameter*: Option[string]
+    webApp*: WebAppInfo
+    startParameter*: string
 
   #------------------
   # Input Media
@@ -1116,34 +1111,34 @@ type
   InputMedia* = ref object of TelegramObject
     kind*: string
     media*: string
-    thumbnail*: Option[string]
-    caption*: Option[string]
-    parseMode*: Option[string]
-    captionEntities*: Option[seq[MessageEntity]]
+    thumbnail*: string
+    caption*: string
+    parseMode*: string
+    captionEntities*: seq[MessageEntity]
 
   InputMediaPhoto* = ref object of InputMedia
-    hasSpoiler*: Option[bool]
+    hasSpoiler*: bool
 
   InputMediaVideo* = ref object of InputMedia
-    width*: Option[int]
-    height*: Option[int]
-    duration*: Option[int]
-    supportsStreaming*: Option[bool]
-    hasSpoiler*: Option[bool]
+    width*: int
+    height*: int
+    duration*: int
+    supportsStreaming*: bool
+    hasSpoiler*: bool
 
   InputMediaAnimation* = ref object of InputMedia
-    width*: Option[int]
-    height*: Option[int]
-    duration*: Option[int]
-    hasSpoiler*: Option[bool]
+    width*: int
+    height*: int
+    duration*: int
+    hasSpoiler*: bool
 
   InputMediaAudio* = ref object of InputMedia
-    duration*: Option[int]
-    performer*: Option[string]
-    title*: Option[string]
+    duration*: int
+    performer*: string
+    title*: string
 
   InputMediaDocument* = ref object of InputMedia
-    disableContentTypeDetection*: Option[bool]
+    disableContentTypeDetection*: bool
 
 
   InputMediaSet* = InputMediaPhoto|InputMediaVideo|InputMediaAnimation|InputMediaAudio|InputMediaDocument
@@ -1151,30 +1146,30 @@ type
   #------------------
   # Passport
   #------------------
-  PassportFile* = object of TelegramObject
+  PassportFile* = ref object of TelegramObject
     fileId*: string
     fileUniqueId*: string
     fileSize*: int
     fileDate*: int
 
-  EncryptedPassportElement* = object of TelegramObject
+  EncryptedPassportElement* = ref object of TelegramObject
     kind*: string
-    data*: Option[string]
-    phoneNumber*: Option[string]
-    email*: Option[string]
-    files*: Option[seq[PassportFile]]
-    frontSide*: Option[PassportFile]
-    reverseSide*: Option[PassportFile]
-    selfie*: Option[PassportFile]
-    translation*: Option[seq[PassportFile]]
+    data*: string
+    phoneNumber*: string
+    email*: string
+    files*: seq[PassportFile]
+    frontSide*: PassportFile
+    reverseSide*: PassportFile
+    selfie*: PassportFile
+    translation*: seq[PassportFile]
     hash*: string
 
-  EncryptedCredentials* = object of TelegramObject
+  EncryptedCredentials* = ref object of TelegramObject
     data*: string
     hash*: string
     secret*: string
 
-  PassportData* = object of TelegramObject
+  PassportData* = ref object of TelegramObject
     data*: seq[EncryptedPassportElement]
     credentials*: EncryptedCredentials
 
@@ -1225,7 +1220,7 @@ type
     COMMAND_SCOPE_CHAT_MEMBER = "chat_member"
 
   #[
-  BotCommandScope* = object of TelegramObject
+  BotCommandScope* = ref object of TelegramObject
     kind*: string
 
   BotCommandScopeDefault* = ref object of BotCommandScope
@@ -1247,13 +1242,13 @@ type
     userId*: int
   ]#
 
-  BotName* = object of TelegramObject
+  BotName* = ref object of TelegramObject
     name*: string
 
-  BotDescription* = object of TelegramObject
+  BotDescription* = ref object of TelegramObject
     description*: string
 
-  BotShortDescription* = object of TelegramObject
+  BotShortDescription* = ref object of TelegramObject
     shortDescription*: string
 
   #------------------
@@ -1276,7 +1271,7 @@ type
     url*: string
 
   SentWebAppMessage* = ref object of TelegramObject
-    inlineMessageId*: Option[string]
+    inlineMessageId*: string
 
   WebAppData* = ref object of TelegramObject
     data*: string
@@ -1285,39 +1280,37 @@ type
   #------------------
   # Chat Boost
   #------------------
+
+  ChatBoostSourceKind* = enum
+    kindChatBoostSourcePremium
+    kindChatBoostSourceGiftCode
+    kindChatBoostSourceGiveaway
+
   ChatBoostSource* = ref object of TelegramObject
-
-  ChatBoostSourcePremium* = ref object of ChatBoostSource
-    source*: string
     user*: User
+    case source*: ChatBoostSourceKind
+    of kindChatBoostSourceGiveaway:
+      giveawayMessageId*: int
+      isUncaimed*: bool
+    else: discard
 
-  ChatBoostSourceGiftCode* = ref object of ChatBoostSource
-    source*: string
-    user*: User
-
-  ChatBoostSourceGiveaway* = ref object of ChatBoostSource
-    source*: string
-    giveawayMessageId*: int
-    user*: Option[User]
-    isUncaimed*: Option[bool]
-
-  ChatBoost* = object of ChatBoostSource
+  ChatBoost* = ref object of TelegramObject
     boostId*: string
     addDate*: int
     expireDate*: int
     source*: ChatBoostSource
 
-  ChatBoostUpdated* = object of TelegramObject
+  ChatBoostUpdated* = ref object of TelegramObject
     chat*: Chat
     boost*: ChatBoost
 
-  ChatBoostRemoved* = object of TelegramObject
+  ChatBoostRemoved* = ref object of TelegramObject
     chat*: Chat
     boostId*: string
     removeDate*: int
     source*: ChatBoostSource
 
-  UserChatBoosts* = object of TelegramObject
+  UserChatBoosts* = ref object of TelegramObject
     boosts*: seq[ChatBoost]
 
 

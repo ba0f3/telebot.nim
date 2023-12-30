@@ -1,4 +1,4 @@
-import macros, httpclient, asyncdispatch, json, strutils, types, options, logging, strtabs, random
+import macros, httpclient, asyncdispatch, json, strutils, types, logging, strtabs, random
 from streams import Stream, readAll
 from parseutils import parseUntil
 
@@ -27,19 +27,19 @@ template hasCommand*(update: Update, username: string): bool =
       command {.inject.} = ""
       params {.inject.} = ""
       message {.inject.}: Message
-  if update.message.isSome:
+  if update.message != nil:
     hasMessage = true
-    message = update.message.get()
-  elif update.editedMessage.isSome:
+    message = update.message
+  elif update.editedMessage != nil:
     hasMessage = true
-    message = update.editedMessage.get()
+    message = update.editedMessage
   else:
     result = false
 
-  if hasMessage and message.entities.isSome and message.entities.get.len > 0:
+  if hasMessage and message.entities.len > 0:
     let
-      entities = message.entities.get()
-      messageText = message.text.get()
+      entities = message.entities
+      messageText = message.text
     if entities[0].kind == "bot_command" and entities[0].offset == 0:
       let
         offset = entities[0].offset
@@ -59,10 +59,9 @@ proc isSet*(value: auto): bool {.inline.} =
   elif value is int: value != 0
   elif value is int64: value != 0
   elif value is bool: value
-  elif value.type is Option: isSome(value)
   elif value.type is seq: value.len > 0
   elif value is object: true
-  elif value is float: value != 0
+  elif value is float: value != 0.0
   elif value is enum: true
   else: value != nil
 
@@ -92,19 +91,12 @@ proc formatName*(s: string): string {.compileTime.} =
 
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.}
 
-proc toOption*[T](o: var Option[T], n: JsonNode) {.inline.}
-
 proc unmarshal*(n: JsonNode, T: typedesc): T {.gcsafe.} =
-  when T is Option:
-    toOption(result, n)
-  elif T is TelegramObject:
+  when T is TelegramObject:
     for name, value in result.fieldPairs:
       when not value.hasCustomPragma(telebotInternalUse):
         let jsonKey = formatName(name)
-        when value.type is Option:
-          if n.hasKey(jsonKey):
-            toOption(value, n[jsonKey])
-        else:
+        if n.hasKey(jsonKey):
           value = unmarshal(n[jsonKey], value.type)
   elif result is ref:
     if n.kind != JNull:
@@ -132,27 +124,19 @@ proc unmarshal*(n: JsonNode, T: typedesc): T {.gcsafe.} =
         result = e
 
 proc marshal*[T](t: T, s: var string) {.inline.} =
-  when t is Option:
-    if t.isSome:
-      marshal(t.get, s)
-  elif t is TelegramObject:
+  when t is TelegramObject:
     s.add "{"
     for name, value in t.fieldPairs:
       when not value.hasCustomPragma(telebotInternalUse):
         let jsonKey = formatName(name)
-        when value is Option:
-          if value.isSome:
-            s.add("\"" & jsonKey & "\":")
-            marshal(value, s)
-            s.add(',')
-        else:
+        if value.isSet:
           s.add("\"" & jsonKey & "\":")
           marshal(value, s)
           s.add(',')
     s.removeSuffix(',')
     s.add "}"
   elif t is ref:
-    marshal(t[], s)
+   marshal(t[], s)
   elif t is seq or t is openarray:
     s.add "["
     for item in t:
@@ -160,6 +144,10 @@ proc marshal*[T](t: T, s: var string) {.inline.} =
       s.add(',')
     s.removeSuffix(',')
     s.add "]"
+  elif t is enum:
+    s.add "\""
+    s.add($t)
+    s.add "\""
   else:
     if t.isSet:
       when t is string:
@@ -174,9 +162,6 @@ proc marshal*[T](t: T, s: var string) {.inline.} =
 
 proc put*[T](s: var seq[T], n: JsonNode) {.inline.} =
   s.add(unmarshal(n, T))
-
-proc toOption*[T](o: var Option[T], n: JsonNode) =
-  o = some(unmarshal(n, T))
 
 proc postWithTimeout(client: AsyncHttpClient, endpoint: string, data: MultipartData, timeoutMs: int): Future[AsyncResponse] =
   result = newFuture[AsyncResponse]()
@@ -200,8 +185,9 @@ proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil, timeo
   else:
     let endpoint = API_URL % [b.serverUrl, b.token, `method`]
   d("Making request to ", endpoint)
-  #if data != nil:
-  #  echo $data
+  when defined(TELEBOT_DEBUG):
+    if data != nil:
+      echo $data
   let client = newAsyncHttpClient(userAgent="telebot.nim/2023.02 Nim/" & NimVersion, proxy=b.proxy)
   defer: client.close()
   let r = await client.postWithTimeout(endpoint, data, timeoutMs)
@@ -231,11 +217,14 @@ proc addData*(p: var MultipartData, name: string, content: auto) {.inline.} =
       p.addFiles({name: content[7..content.len-1]})
     else:
       p.add(name, content)
-  elif content is TelegramObject:
+  elif content is KeyboardMarkup:
+    p.add(name, $content)
+  elif content is ref:
     when content is InputMediaSet:
       p.uploadInputMedia(content)
     var value = ""
     marshal(content, value)
+    echo name, " => ",  value, " ", content[]
     p.add(name, value)
   elif content is object or content is seq:
     when content is seq:
@@ -258,12 +247,11 @@ proc uploadInputMedia*(p: var MultipartData, m: InputMedia) =
     p.addFiles({name: m.media[7..<m.media.len]})
     m.media = "attach://" & name
 
-  if m.thumbnail.isSome:
-    let thumbnail = m.thumbnail.get()
-    if thumbnail.startsWith("file://"):
+  if m.thumbnail.len > 0:
+    if m.thumbnail.startsWith("file://"):
       name = "file_upload_" & $rand(high(int))
-      p.addFiles({name: thumbnail[7..<thumbnail.len]})
-      m.thumbnail = some("attach://" & name)
+      p.addFiles({name: m.thumbnail[7..<m.thumbnail.len]})
+      m.thumbnail = "attach://" & name
 
 macro genInputMedia*(mediaType: untyped): untyped =
   let
@@ -278,9 +266,9 @@ macro genInputMedia*(mediaType: untyped): untyped =
       inputMedia.kind = `kind`
       inputMedia.media = media
       if caption.len > 0:
-        inputMedia.caption = some(caption)
+        inputMedia.caption = caption
       if parseMode.len > 0:
-        inputMedia.parseMode = some(parseMode)
+        inputMedia.parseMode = parseMode
       return inputMedia
 
 proc addRequiredParam(stmtList, paramName, paramType: NimNode) =

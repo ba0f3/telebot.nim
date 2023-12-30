@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, options, strutils
+import telebot, asyncdispatch, strutils
 
 const API_KEY = slurp("../secret.key").strip()
 

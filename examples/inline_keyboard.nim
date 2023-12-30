@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, logging, options
+import telebot, asyncdispatch, logging
 from strutils import strip
 
 var L = newConsoleLogger()
@@ -7,10 +7,10 @@ addHandler(L)
 const API_KEY = slurp("secret.key").strip()
 
 proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
-  var response = u.message.get
-  if response.text.isSome:
+  var response = u.message
+  if response.text.len > 0:
     let
-      text = response.text.get
+      text = response.text
     var
       google = initInlineKeyboardButton("Google", url = "https://www.google.com/search?q=" & text)
       bing = initInlineKeyboardButton("Bing", url = "https://www.bing.com/search?q=" & text)

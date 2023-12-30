@@ -1,6 +1,7 @@
-import httpclient, json, asyncdispatch, utils, strutils, options, strtabs, logging
+import httpclient, json, asyncdispatch, utils, strutils, strtabs, logging
 import types
 from tables import hasKey, `[]`
+from keyboard import `$`
 
 proc sendMessage*(b: TeleBot, chatId: ChatId, text: string, messageThreadId = 0, parseMode = "", entities: seq[MessageEntity] = @[],
                   linkPreviewOptions: LinkPreviewOptions = nil, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
@@ -187,17 +188,17 @@ proc stopMessageLiveLocation*(b: TeleBot, chatId = "", messageId = 0, inlineMess
 
 proc sendMediaGroup*(b: TeleBot, chatId: ChatId, media: seq[InputMediaSet], messageThreadId = 0, disableNotification = false, allowSendingWithoutReply = false, replyParameters: ReplyParameters = nil): Future[seq[Message]] {.api, async.}
 
-proc editMessageMedia*(b: TeleBot, media: InputMediaSet, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.api, async.}
+proc editMessageMedia*(b: TeleBot, media: InputMediaSet, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
 proc editMessageText*(b: TeleBot, text: string, chatId: ChatId = DefaultChatId, messageId = 0, inlineMessageId = "", parseMode = "", entities: seq[MessageEntity] = @[],
-                      replyMarkup: KeyboardMarkup = nil, linkPreviewOptions: LinkPreviewOptions = nil): Future[Option[Message]] {.api, async.}
+                      replyMarkup: KeyboardMarkup = nil, linkPreviewOptions: LinkPreviewOptions = nil): Future[Message] {.api, async.}
 
 proc editMessageCaption*(b: TeleBot, caption = "", chatId = "", messageId = 0, inlineMessageId = "", parseMode="",
-                         captionEntities: seq[MessageEntity] = @[], replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.api, async.}
+                         captionEntities: seq[MessageEntity] = @[], replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc editMessageReplyMarkup*(b: TeleBot, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.api, async.}
+proc editMessageReplyMarkup*(b: TeleBot, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc stopPoll*(b: TeleBot, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[Poll]] {.api, async.}
+proc stopPoll*(b: TeleBot, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Poll] {.api, async.}
 
 proc deleteMessage*(b: TeleBot, chatId: ChatId, messageId: int): Future[bool] {.api, async.}
 
@@ -295,7 +296,7 @@ proc setStickerEmojiList*(b: TeleBot, sticker: string, emojiList: seq[string]): 
 
 proc setStickerKeywords*(b: TeleBot, sticker: string, keywords: seq[string]): Future[bool] {.api, async.}
 
-proc setStickerMaskPosition*(b: TeleBot, sticker: string, maskPosition: Option[MaskPosition] = none(MaskPosition)): Future[bool] {.api, async.}
+proc setStickerMaskPosition*(b: TeleBot, sticker: string, maskPosition: MaskPosition = nil): Future[bool] {.api, async.}
 
 proc setStickerSetTitle*(b: TeleBot, name, title: string): Future[bool] {.api, async.}
 
@@ -333,9 +334,9 @@ proc getUpdates*(b: TeleBot, offset = 0, limit = 0, timeout = 50, allowedUpdates
 proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
   # stop process other callbacks if a callback returns true
   var stop = false
-  if update.inlineQuery.isSome:
+  if update.inlineQuery != nil:
     for cb in b.inlineQueryCallbacks:
-      stop = await cb(b, update.inlineQuery.get)
+      stop = await cb(b, update.inlineQuery)
       if stop: break
   elif update.hasCommand(b.username):
     var cmd = Command(
@@ -363,8 +364,8 @@ proc loop(b: TeleBot, timeout = 50, offset = 0, limit = 0) {.async.} =
   try:
     let me = waitFor b.getMe()
     b.id = me.id
-    if me.username.isSome:
-      b.username = me.username.get().toLowerAscii()
+    if me.username.len > 0:
+      b.username = me.username.toLowerAscii()
   except IOError, OSError:
     d("Unable to fetch my info ", getCurrentExceptionMsg())
 
