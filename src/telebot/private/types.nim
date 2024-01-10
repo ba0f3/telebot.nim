@@ -896,7 +896,7 @@ type
     of TextMessage:
       messageText*: string
       parseMode*: string
-      linkPreviewOptions: LinkPreviewOptions
+      linkPreviewOptions*: LinkPreviewOptions
       captionEntities*: seq[MessageEntity]
     of LocationMessage:
       latitude*: float
