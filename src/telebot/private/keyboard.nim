@@ -55,7 +55,6 @@ proc newForceReply*(selective = false, inputFieldPlaceholder = ""): ForceReply =
     result.selective = true
 
 proc `$`*(k: KeyboardMarkup): string =
-  echo "$$$ HERER"
   case k.kind:
   of kInlineKeyboardMarkup:
     marshal(InlineKeyboardMarkup(k), result)

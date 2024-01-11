@@ -224,7 +224,6 @@ proc addData*(p: var MultipartData, name: string, content: auto) {.inline.} =
       p.uploadInputMedia(content)
     var value = ""
     marshal(content, value)
-    echo name, " => ",  value, " ", content[]
     p.add(name, value)
   elif content is object or content is seq:
     when content is seq:
