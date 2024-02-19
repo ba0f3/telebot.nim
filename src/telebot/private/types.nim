@@ -84,6 +84,7 @@ type
     pinnedMessage*: Message
     permissions*: ChatPermissions
     slowModeDelay*: int
+    unrestrictBoostCount*: int
     messageAutoDeleteTime*: int
     hasAggressiveAntiSpamEnabled*: bool
     hasHiddenMembers*: bool
@@ -91,6 +92,7 @@ type
     hasVisibleHistory*: bool
     stickerSetName*: string
     canSetStickerSet*: bool
+    customEmojiStickerSetName*: string
     linkedChatId*: int
     location*: ChatLocation
 
@@ -121,15 +123,8 @@ type
     fileSize*: int
 
   Story* = ref object of TelegramObject
-    fileId*: string
-    fileUniqueId*: string
-    width*: int
-    height*: int
-    duration*: int
-    thumbnail*: PhotoSize
-    fileName*: string
-    mimeType*: string
-    fileSize*: int
+    chat*: Chat
+    id*: int
 
   Sticker* = ref object of TelegramObject
     fileId*: string
@@ -250,6 +245,9 @@ type
 
   MessageAutoDeleteTimerChanged* = ref object of TelegramObject
     messageAutoDeleteTime*: int
+
+  ChatBoostAdded* = ref object of TelegramObject
+    boostCount*: int
 
   ForumTopicCreated* = ref object of TelegramObject
     name*: string
@@ -518,6 +516,7 @@ type
     messageThreadId*: int
     fromUser*: User
     senderChat*: Chat
+    senderBoostCount*: int
     date*: int
     chat*: Chat
     forwardOrigin*: MessageOrigin
@@ -526,6 +525,7 @@ type
     replyToMessage*: Message
     externalReply*: ExternalReplyInfo
     quote*: TextQuote
+    replyToStory*: Story
     viaBot*: User
     editDate*: int
     hasProtectedContent*: bool
@@ -572,6 +572,7 @@ type
     writeAccessAllowed*: WriteAccessAllowed
     passportData*: PassportData
     proximityAlertTriggered*: ProximityAlertTriggered
+    boostAdded*: ChatBoostAdded
     forumTopicCreated*: ForumTopicCreated
     forumTopicEdited*: ForumTopicEdited
     forumTopicClosed*: ForumTopicClosed
