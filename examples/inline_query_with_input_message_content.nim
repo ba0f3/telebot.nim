@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, json, httpclient, logging, options
+import telebot, asyncdispatch, json, httpclient, logging
 from strutils import strip
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
@@ -12,12 +12,12 @@ proc inlineHandler(b: Telebot, u: InlineQuery): Future[bool]{.async.} =
   res.kind = "article"
   res.title = "тест\""
   res.id = "1"
-  res.inputMessageContent = InputTextMessageContent("test").some
+  res.inputMessageContent = InputTextMessageContent("test")
 
   var results: seq[InlineQueryResultArticle]
   results.add(res)
 
-  echo u
+  echo u[]
 
   discard waitFor b.answerInlineQuery(u.id, results)
 

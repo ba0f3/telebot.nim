@@ -13,7 +13,7 @@ proc updateHandler(bot: TeleBot, e: Update): Future[bool] {.async.} =
 
   if messages.len  > 0:
     var editedPhoto = newInputMediaPhoto("file://" & getAppDir() & "/photo_send_bot/sample.jpg", "edited photo")
-    echo await bot.editMessageMedia(editedPhoto, $e.message.get.chat.id, messages[0].messageId)
+    echo await bot.editMessageMedia(editedPhoto, $e.message.get().chat.id, messages[0].messageId)
 
 let bot = newTeleBot(API_KEY)
 

@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, logging, options
+import telebot, asyncdispatch, logging
 from strutils import strip
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
@@ -7,13 +7,15 @@ addHandler(L)
 const API_KEY = slurp("secret.key").strip()
 
 proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
-  var response = u.message.get
-  if response.text.isSome:
-    discard await b.sendMessage(response.chat.id, response.text.get)
+  if u.message != nil:
+    var response = u.message
+    if response.text.len > 0:
+      discard await b.sendMessage(response.chat.id, response.text)
 
 
 proc greatingHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
-  discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstName)
+  if c.message.fromUser != nil:
+    discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.firstName)
 
 when isMainModule:
   let bot = newTeleBot(API_KEY)

@@ -55,6 +55,9 @@ type
     isActive*: bool
     isProgressVisible*: bool
 
+  SettingsButton* {.importc, nodecl.} = object
+    isVisible*: bool
+
   HapticFeedback* {.importc, nodecl.} = object
 
   CloudStorage* {.importc, nodecl.} = object
@@ -67,6 +70,12 @@ type
     button_color*: string
     button_text_color*: string
     secondary_bg_color*: string
+    header_bg_color*: string
+    accent_text_color*: string
+    section_bg_color*: string
+    section_header_text_color*: string
+    subtitle_text_color*: string
+    destructive_text_color*: string
 
   PopupButton* {.importc, nodecl.} = object
     id*: string
@@ -97,6 +106,7 @@ type
     isClosingConfirmationEnabled*: bool
     BackButton*: BackButton
     MainButton*: MainButton
+    SettingsButton*: SettingsButton
     HapticFeedback*: HapticFeedback
     CloudStorage*: CloudStorage
 
@@ -157,6 +167,15 @@ proc disable*(b: MainButton): MainButton {.importc, nodecl.}
 proc showProgress*(b: MainButton, leaveAction: bool): MainButton {.importc, nodecl.}
 proc hideProgress*(b: MainButton): MainButton {.importc, nodecl.}
 proc setParams*(b: MainButton, params: JsObject): MainButton {.importc, nodecl.}
+
+
+#--------
+# SettingsButton
+#--------
+proc onClick*(b: SettingsButton, callback: EventHandler): SettingsButton {.importc, nodecl.}
+proc offClick*(b: SettingsButton, callback: EventHandler): SettingsButton {.importc, nodecl.}
+proc show*(b: SettingsButton): SettingsButton {.importc, nodecl.}
+proc hide*(b: SettingsButton): SettingsButton {.importc, nodecl.}
 
 #--------
 # HapticFeedback

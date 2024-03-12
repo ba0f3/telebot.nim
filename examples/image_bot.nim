@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, json, httpclient, logging, options
+import telebot, asyncdispatch, json, httpclient, logging
 var L = newConsoleLogger()
 addHandler(L)
 
@@ -20,12 +20,12 @@ proc queryHandler(b: TeleBot, q: InlineQuery): Future[bool] {.async, gcsafe.} =
     for child in data["data"]["children"].items:
       if child["data"]["thumbnail"].str[0..3] != "http":
          continue
-      var photo: InlineQueryResultPhoto
+      var photo = new InlineQueryResultPhoto
       photo.kind = "photo"
       photo.id = child["data"]["id"].str
       photo.photoUrl = child["data"]["url"].str
-      photo.thumbUrl = child["data"]["thumbnail"].str
-      photo.title = some($child["data"]["title"])
+      photo.thumbnailUrl = child["data"]["thumbnail"].str
+      photo.title = $child["data"]["title"]
 
       photos.add(photo)
   discard await b.answerInlineQuery(q.id, photos)

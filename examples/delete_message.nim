@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, logging, options
+import telebot, asyncdispatch, logging
 from strutils import strip
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")

@@ -25,13 +25,13 @@ addHandler(L)
 const API_KEY = strip(slurp("secret.key"))
 
 proc updateHandler(b: Telebot, u: Update): Future[bool] {.async.} =
-  if not u.message.isSome:
+  if u.message.isNil:
     # return true will make bot stop process other callbacks
     return true
-  var response = u.message.get
-  if response.text.isSome:
-    let text = response.text.get
-    discard await b.sendMessage(response.chat.id, text, parseMode = "markdown", disableNotification = true, replyToMessageId = response.messageId)
+  var response = u.message
+  if response.text.len > 0:
+    let text = response.text
+    discard await b.sendMessage(response.chat.id, text, parseMode = "markdown", disableNotification = true, replyParameters = ReplyParameters(messageId: response.messageId))
 
 let bot = newTeleBot(API_KEY)
 bot.onUpdate(updateHandler)

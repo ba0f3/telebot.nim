@@ -1,7 +1,7 @@
 import tables, httpclient
 
-import telebot/private/[types, keyboard, webhook, inputmedia, helpers]
-export types, webhook, keyboard, inputmedia, helpers
+import telebot/private/[types, keyboard, webhook, inputmedia, helpers, api, events]
+export types, webhook, keyboard, inputmedia, helpers, api, events
 
 proc setProxy*(b: Telebot, url: string, auth = "") {.inline.} =
   b.proxy = newProxy(url, auth)
@@ -14,5 +14,5 @@ proc newTeleBot*(token: string, serverUrl="https://api.telegram.org", errorHandl
   result.commandCallbacks = newTable[string, seq[CommandCallback]]()
   result.errorHandler = errorHandler
 
-include telebot/private/api
-include telebot/private/events
+#import telebot/private/[]
+#export api, events

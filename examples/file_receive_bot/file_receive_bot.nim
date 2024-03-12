@@ -1,5 +1,5 @@
 # This Bot receives any Document file, responds on chat with file metadata and file contents.
-import telebot, asyncdispatch, options, strformat, httpclient, json
+import telebot, asyncdispatch, strformat, httpclient, json
 from strutils import strip
 
 
@@ -19,16 +19,16 @@ proc updateHandler(bot: TeleBot, e: Update): Future[bool] {.async.} =
     url_getfile = fmt"https://api.telegram.org/bot{API_KEY}/getFile?file_id="
     api_file = fmt"https://api.telegram.org/file/bot{API_KEY}/"
 
-  if not e.message:
+  if e.message.isNil:
     return true
-  var response = e.message.get
-  if response.document.isSome:
+  var response = e.message
+  if response.document != nil:
     let
-      document = response.document.get
-      file_name = document.file_name.get
-      mime_type = document.mime_type.get
+      document = response.document
+      file_name = document.file_name
+      mime_type = document.mime_type
       file_id = document.file_id
-      file_size = document.file_size.get
+      file_size = document.file_size
       responz_body = await newAsyncHttpClient().getContent(url_getfile & file_id) # file_id > file_path
       file_path = parseJson(responz_body)["result"]["file_path"].getStr()
       responx = await newAsyncHttpClient().get(api_file & file_path)  # file_path > file

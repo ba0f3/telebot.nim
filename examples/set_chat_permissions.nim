@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, logging, options
+import telebot, asyncdispatch, logging
 from strutils import strip
 
 import ../src/telebot/private/utils
@@ -10,10 +10,10 @@ const API_KEY = slurp("secret.key").strip()
 
 proc commandHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
   let perms = ChatPermissions(
-    canSendMessages: some(true),
-    canSendAudios: some(true),
-    canSendOtherMessages: some(true),
-    canAddWebPagePreviews: some(true))
+    canSendMessages: true,
+    canSendAudios: true,
+    canSendOtherMessages: true,
+    canAddWebPagePreviews: true)
 
   var json  = ""
   marshal(perms, json)

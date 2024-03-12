@@ -1,4 +1,4 @@
-import asyncdispatch, asynchttpserver, httpclient, strutils, json, options
+import asyncdispatch, asynchttpserver, httpclient, strutils, json
 import utils, types, api
 
 type
@@ -66,8 +66,8 @@ proc startWebhook*(b: Telebot, secret, url: string, port=Port(8080), dropPending
   try:
     let me = waitFor b.getMe()
     b.id = me.id
-    if me.username.isSome:
-      b.username = me.username.get().toLowerAscii()
+    if me.username.len > 0:
+      b.username = me.username.toLowerAscii()
   except IOError, OSError:
     d("Unable to fetch my info ", getCurrentExceptionMsg())
 

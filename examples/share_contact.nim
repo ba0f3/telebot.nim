@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, logging, options, strutils
+import telebot, asyncdispatch, logging, strutils
 
 #[
   this example has been shared by @hamidb80
@@ -14,14 +14,14 @@ func singleReply*(btn: KeyboardButton): ReplyKeyboardMarkup =
 const API_KEY = slurp("secret.key").strip()
 
 proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
-  if u.message.isSome:
-    var response = u.message.get
+  if u.message != nil:
+    var response = u.message
 
-    if issome response.contact:
+    if response.contact != nil:
       # send received contact info
       discard await b.sendMessage(
         response.chat.id,
-        $response.contact.get,
+        $response.contact[],
       )
 
     else:
@@ -30,7 +30,7 @@ proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
         response.chat.id,
         "check the virtual keyboard",
         replyMarkup = singleReply(
-          KeyboardButton(text: "send your contact", requestContact: some true)
+          KeyboardButton(text: "send your contact", requestContact: true)
       ))
 
   return true

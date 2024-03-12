@@ -1,4 +1,4 @@
-import telebot, asyncdispatch, logging, options
+import telebot, asyncdispatch, logging
 from strutils import strip
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
@@ -7,17 +7,18 @@ addHandler(L)
 const API_KEY = slurp("secret.key").strip()
 
 proc updateHandler(b: Telebot, u: Update): Future[bool] {.gcsafe, async.} =
-  if u.message.isSome:
-    var response = u.message.get
-    if response.text.isSome:
-      let text = response.text.get
+  if not u.message.isNil:
+    var response = u.message
+    if response.text.len > 0:
+      let text = response.text
       echo text
-      discard await b.sendMessage(response.chat.id, "text:" & text, parseMode = "markdown", disableNotification = true, replyToMessageId = response.messageId)
+      discard await b.sendMessage(response.chat.id, "text:" & text, parseMode = "markdown", disableNotification = true, replyParameters = ReplyParameters(messageId: response.messageId))
   return true
 
 
 proc greatingHandler(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
-  discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.get().firstname, disableNotification = true, replyToMessageId = c.message.messageId)
+  if c.message.fromUser != nil:
+    discard b.sendMessage(c.message.chat.id, "hello " & c.message.fromUser.firstname, disableNotification = true, replyParameters = ReplyParameters(messageId: c.message.messageId))
   result = true
 
 when isMainModule:

@@ -1,34 +1,36 @@
-import types, strutils, utils, options
+import types, strutils, utils
 
-proc initKeyBoardButton*(text: string, requestChat: KeyboardButtonRequestChat = nil, requestContact = false, requestLocation = false, requestPoll: KeyboardButtonPollType = nil, webApp: WebAppInfo = nil): KeyboardButton =
+proc newKeyBoardButton*(text: string, requestChat: KeyboardButtonRequestChat = nil, requestContact = false, requestLocation = false, requestPoll: KeyboardButtonPollType = nil, webApp: WebAppInfo = nil): KeyboardButton =
+  new(result)
   result.text = text
-  if requestChat != nil: result.requestChat = some(requestChat)
-  if requestContact: result.requestContact = some(true)
-  if requestLocation: result.requestLocation = some(true)
-  if requestPoll != nil: result.requestPoll = some(requestPoll)
-  if webApp != nil: result.webApp = some(webApp)
+  if requestChat != nil: result.requestChat = requestChat
+  if requestContact: result.requestContact = true
+  if requestLocation: result.requestLocation = true
+  if requestPoll != nil: result.requestPoll = requestPoll
+  if webApp != nil: result.webApp = webApp
 
 proc newReplyKeyboardMarkup*(keyboards: varargs[seq[KeyboardButton]], isPersistent = false, resizeKeyboard = false, oneTimeKeyboard = false, inputFieldPlaceholder = "", selective = false): ReplyKeyboardMarkup =
   new(result)
   result.kind = kReplyKeyboardMarkup
   for keyboard in keyboards:
     result.keyboard.add(keyboard)
-  if isPersistent: result.isPersistent = some(true)
-  if resizeKeyboard: result.resizeKeyboard = some(true)
-  if oneTimeKeyboard: result.oneTimeKeyboard = some(true)
-  if inputFieldPlaceholder.len != 0: result.inputFieldPlaceholder = some(inputFieldPlaceholder)
-  if selective: result.selective = some(true)
+  if isPersistent: result.isPersistent = true
+  if resizeKeyboard: result.resizeKeyboard = true
+  if oneTimeKeyboard: result.oneTimeKeyboard = true
+  if inputFieldPlaceholder.len != 0: result.inputFieldPlaceholder = inputFieldPlaceholder
+  if selective: result.selective = true
 
-proc initInlineKeyBoardButton*(text: string, url = "", loginUrl: LoginUrl = nil, callbackData = "", webApp: WebAppInfo = nil, switchInlineQuery = "", switchInlineQueryCurrentChat = "", callbackGame: CallbackGame = nil, pay = false): InlineKeyboardButton =
+proc newInlineKeyBoardButton*(text: string, url = "", loginUrl: LoginUrl = nil, callbackData = "", webApp: WebAppInfo = nil, switchInlineQuery = "", switchInlineQueryCurrentChat = "", callbackGame: CallbackGame = nil, pay = false): InlineKeyboardButton =
+  new(result)
   result.text = text
-  if url.len != 0: result.url = some(url)
-  if loginUrl  != nil: result.loginUrl = some(loginUrl)
-  if callbackData.len != 0: result.callbackData = some(callbackData)
-  if webApp != nil: result.webApp = some(webApp)
-  if switchInlineQuery.len != 0: result.switchInlineQuery = some(switchInlineQuery)
-  if switchInlineQueryCurrentChat.len != 0: result.switchInlineQueryCurrentChat = some(switchInlineQueryCurrentChat)
-  if callbackGame != nil: result.callbackGame = some(callbackGame)
-  if pay: result.pay = some(pay)
+  if url.len != 0: result.url = url
+  if loginUrl  != nil: result.loginUrl = loginUrl
+  if callbackData.len != 0: result.callbackData = callbackData
+  if webApp != nil: result.webApp = webApp
+  if switchInlineQuery.len != 0: result.switchInlineQuery = switchInlineQuery
+  if switchInlineQueryCurrentChat.len != 0: result.switchInlineQueryCurrentChat = switchInlineQueryCurrentChat
+  if callbackGame != nil: result.callbackGame = callbackGame
+  if pay: result.pay = pay
 
 proc newInlineKeyboardMarkup*(keyboards: varargs[seq[InlineKeyBoardButton]]): InlineKeyboardMarkup =
   new(result)
@@ -40,17 +42,17 @@ proc newReplyKeyboardRemove*(selective = false): ReplyKeyboardRemove =
   new(result)
   result.kind = kReplyKeyboardRemove
   if selective:
-    result.selective = some(true)
+    result.selective = true
 
 proc newForceReply*(selective = false, inputFieldPlaceholder = ""): ForceReply =
   new(result)
   result.kind = kForceReply
-  result.forceReply = some(true)
-  result.selective = some(selective)
+  result.forceReply = true
+  result.selective = selective
   if inputFieldPlaceholder.len != 0:
-    result.inputFieldPlaceholder = some(inputFieldPlaceholder)
+    result.inputFieldPlaceholder = inputFieldPlaceholder
   if selective:
-    result.selective = some(true)
+    result.selective = true
 
 proc `$`*(k: KeyboardMarkup): string =
   case k.kind:
@@ -60,7 +62,7 @@ proc `$`*(k: KeyboardMarkup): string =
     marshal(ReplyKeyboardMarkup(k), result)
   of kReplyKeyboardRemove:
     let kb = ReplyKeyboardMarkup(k)
-    if kb.selective.get(false):
+    if kb.selective:
       result = "{\"remove_keyboard\": true, \"selective\": true}"
     else:
       result = "{\"remove_keyboard\": true}"
@@ -71,8 +73,8 @@ proc newLoginUrl*(url: string, forwardText = "", botUsername = "", requestWriteA
   new(result)
   result.url = url
   if forwardText.len > 0:
-    result.forwardText = forwardText.some
+    result.forwardText = forwardText
   if botUsername.len > 0:
-    result.botUsername = botUsername.some
+    result.botUsername = botUsername
   if requestWriteAccess:
-    result.requestWriteAccess = requestWriteAccess.some
+    result.requestWriteAccess = true
