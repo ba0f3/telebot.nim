@@ -327,6 +327,7 @@ proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
       stop = await cb(b, update.inlineQuery.get)
       if stop: break
   elif update.hasCommand(b.username):
+    
     var cmd = Command(
       command: command,
       message: message,

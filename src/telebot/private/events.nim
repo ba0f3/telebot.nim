@@ -11,3 +11,6 @@ proc onUnknownCommand*(b: TeleBot, cb: CatchallCommandCallback) =
 
 proc onInlineQuery*(b: TeleBot, cb: InlineQueryCallback) =
   b.inlineQueryCallbacks.add(cb)
+
+proc onError*(b: TeleBot, cb: ErrorHandler) =
+  b.errorHandler = cb

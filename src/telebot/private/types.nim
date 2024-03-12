@@ -31,6 +31,8 @@ type
   CatchallCommandCallback* = proc(bot: Telebot, command: Command): Future[bool] {.gcsafe.}
   InlineQueryCallback* = proc(bot: Telebot, inlineQuery: InlineQuery): Future[bool] {.gcsafe.}
 
+  ErrorHandler* = proc(bot: Telebot, error: CatchableError, message: string): Future[bool] {.gcsafe.}
+
   TeleBot* = ref object of TelegramObject
     token*: string
     lastUpdateId*: BiggestInt
@@ -38,6 +40,7 @@ type
     commandCallbacks*: TableRef[string, seq[CommandCallback]]
     catchallCommandCallback*: CatchallCommandCallback
     inlineQueryCallbacks*: seq[InlineQueryCallback]
+    errorHandler*: ErrorHandler
     serverUrl*: string
     proxy*: Proxy
     id*: int
