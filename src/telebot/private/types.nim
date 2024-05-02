@@ -28,22 +28,19 @@ type
   CatchallCommandCallback* = proc(bot: Telebot, command: Command): Future[bool] {.gcsafe.}
   InlineQueryCallback* = proc(bot: Telebot, inlineQuery: InlineQuery): Future[bool] {.gcsafe.}
 
-  ErrorHandler* = proc(bot: Telebot, error: CatchableError, message: string): Future[bool] {.gcsafe.}
-
   TeleBot* = ref object of TelegramObject
     token*: string
     lastUpdateId*: BiggestInt
-    updateCallbacks*: seq[UpdateCallBack]
+    updateCallbacks*: seq[UpdateCallback]
     commandCallbacks*: TableRef[string, seq[CommandCallback]]
     catchallCommandCallback*: CatchallCommandCallback
     inlineQueryCallbacks*: seq[InlineQueryCallback]
-    errorHandler*: ErrorHandler
     serverUrl*: string
     proxy*: Proxy
     id*: int
     username*: string
 
-  Command* = ref object of TelegramObject
+  Command* = object
     command*: string
     message*: Message
     params*: string
@@ -60,6 +57,7 @@ type
     canJoinGroups: bool
     canReadAllGroupMessages: bool
     supportsInlineQueries: bool
+    canConnectToBusiness*: bool
 
   Chat* = ref object of TelegramObject
     id*: int64
@@ -71,6 +69,11 @@ type
     isForum*:bool
     photo*: ChatPhoto
     activeUsernames*: seq[string]
+    birthdate*: Birthdate
+    businessIntro*: BusinessIntro
+    BusinessLocation*: BusinessLocation
+    businessOpeningHours*: BusinessOpeningHours
+    personalChat*: Chat
     availableReactions*: seq[ReactionType]
     accentColorId*: int
     backgroundCustomEmojiId*: string
@@ -149,8 +152,6 @@ type
     name*: string
     title*: string
     stickerType*: string
-    isAnimated*: bool
-    isVideo*: bool
     stickers*: seq[Sticker]
     thumbnail*: PhotoSize
 
@@ -162,6 +163,7 @@ type
 
   InputSticker* = ref object of TelegramObject
     sticker*: InputFileOrString
+    format*: string
     emojiList*: seq[string]
     maskPosition*: MaskPosition
     keywords*: seq[string]
@@ -269,13 +271,23 @@ type
 
   GeneralForumTopicUnhidden* = ref object of TelegramObject
 
+  SharedUser* = ref object of TelegramObject
+    userId*: int64
+    firstName*: string
+    lastName*: string
+    username*: string
+    photo*: seq[PhotoSize]
+
   UsersShared* = ref object of TelegramObject
     requestId*: int
-    userIds*: seq[int64]
+    users*: seq[SharedUser]
 
   ChatShared* = ref object of TelegramObject
     requestId*: int
     chatId*: int64
+    title*: string
+    username*: string
+    photo*: seq[PhotoSize]
 
   WriteAccessAllowed* = ref object of TelegramObject
     fromRequest*: bool
@@ -389,6 +401,9 @@ type
     userIsBot*: bool
     userIsPremium*: bool
     maxQuantity*: int
+    requestName*: bool
+    requestUsername*: bool
+    requestPhoto*: bool
 
   KeyboardButtonRequestChat* = ref object of TelegramObject
     requestId*: int
@@ -399,6 +414,9 @@ type
     userAdministratorRights*: ChatAdministratorRights
     botAdministratorRights*: ChatAdministratorRights
     botIsMember*: bool
+    requestTitle*: bool
+    requestUsername*: bool
+    requestPhoto*: bool
 
   KeyboardButtonPollType* = ref object of TelegramObject
     kind*: string
@@ -520,7 +538,9 @@ type
     fromUser*: User
     senderChat*: Chat
     senderBoostCount*: int
+    senderBusinessBot*: User
     date*: int
+    businessConnectionId*: string
     chat*: Chat
     forwardOrigin*: MessageOrigin
     isTopicMessage*: bool
@@ -532,6 +552,7 @@ type
     viaBot*: User
     editDate*: int
     hasProtectedContent*: bool
+    isFromOffline*: bool
     mediaGroupId*: string
     authorSignature*: string
     text*: string
@@ -741,6 +762,28 @@ type
     canPinMessages*: bool
     canManageTopics*: bool
 
+  Birthdate* = ref object of TelegramObject
+    day*: int
+    month*: int
+    year*: int
+
+  BusinessIntro* = ref object of TelegramObject
+    title*: string
+    message*: string
+    sticker*: Sticker
+
+  BusinessLocation* = ref object of TelegramObject
+    address*: string
+    location*: Location
+
+  BusinessOpeningHoursInterval* = ref object of TelegramObject
+    openingMinute*: int
+    closingMinute*: int
+
+  BusinessOpeningHours* = ref object of TelegramObject
+    timeZoneName*: string
+    openingHours*: seq[BusinessOpeningHours]
+
   ChatLocation* = ref object of TelegramObject
     location*: Location
     address*: string
@@ -796,6 +839,10 @@ type
     editedMessage*: Message
     channelPost*: Message
     editedChannelPost*: Message
+    businessConnection*: BusinessConnection
+    businessMessage*: Message
+    editedBusinessMessage*: Message
+    deletedBusinessMessages*: BusinessMessagesDeleted
     messageReaction*: MessageReactionUpdated
     messageReactionCount*: MessageReactionCountUpdated
     inlineQuery*: InlineQuery
@@ -1317,6 +1364,18 @@ type
   UserChatBoosts* = ref object of TelegramObject
     boosts*: seq[ChatBoost]
 
+  BusinessConnection* = ref object of TelegramObject
+    id*: string
+    user*: User
+    userChatId*: int64
+    date*: int
+    canReply*: bool
+    isEnabled*: bool
+
+  BusinessMessagesDeleted* = ref object of TelegramObject
+    businessConnectionId*: string
+    chat*: Chat
+    messageIds*: seq[int]
 
 const DefaultChatId*: ChatId = 0
 

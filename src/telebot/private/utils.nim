@@ -8,10 +8,6 @@ const
   API_URL = "$#/bot$#/$#"
   #FILE_PATH = "file/bot$#/$#"
 
-proc defaultErrorHandler*(bot: Telebot, error: CatchableError, message: string) =
-  raise newException(error, message)
-
-
 template PROC_NAME*: string =
   when not declaredInScope(internalProcName):
     var internalProcName {.exportc, inject.}: cstring
@@ -198,18 +194,14 @@ proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil, timeo
   if r.code == Http200 or r.code == Http400:
     let body = await r.body
     var obj: JsonNode
-    try:
-      obj = parseJson(body)
-    except:
-      b.errorHandler(ValueError, "Parse JSON error: " & getCurrentExceptionMsg() & "\n" & body)
-
+    obj = parseJson(body)
     if obj.hasKey("ok") and obj["ok"].getBool:
       result = obj["result"]
       d("Result: ", $result)
     else:
-      b.errorHandler(IOError, obj["description"].getStr)
+      raise newException(IOError, obj["description"].getStr)
   else:
-    b.errorHandler(IOError, r.status)
+    raise newException(IOError, r.status)
 
 proc uploadInputMedia*(p: var MultipartData, m: InputMedia)
 

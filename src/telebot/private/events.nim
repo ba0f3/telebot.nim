@@ -1,5 +1,5 @@
 import tables
-from types import TeleBot, UpdateCallBack, CommandCallback, CatchallCommandCallback, InlineQueryCallback
+from types import TeleBot, UpdateCallback, CommandCallback, CatchallCommandCallback, InlineQueryCallback
 
 proc onUpdate*(b: TeleBot, cb: UpdateCallback) =
   b.updateCallbacks.add(cb)
@@ -14,6 +14,3 @@ proc onUnknownCommand*(b: TeleBot, cb: CatchallCommandCallback) =
 
 proc onInlineQuery*(b: TeleBot, cb: InlineQueryCallback) =
   b.inlineQueryCallbacks.add(cb)
-
-proc onError*(b: TeleBot, cb: ErrorHandler) =
-  b.errorHandler = cb

@@ -62,6 +62,21 @@ type
 
   CloudStorage* {.importc, nodecl.} = object
 
+  BiometricManager* {.importc, nodecl.} = object
+    isInited*: bool
+    isBiometricAvailable*: bool
+    biometricType*: string
+    isAccessRequested*: bool
+    isAccessGranted*: bool
+    isBiometricTokenSaved*: bool
+    deviceId*: string
+
+  BiometricRequestAccessParams* {.importc, nodecl.} = object
+    reason*: string
+
+  BiometricAuthenticateParamss* {.importc, nodecl.} = object
+    reason*: string
+
   ThemeParams* {.importc, nodecl.} = object
     bg_color*: string
     text_color*: string
@@ -109,6 +124,7 @@ type
     SettingsButton*: SettingsButton
     HapticFeedback*: HapticFeedback
     CloudStorage*: CloudStorage
+    BiometricManager*: BiometricManager
 
 
   TelegramObj* {.importc, nodecl.} = object of RootObj
@@ -194,3 +210,12 @@ proc removeItem*(c: CloudStorage, key: string, callback: EventHandler) {.importc
 proc removeItems*(c: CloudStorage, keys: seq[string], callback: EventHandler) {.importc, nodecl.}
 proc getKeys*(c: CloudStorage, callback: EventHandler) {.importc, nodecl.}
 
+
+#--------
+# BiometricManager
+#--------
+proc init*(c: BiometricManager, callback: EventHandler) {.importc, nodecl.}
+proc requestAccess*(c: BiometricManager, params: BiometricRequestAccessParams, callback: EventHandler) {.importc, nodecl.}
+proc authenticate*(c: BiometricManager, params:BiometricAuthenticateParams, callback: EventHandler) {.importc, nodecl.}
+proc updateBiometricToken*(c: BiometricManager, token: string, callback: EventHandler) {.importc, nodecl.}
+proc openSettings*(c: BiometricManager) {.importc, nodecl.}

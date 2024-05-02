@@ -3,48 +3,48 @@ import types
 from tables import hasKey, `[]`
 from keyboard import `$`
 
-proc sendMessage*(b: TeleBot, chatId: ChatId, text: string, messageThreadId = 0, parseMode = "", entities: seq[MessageEntity] = @[],
+proc sendMessage*(b: TeleBot, chatId: ChatId, text: string, businessConnectionId = 0, messageThreadId = 0, parseMode = "", entities: seq[MessageEntity] = @[],
                   linkPreviewOptions: LinkPreviewOptions = nil, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
                   allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc sendPhoto*(b: TeleBot, chatId: ChatId, photo: InputFileOrString, messageThreadId = 0, caption = "", parseMode = "",
+proc sendPhoto*(b: TeleBot, chatId: ChatId, photo: InputFileOrString, businessConnectionId = 0, messageThreadId = 0, caption = "", parseMode = "",
                 captionEntities: seq[MessageEntity] = @[], hasSpoiler = false, disableNotification = false, protectContent = false,
                 replyParameters: ReplyParameters = nil, allowSendingWithoutReply = false,replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc sendAudio*(b: TeleBot, chatId: ChatId, audio: InputFileOrString, messageThreadId = 0, caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[],
+proc sendAudio*(b: TeleBot, chatId: ChatId, audio: InputFileOrString, businessConnectionId = 0, messageThreadId = 0, caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[],
                 duration = 0, performer = "", title = "", thumbnail: InputFileOrString = "", disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
                 allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc sendDocument*(b: TeleBot, chatId: ChatId, document: InputFileOrString, messageThreadId = 0, thumbnail: InputFileOrString = "", caption = "",
+proc sendDocument*(b: TeleBot, chatId: ChatId, document: InputFileOrString, businessConnectionId = 0, messageThreadId = 0, thumbnail: InputFileOrString = "", caption = "",
                    disableContentTypeDetection = false, parseMode = "", captionEntities: seq[MessageEntity] = @[], disableNotification = false,
                    protectContent = false, replyParameters: ReplyParameters = nil, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc sendSticker*(b: TeleBot, chatId: ChatId, sticker: InputFileOrString, emoji = "", messageThreadId = 0, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
+proc sendSticker*(b: TeleBot, chatId: ChatId, sticker: InputFileOrString, emoji = "", businessConnectionId = 0, messageThreadId = 0, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
                   allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc sendVideo*(b: TeleBot, chatId: ChatId, video: InputFileOrString, messageThreadId = 0, duration = 0, width = 0, height = 0, thumbnail: InputFileOrString = "", caption = "",
+proc sendVideo*(b: TeleBot, chatId: ChatId, video: InputFileOrString, businessConnectionId = 0, messageThreadId = 0, duration = 0, width = 0, height = 0, thumbnail: InputFileOrString = "", caption = "",
                 parseMode = "", captionEntities: seq[MessageEntity] = @[], hasSpoiler = false, supportsStreaming = false, disableNotification = false,
                 protectContent = false, replyParameters: ReplyParameters = nil, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc sendVoice*(b: TeleBot, chatId: ChatId, voice: InputFileOrString, messageThreadId = 0, caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[],
+proc sendVoice*(b: TeleBot, chatId: ChatId, voice: InputFileOrString, businessConnectionId = 0, messageThreadId = 0, caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[],
                 duration = 0, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
                 allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc sendVideoNote*(b: TeleBot, chatId: ChatId, videoNote: InputFileOrString, messageThreadId = 0, duration = 0, length = 0, thumbnail: InputFileOrString = "",
+proc sendVideoNote*(b: TeleBot, chatId: ChatId, videoNote: InputFileOrString, businessConnectionId = 0, messageThreadId = 0, duration = 0, length = 0, thumbnail: InputFileOrString = "",
                     disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
                     allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc sendLocation*(b: TeleBot, chatId: ChatId, latitude: float, longitude: float, messageThreadId = 0, livePeriod = 0,
+proc sendLocation*(b: TeleBot, chatId: ChatId, latitude: float, longitude: float, businessConnectionId = 0, messageThreadId = 0, livePeriod = 0,
                    heading = 0, proximityAlertRadius = 0, disableNotification = false, protectContent = false,
                    replyParameters: ReplyParameters = nil, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc sendVenue*(b: TeleBot, chatId: ChatId, latitude: float, longitude: float, address: string,
+proc sendVenue*(b: TeleBot, chatId: ChatId, latitude: float, longitude: float, address: string, businessConnectionId = 0,
                 messageThreadId = 0, foursquareId = "", foursquareType = "",
                 googlePlaceId = "", googlePlaceType = "", disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
                 allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
 proc sendContact*(b: TeleBot, chatId: ChatId, phoneNumber: string, firstName: string, lastName = "", vcard = "",
-                  messageThreadId = 0, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
+                  businessConnectionId = 0, messageThreadId = 0, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
                   allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
 proc sendInvoice*(b: TeleBot, chatId: ChatId, title: string, description: string, payload: string, providerToken: string, currency: string,
@@ -60,7 +60,7 @@ proc createInvoiceLink*(b: TeleBot, title: string, description: string, payload:
                         needName = false, needPhoneNumber = false, needEmail = false, needShippingAddress = false,
                         sendPhoneNumberToProvider = false, sendEmailToProvider = false, isFlexible = false): Future[string] {.api, async.}
 
-proc sendAnimation*(b: TeleBot, chatId: ChatId, animation: InputFileOrString, messageThreadId = 0, duration = 0, width = 0, height = 0, thumbnail: InputFileOrString = "",
+proc sendAnimation*(b: TeleBot, chatId: ChatId, animation: InputFileOrString, businessConnectionId = 0, messageThreadId = 0, duration = 0, width = 0, height = 0, thumbnail: InputFileOrString = "",
                    caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[], hasSpoiler = false,
                    disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
                    allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
@@ -92,7 +92,7 @@ proc copyMessages*(b: TeleBot, chatId, fromChatId: string, messageIds: seq[int],
                   captionEntities: seq[MessageEntity] = @[], disableNotification = false, protectContent = false,
                   replyParameters: ReplyParameters = nil, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[MessageId] {.api, async.}
 
-proc sendChatAction*(b: TeleBot, chatId: ChatId, action: ChatAction, messageThreadId = 0): Future[void] {.api, async.}
+proc sendChatAction*(b: TeleBot, chatId: ChatId, action: ChatAction, businessConnectionId = 0, messageThreadId = 0): Future[void] {.api, async.}
 
 proc setMessageReaction*(b: TeleBot, chatId: ChatId, messageId: int, reaction: seq[ReactionType] = @[], isBig = false): Future[bool] {.api, async.}
 
@@ -152,7 +152,7 @@ proc getCustomEmojiStickers*(b: TeleBot, customEmojiIds: seq[string]): Future[se
 
 proc uploadStickerFile*(b: TeleBot, userId: int, sticker: InputFileOrString, stickerFormat: string): Future[FileObj] {.api, async.}
 
-proc createNewStickerSet*(b: TeleBot, userId: int, name, title: string, stickers: seq[InputSticker], stickerFormat: string, stickerType = "", needsRepainting = false): Future[bool] {.api, async.}
+proc createNewStickerSet*(b: TeleBot, userId: int, name, title: string, stickers: seq[InputSticker], stickerType = "", needsRepainting = false): Future[bool] {.api, async.}
 
 proc addStickerToSet*(b: TeleBot, userId: int, name: string, sticker: InputSticker): Future[bool] {.api, async.}
 
@@ -160,7 +160,9 @@ proc setStickerPositionInSet*(b: TeleBot, sticker: string, position: int): Futur
 
 proc deleteStickerFromSet*(b: TeleBot, sticker: string): Future[bool] {.api, async.}
 
-proc setStickerSetThumbnail*(b: TeleBot, name: string, userId: int, thumbnail: InputFileOrString = ""): Future[bool] {.api, async.}
+proc replaceStickerInSet*(b: TeleBot, userId: int, name: string, oldSticker: string, sticker: InputSticker): Future[bool] {.api, async.}
+
+proc setStickerSetThumbnail*(b: TeleBot, name: string, userId: int, thumbnail: InputFileOrString = "", format = ""): Future[bool] {.api, async.}
 
 proc setChatStickerSet*(b: TeleBot, chatId: ChatId, stickerSetname: string): Future[bool] {.api, async.}
 
@@ -186,7 +188,7 @@ proc editMessageLiveLocation*(b: TeleBot, latitude: float, longitude: float, cha
 
 proc stopMessageLiveLocation*(b: TeleBot, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[bool] {.api, async.}
 
-proc sendMediaGroup*(b: TeleBot, chatId: ChatId, media: seq[InputMediaSet], messageThreadId = 0, disableNotification = false, allowSendingWithoutReply = false, replyParameters: ReplyParameters = nil): Future[seq[Message]] {.api, async.}
+proc sendMediaGroup*(b: TeleBot, chatId: ChatId, media: seq[InputMediaSet], businessConnectionId = 0, messageThreadId = 0, disableNotification = false, allowSendingWithoutReply = false, replyParameters: ReplyParameters = nil): Future[seq[Message]] {.api, async.}
 
 proc editMessageMedia*(b: TeleBot, media: InputMediaSet, chatId = "", messageId = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
@@ -207,6 +209,8 @@ proc deleteMessages*(b: TeleBot, chatId: ChatId, messageIds: seq[int]): Future[b
 proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAlert = false, url = "",  cacheTime = 0): Future[bool] {.api, async.}
 
 proc getUserChatBoosts*(b: TeleBot, chatId: ChatId, userId: int): Future[UserChatBoosts] {.api, async.}
+
+proc getBusinessConnection*(b: TeleBot, businessConnectionId: string): Future[BusinessConnection] {.api, async.}
 
 proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope = COMMAND_SCOPE_DEFAULT, chatId = "", userId = 0, languageCode = ""): Future[bool] {.async.} =
   var data = newMultipartData()
@@ -339,7 +343,6 @@ proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
       stop = await cb(b, update.inlineQuery)
       if stop: break
   elif update.hasCommand(b.username):
-    
     var cmd = Command(
       command: command,
       message: message,
@@ -391,7 +394,7 @@ proc pollAsync*(b: TeleBot, timeout = 50, offset = 0, limit = 0, clean = false) 
   await loop(b, timeout, offset, limit)
 
 
-proc sendGame*(b: TeleBot, chatId: ChatId, gameShortName: string, messageThreadId = 0, disableNotification = false, replyParameters: ReplyParameters = nil,
+proc sendGame*(b: TeleBot, chatId: ChatId, gameShortName: string, businessConnectionId = 0, messageThreadId = 0, disableNotification = false, replyParameters: ReplyParameters = nil,
                allowSendingWithoutReply = false, replyMarkup: InlineKeyboardMarkup): Future[Message] {.api, async.}
 
 proc setGameScore*(b: TeleBot, userId: int, score: int, force = false, disableEditMessage = false,
