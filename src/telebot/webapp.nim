@@ -74,7 +74,7 @@ type
   BiometricRequestAccessParams* {.importc, nodecl.} = object
     reason*: string
 
-  BiometricAuthenticateParamss* {.importc, nodecl.} = object
+  BiometricAuthenticateParams* {.importc, nodecl.} = object
     reason*: string
 
   ThemeParams* {.importc, nodecl.} = object
