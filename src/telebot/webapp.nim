@@ -1,4 +1,7 @@
-import std/jsffi
+import
+  std/jsffi,
+  std/strutils,
+  std/macros
 
 type
   WebAppEvents* = enum
@@ -13,44 +16,47 @@ type
     CLIPBOARD_TEXT_RECEIVED = "clipboardTextReceived"
     WRITE_ACCESS_REQUESTED = "writeAccessRequested"
     CONTACT_REQUESTED = "contactRequested"
+    BIOMETRIC_MANAGER_UPDATED = "biometricManagerUpdated"
+    BIOMETRIC_AUTH_REQUESTED = "biometricAuthRequested"
+    BIOMETRIC_TOKEN_UPDATED = "biometricTokenUpdated"
 
   WebAppInitData* = object
-    query_id*: string
+    query_id*: cstring
     user*: WebAppUser
     receiver*: WebAppUser
     chat*: WebAppChat
-    start_param: string
-    can_send_after*: int
-    auth_date*: int
-    hash*: string
+    start_param: cstring
+    can_send_after*: cint
+    auth_date*: cint
+    hash*: cstring
 
   WebAppUser* {.importc, nodecl.} = object
-    id*: int64
+    id*: cint
     is_bot*: bool
-    first_name*: string
-    last_name*: string
-    username*: string
-    language_code*: string
+    first_name*: cstring
+    last_name*: cstring
+    username*: cstring
+    language_code*: cstring
     isPremium*: bool
     addedToAttachmentMenu*: bool
     allowsWriteToPm*: bool
-    photo_url*: string
+    photo_url*: cstring
 
   WebAppChat* {.importc, nodecl.} = object
-    id*: int64
-    `type`*: string
-    title*: string
-    username*: string
-    photo_url*: string
+    id*: cint
+    `type`*: cstring
+    title*: cstring
+    username*: cstring
+    photo_url*: cstring
 
 
   BackButton* {.importc, nodecl.} = object
     isVisible*: bool
 
   MainButton* {.importc, nodecl.} = object
-    text*: string
-    color*: string
-    textColor*: string
+    text*: cstring
+    color*: cstring
+    textColor*: cstring
     isVisible*: bool
     isActive*: bool
     isProgressVisible*: bool
@@ -65,59 +71,59 @@ type
   BiometricManager* {.importc, nodecl.} = object
     isInited*: bool
     isBiometricAvailable*: bool
-    biometricType*: string
+    biometricType*: cstring
     isAccessRequested*: bool
     isAccessGranted*: bool
     isBiometricTokenSaved*: bool
-    deviceId*: string
+    deviceId*: cstring
 
   BiometricRequestAccessParams* {.importc, nodecl.} = object
-    reason*: string
+    reason*: cstring
 
   BiometricAuthenticateParams* {.importc, nodecl.} = object
-    reason*: string
+    reason*: cstring
 
   ThemeParams* {.importc, nodecl.} = object
-    bg_color*: string
-    text_color*: string
-    hint_color*: string
-    link_color*: string
-    button_color*: string
-    button_text_color*: string
-    secondary_bg_color*: string
-    header_bg_color*: string
-    accent_text_color*: string
-    section_bg_color*: string
-    section_header_text_color*: string
-    subtitle_text_color*: string
-    destructive_text_color*: string
+    bg_color*: cstring
+    text_color*: cstring
+    hint_color*: cstring
+    link_color*: cstring
+    button_color*: cstring
+    button_text_color*: cstring
+    secondary_bg_color*: cstring
+    header_bg_color*: cstring
+    accent_text_color*: cstring
+    section_bg_color*: cstring
+    section_header_text_color*: cstring
+    subtitle_text_color*: cstring
+    destructive_text_color*: cstring
 
   PopupButton* {.importc, nodecl.} = object
-    id*: string
-    `type`*: string
-    text*: string
+    id*: cstring
+    `type`*: cstring
+    text*: cstring
 
   PopupParams* {.importc, nodecl.} = object
-    title*: string
-    message*: string
+    title*: cstring
+    message*: cstring
     buttons*: seq[PopupButton]
 
   ScanQrPopupParams* {.importc, nodecl.} = object
-    text*: string
+    text*: cstring
 
   WebApp* = ref WebAppObj
   WebAppObj* {.importc, nodecl.} = object of RootObj
-    initData*: string
+    initData*: cstring
     initDataUnsafe*: WebAppInitData
-    version*: string
-    platform*: string
-    colorScheme*: string
+    version*: cstring
+    platform*: cstring
+    colorScheme*: cstring
     themeParams*: ThemeParams
     isExpanded*: bool
-    viewportHeight*: float
-    viewportStableHeight*: float
-    headerColor*: string
-    backgroundColor*: string
+    viewportHeight*: cfloat
+    viewportStableHeight*: cfloat
+    headerColor*: cstring
+    backgroundColor*: cstring
     isClosingConfirmationEnabled*: bool
     BackButton*: BackButton
     MainButton*: MainButton
@@ -132,90 +138,149 @@ type
 
   TelegramRef* = ref TelegramObj
 
-  EventHandler = proc()
+  # Events
+  InvoiceClosedEvent* {.importc, nodecl.} = object of RootObj
+    url*: cstring
+    status*: cstring
+  ViewportChangedEvent* {.importc, nodecl.} = object of RootObj
+    isStateStable*: bool
+  PopupClosedEvent* {.importc, nodecl.} = object of RootObj
+    button_id*: cint
+  QrTextReceivedEvent* {.importc, nodecl.} = object of RootObj
+    data*: cstring
+  ClipboardTextReceivedEvent* {.importc, nodecl.} = object of RootObj
+    data*: cstring
+  WriteAccessRequestedEvent* {.importc, nodecl.} = object of RootObj
+    status*: cstring
+  ContactRequestedEvent* {.importc, nodecl.} = object of RootObj
+    status*: cstring
+  BiometricAuthRequestedEvent* {.importc, nodecl.} = object of RootObj
+    isAuthenticated*: bool
+  BiometricTokenUpdatedEvent* {.importc, nodecl.} = object of RootObj
+    isUpdated*: bool
+
+  EmptyEventHandler* = proc()
+  InvoiceClosedEventHandler* = proc(event: InvoiceClosedEvent)
+  ViewportChangedEventHandler* = proc(event: ViewportChangedEvent)
+  PopupClosedEventHandler* = proc(event: PopupClosedEvent)
+  QrTextReceivedEventHandler* = proc(event: QrTextReceivedEvent)
+  ClipboardTextReceivedEventHandler* = proc(event: ClipboardTextReceivedEvent)
+  WriteAccessRequestedEventHandler* = proc(event: WriteAccessRequestedEvent)
+  ContactRequestedEventHandler* = proc(event: ContactRequestedEvent)
+  BiometricAuthRequestedEventHandler* = proc(event: BiometricAuthRequestedEvent)
+  BiometricTokenUpdatedEventHandler* = proc(event: BiometricTokenUpdatedEvent)
+  CloudStorageHandler* = proc()
 
 var Telegram* {.importc, nodecl.}: TelegramRef
+
+macro checkFor(items, obj, key: untyped): untyped =
+  newStmtList(
+    # {.emit: "if (`obj`.key)".}
+    newNimNode(nnkPragma).add(
+      newNimNode(nnkExprColonExpr).add(
+        ident"emit",
+        newLit("if (`" & $obj & "`." & $key & ")")
+      )
+    ),
+    # items.add "key: " & $obj.key
+    newCall("add", items, newCall("&", newLit($key & ": "), newCall("$", newDotExpr(obj, key))))
+  )
+
+proc `$`*(data: WebAppInitData): string =
+  # Some fields are sometimes missing
+  result = "WebAppInitData("
+  var items: seq[string] = @[]
+  checkFor(items, data, query_id)
+  checkFor(items, data, user)
+  checkFor(items, data, receiver)
+  checkFor(items, data, chat)
+  checkFor(items, data, start_param)
+  checkFor(items, data, can_send_after)
+  checkFor(items, data, auth_date)
+  checkFor(items, data, hash)
+  result &= join(items, ", ")
+  result &= ")"
 
 #--------
 # WebApp
 #--------
-proc isVersionAtLeast*(w: WebApp, version: string): bool {.importc, nodecl.}
-proc setHeaderColor*(w: WebApp, color: string) {.importc, nodecl.}
-proc setBackgrounColor*(w: WebApp, color: string) {.importc, nodecl.}
-proc enableClosingConfirmation*(w: WebApp) {.importc, nodecl.}
-proc disableClosingConfirmation*(w: WebApp) {.importc, nodecl.}
-proc onEvent*(w: WebApp, eventType: string, eventHandler: EventHandler) {.importc, nodecl.}
-proc offEvent*(w: WebApp, eventType: string, eventHandler: EventHandler) {.importc, nodecl.}
-proc sendData*(w: WebApp, data: string) {.importc, nodecl.}
-proc openLink*(w: WebApp, url: string, options: JsObject) {.importc, nodecl.}
-proc openTelegramLink*(w: WebApp, url: string) {.importc, nodecl.}
-proc openInvoice*(w: WebApp, url: string, callback: EventHandler = nil) {.importc, nodecl.}
-proc showPopup*(w: WebApp, params: PopupParams, callback: EventHandler = nil) {.importc, nodecl.}
-proc showAlert*(w: WebApp, message: string, callback: EventHandler = nil) {.importc, nodecl.}
-proc showScanQrPopup*(w: WebApp, params: ScanQrPopupParams, callbback: EventHandler) {.importc, nodecl.}
-proc closeScanQrPopup*(w: WebApp) {.importc, nodecl.}
-proc readTextFromClipboard*(w: WebApp, callbback: EventHandler) {.importc, nodecl.}
-proc requestWriteAccess*(w: WebApp, callback: EventHandler) {.importc, nodecl.}
-proc requestContact*(w: WebApp, callback: EventHandler) {.importc, nodecl.}
-proc showConfirm*(w: WebApp, message: string, callback: EventHandler = nil) {.importc, nodecl.}
-proc ready*(w: WebApp): bool {.importc, nodecl.}
-proc expand*(w: WebApp) {.importc, nodecl.}
-proc close*(w: WebApp) {.importc, nodecl.}
+proc isVersionAtLeast*(w: WebApp, version: cstring): bool {.importjs: "#.isVersionAtLeast(#)", nodecl.}
+proc setHeaderColor*(w: WebApp, color: cstring) {.importjs: "#.setHeaderColor(#)", nodecl.}
+proc setBackgrounColor*(w: WebApp, color: cstring) {.importjs: "#.setBackgrounColor(#)", nodecl.}
+proc enableClosingConfirmation*(w: WebApp) {.importjs: "#.enableClosingConfirmation()", nodecl.}
+proc disableClosingConfirmation*(w: WebApp) {.importjs: "#.disableClosingConfirmation()", nodecl.}
+proc onEvent*(w: WebApp, eventType: cstring, eventHandler: EmptyEventHandler) {.importjs: "#.onEvent(#, #)", nodecl.}
+proc offEvent*(w: WebApp, eventType: cstring, eventHandler: EmptyEventHandler) {.importjs: "#.offEvent(#, #)", nodecl.}
+proc sendData*(w: WebApp, data: cstring) {.importjs: "#.sendData(#)", nodecl.}
+proc openLink*(w: WebApp, url: cstring, options: JsObject) {.importjs: "#.openLink(#, #)", nodecl.}
+proc openTelegramLink*(w: WebApp, url: cstring) {.importjs: "#.openTelegramLink(#)", nodecl.}
+proc openInvoice*(w: WebApp, url: cstring, callback: InvoiceClosedEventHandler = nil) {.importjs: "#.openInvoice(#, #)", nodecl.}
+proc showPopup*(w: WebApp, params: PopupParams, callback: EmptyEventHandler = nil) {.importjs: "#.showPopup(#, #)", nodecl.}
+proc showAlert*(w: WebApp, message: string, callback: EmptyEventHandler = nil) {.importjs: "#.showAlert(#, #)", nodecl.}
+proc showScanQrPopup*(w: WebApp, params: ScanQrPopupParams, callback: QrTextReceivedEventHandler) {.importjs: "#.showScanQrPopup(#, #)", nodecl.}
+proc closeScanQrPopup*(w: WebApp) {.importjs: "#.closeScanQrPopup()", nodecl.}
+proc readTextFromClipboard*(w: WebApp, callbback: ClipboardTextReceivedEventHandler) {.importjs: "#.readTextFromClipboard(#)", nodecl.}
+proc requestWriteAccess*(w: WebApp, callback: WriteAccessRequestedEventHandler) {.importjs: "#.requestWriteAccess(#)", nodecl.}
+proc requestContact*(w: WebApp, callback: ContactRequestedEventHandler) {.importjs: "#.requestContact(#)", nodecl.}
+proc showConfirm*(w: WebApp, message: cstring, callback: EmptyEventHandler = nil) {.importjs: "#.showConfirm(#, #)", nodecl.}
+proc ready*(w: WebApp): bool {.importjs: "#.ready()", nodecl.}
+proc expand*(w: WebApp) {.importjs: "#.expand()", nodecl.}
+proc close*(w: WebApp) {.importjs: "#.close()", nodecl.}
 
 #--------
 # BackButtton
 #--------
-proc onClick*(b: BackButton, callback: EventHandler): BackButton {.importc, nodecl.}
-proc offClick*(b: BackButton, callback: EventHandler): BackButton {.importc, nodecl.}
-proc show*(b: BackButton): BackButton {.importc, nodecl.}
-proc hide*(b: BackButton): BackButton {.importc, nodecl.}
+proc onClick*(b: BackButton, callback: EmptyEventHandler): BackButton {.importjs: "#.onClick(#)", nodecl, discardable.}
+proc offClick*(b: BackButton, callback: EmptyEventHandler): BackButton {.importjs: "#.offClick(#)", nodecl, discardable.}
+proc show*(b: BackButton): BackButton {.importjs: "#.show()", nodecl.}
+proc hide*(b: BackButton): BackButton {.importjs: "#.hide()", nodecl.}
 
 #--------
 # MainButtton
 #--------
-proc setText*(b: MainButton, text: string): MainButton {.importc, nodecl.}
-proc onClick*(b: MainButton, callback: EventHandler): MainButton {.importc, nodecl.}
-proc offClick*(b: MainButton, callback: EventHandler): MainButton {.importc, nodecl.}
-proc show*(b: MainButton): MainButton {.importc, nodecl.}
-proc hide*(b: MainButton): MainButton {.importc, nodecl.}
-proc enable*(b: MainButton): MainButton {.importc, nodecl.}
-proc disable*(b: MainButton): MainButton {.importc, nodecl.}
-proc showProgress*(b: MainButton, leaveAction: bool): MainButton {.importc, nodecl.}
-proc hideProgress*(b: MainButton): MainButton {.importc, nodecl.}
-proc setParams*(b: MainButton, params: JsObject): MainButton {.importc, nodecl.}
+proc setText*(b: MainButton, text: cstring): MainButton {.importjs: "#.setText(#)", nodecl, discardable.}
+proc onClick*(b: MainButton, callback: EmptyEventHandler): MainButton {.importjs: "#.onClick(#)", nodecl, discardable.}
+proc offClick*(b: MainButton, callback: EmptyEventHandler): MainButton {.importjs: "#.offClick(#)", nodecl, discardable.}
+proc show*(b: MainButton): MainButton {.importjs: "#.show()", nodecl.}
+proc hide*(b: MainButton): MainButton {.importjs: "#.hide()", nodecl.}
+proc enable*(b: MainButton): MainButton {.importjs: "#.enable()", nodecl.}
+proc disable*(b: MainButton): MainButton {.importjs: "#.disable()", nodecl.}
+proc showProgress*(b: MainButton, leaveAction: bool): MainButton {.importjs: "#.showProgress(#)", nodecl.}
+proc hideProgress*(b: MainButton): MainButton {.importjs: "#.hideProgress()", nodecl.}
+proc setParams*(b: MainButton, params: JsObject): MainButton {.importjs: "#.setParams(#)", nodecl.}
 
 
 #--------
 # SettingsButton
 #--------
-proc onClick*(b: SettingsButton, callback: EventHandler): SettingsButton {.importc, nodecl.}
-proc offClick*(b: SettingsButton, callback: EventHandler): SettingsButton {.importc, nodecl.}
-proc show*(b: SettingsButton): SettingsButton {.importc, nodecl.}
-proc hide*(b: SettingsButton): SettingsButton {.importc, nodecl.}
+proc onClick*(b: SettingsButton, callback: EmptyEventHandler): SettingsButton {.importjs: "#.onClick(#)", nodecl.}
+proc offClick*(b: SettingsButton, callback: EmptyEventHandler): SettingsButton {.importjs: "#.offClick(#)", nodecl.}
+proc show*(b: SettingsButton): SettingsButton {.importjs: "#.show()", nodecl.}
+proc hide*(b: SettingsButton): SettingsButton {.importjs: "#.hide()", nodecl.}
 
 #--------
 # HapticFeedback
 #--------
-proc impactOccurred*(h: HapticFeedback, style: string): HapticFeedback {.importc, nodecl.}
-proc notificationOccurred*(h: HapticFeedback, kind: string): HapticFeedback {.importc, nodecl.}
-proc selectionChanged*(h: HapticFeedback): HapticFeedback {.importc, nodecl.}
+proc impactOccurred*(h: HapticFeedback, style: cstring): HapticFeedback {.importjs: "#.impactOccurred(#)", nodecl.}
+proc notificationOccurred*(h: HapticFeedback, kind: cstring): HapticFeedback {.importjs: "#.notificationOccurred(#)", nodecl.}
+proc selectionChanged*(h: HapticFeedback): HapticFeedback {.importjs: "#.selectionChanged()", nodecl.}
 
 #--------
 # CloudStorage
 #--------
-proc setItem*(c: CloudStorage, key: string, value: string, callback: EventHandler) {.importc, nodecl.}
-proc getItem*(c: CloudStorage, key: string, callback: EventHandler) {.importc, nodecl.}
-proc getItems*(c: CloudStorage, keys: seq[string], callback: EventHandler) {.importc, nodecl.}
-proc removeItem*(c: CloudStorage, key: string, callback: EventHandler) {.importc, nodecl.}
-proc removeItems*(c: CloudStorage, keys: seq[string], callback: EventHandler) {.importc, nodecl.}
-proc getKeys*(c: CloudStorage, callback: EventHandler) {.importc, nodecl.}
+proc setItem*(c: CloudStorage, key: cstring, value: cstring, callback: EmptyEventHandler) {.importjs: "#.setItem(#, #, #)", nodecl.}
+proc getItem*(c: CloudStorage, key: cstring, callback: EmptyEventHandler) {.importjs: "#.getItem(#, #)", nodecl.}
+proc getItems*(c: CloudStorage, keys: seq[cstring], callback: EmptyEventHandler) {.importjs: "#.getItems(#, #)", nodecl.}
+proc removeItem*(c: CloudStorage, key: cstring, callback: EmptyEventHandler) {.importjs: "#.removeItem(#, #)", nodecl.}
+proc removeItems*(c: CloudStorage, keys: seq[cstring], callback: EmptyEventHandler) {.importjs: "#.removeItems(#, #)", nodecl.}
+proc getKeys*(c: CloudStorage, callback: EmptyEventHandler) {.importjs: "#.getKeys(#)", nodecl.}
 
 
 #--------
 # BiometricManager
 #--------
-proc init*(c: BiometricManager, callback: EventHandler) {.importc, nodecl.}
-proc requestAccess*(c: BiometricManager, params: BiometricRequestAccessParams, callback: EventHandler) {.importc, nodecl.}
-proc authenticate*(c: BiometricManager, params:BiometricAuthenticateParams, callback: EventHandler) {.importc, nodecl.}
-proc updateBiometricToken*(c: BiometricManager, token: string, callback: EventHandler) {.importc, nodecl.}
-proc openSettings*(c: BiometricManager) {.importc, nodecl.}
+proc init*(c: BiometricManager, callback: EmptyEventHandler) {.importjs: "#.init(#)", nodecl.}
+proc requestAccess*(c: BiometricManager, params: BiometricRequestAccessParams, callback: EmptyEventHandler) {.importjs: "#.requestAccess(#, #)", nodecl.}
+proc authenticate*(c: BiometricManager, params:BiometricAuthenticateParams, callback: EmptyEventHandler) {.importjs: "#.authenticate(#, #)", nodecl.}
+proc updateBiometricToken*(c: BiometricManager, token: cstring, callback: EmptyEventHandler) {.importjs: "#.updateBiometricToken(#, #)", nodecl.}
+proc openSettings*(c: BiometricManager) {.importjs: "#.openSettings()", nodecl.}
