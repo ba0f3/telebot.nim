@@ -5,7 +5,7 @@ import dom, telebot/webapp
 
 Telegram.WebApp.showAlert("Hello from telebot.nim's WebApp")
 
-let version = "Telegram.Webapp.version = " & Telegram.WebApp.version
+let version = "Telegram.Webapp.version = " & $Telegram.WebApp.version
 echo(version)
 
 window.document.write(version)

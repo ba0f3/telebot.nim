@@ -58,6 +58,7 @@ type
     canReadAllGroupMessages: bool
     supportsInlineQueries: bool
     canConnectToBusiness*: bool
+    hasMainWebApp*: bool
 
   Chat* = ref object of TelegramObject
     id*: int64
@@ -67,6 +68,17 @@ type
     firstName*: string
     lastName*: string
     isForum*:bool
+
+  ChatFullInfo* = ref object of TelegramObject
+    id*: int64
+    kind*: string
+    title*: string
+    username*: string
+    firstName*: string
+    lastName*: string
+    isForum*:bool
+    accentColorId*: int
+    maxReactionCount*: int
     photo*: ChatPhoto
     activeUsernames*: seq[string]
     birthdate*: Birthdate
@@ -75,7 +87,6 @@ type
     businessOpeningHours*: BusinessOpeningHours
     personalChat*: Chat
     availableReactions*: seq[ReactionType]
-    accentColorId*: int
     backgroundCustomEmojiId*: string
     profileAccentColorId*: int
     profileBackgroundCustomEmojiId*: string
@@ -83,12 +94,14 @@ type
     emojiStatusExpirationDate*: int
     bio*: string
     hasPrivateForwards*: bool
+    hasRestrictedVoiceAndVideoMessages*: bool
     joinToSendMessages*: bool
     joinByRequest*: bool
     description*: string
     inviteLink*: string
     pinnedMessage*: Message
     permissions*: ChatPermissions
+    canSendPaidMedia*: bool
     slowModeDelay*: int
     unrestrictBoostCount*: int
     messageAutoDeleteTime*: int
@@ -220,7 +233,13 @@ type
 
   PollOption* = ref object of TelegramObject
     text*: string
+    textEntities*: seq[MessageEntity]
     voterCount*: int
+
+  InputPollOption* = ref object of TelegramObject
+    text*: string
+    textParseMode*: string
+    textEntities*: seq[MessageEntity]
 
   PollAnswer* = ref object of TelegramObject
     pollId*: string
@@ -231,6 +250,7 @@ type
   Poll* = ref object of TelegramObject
     id*: string
     question*: string
+    questionEntities*: seq[MessageEntity]
     options*: seq[PollOption]
     totalVoterCount*: int
     isClosed*: bool
@@ -253,6 +273,46 @@ type
 
   ChatBoostAdded* = ref object of TelegramObject
     boostCount*: int
+
+  BackgroundFill* = ref object of TelegramObject
+    kind*: string
+
+  BackgroundFillSolid* = ref object of BackgroundFill
+    color*: int
+
+  BackgroundFillGradient* = ref object of BackgroundFill
+    topColor*: int
+    bottomColor*: int
+    rotationAngle*: int
+
+  BackgroundFillFreeformGradient* = ref object of BackgroundFill
+    colors*: seq[int]
+
+  BackgroundType* = ref object of TelegramObject
+    kind*: string
+
+  BackgroundTypeFill* = ref object of BackgroundType
+    fill*: BackgroundFill
+    darkThemeDimming*: int
+
+  BackgroundTypeWallpaper* = ref object of BackgroundType
+    document*: Document
+    darkThemeDimming*: int
+    isBlurred*: bool
+    isMoving*: bool
+
+  BackgroundTypePattern* = ref object of BackgroundType
+    document*: Document
+    fill*: BackgroundFill
+    intensity*: int
+    isBlurred*: bool
+    isMoving*: bool
+
+  BackgroundTypeChatTheme* = ref object of BackgroundType
+    themeName*: string
+
+  ChatBackground* = ref object of TelegramObject
+    kind*: BackgroundType
 
   ForumTopicCreated* = ref object of TelegramObject
     name*: string
@@ -306,6 +366,7 @@ type
     users*: seq[User]
 
   GiveawayCreated* = ref object of TelegramObject
+    prizeStarCount*: int
 
   Giveaway* = ref object of TelegramObject
     chats*: seq[Chat]
@@ -315,6 +376,7 @@ type
     hasPublicWinners*: bool
     prizeDescription*: string
     countryCodes*: seq[string]
+    prizeStarCount*: int
     premiumSubscriptionMonthCount*: int
 
   GiveawayWinners* = ref object of TelegramObject
@@ -324,6 +386,7 @@ type
     winnerCount*: int
     winners*: seq[User]
     additionChatCount*: int
+    prizeStarCount*: int
     premiumSubscriptionMonthCount*: int
     unclaimedPrizeCount*: int
     onlyNewMembers*: bool
@@ -334,6 +397,7 @@ type
     winnerCount*: int
     unclaimedPrizeCount*: int
     giveawayMessage*: Message
+    isStarGiveaway*: bool
 
   LinkPreviewOptions* = ref object of TelegramObject
     isDisabled*: bool
@@ -506,6 +570,7 @@ type
     animation*: Animation
     audio*: Audio
     document*: Document
+    paidMedia*: PaidMediaInfo
     photo*: seq[PhotoSize]
     sticker*: Sticker
     story*: Story
@@ -558,9 +623,11 @@ type
     text*: string
     entities*: seq[MessageEntity]
     linkPreviewOptions*: LinkPreviewOptions
+    effectId*: string
     animation*: Animation
     audio*: Audio
     document*: Document
+    paidMedia*: PaidMediaInfo
     photo*: seq[PhotoSize]
     sticker*: Sticker
     story*: Story
@@ -569,6 +636,7 @@ type
     voice*: Voice
     caption*: string
     captionEntities*: seq[MessageEntity]
+    showCaptionAboveMedia*: bool
     hasMediaSpoiler*: bool
     contact*: Contact
     dice*: Dice
@@ -590,6 +658,7 @@ type
     pinnedMessage*: Message
     invoice*: Invoice
     successfulPayment*: SuccessfulPayment
+    refundedPayment*: RefundedPayment
     usersShared*: UsersShared
     chatShared*: ChatShared
     connectedWebsite*: string
@@ -597,6 +666,7 @@ type
     passportData*: PassportData
     proximityAlertTriggered*: ProximityAlertTriggered
     boostAdded*: ChatBoostAdded
+    chatBackgroundSet*: ChatBackground
     forumTopicCreated*: ForumTopicCreated
     forumTopicEdited*: ForumTopicEdited
     forumTopicClosed*: ForumTopicClosed
@@ -640,6 +710,8 @@ type
     expireDate*: int
     memberLimit*: int
     pendingJoinRequestCount*: int
+    subscriptionPeriod*: int
+    subscriptionPrice*: int
 
   ChatAdministratorRights* = ref object of TelegramObject
     isAnonymous*: bool
@@ -736,6 +808,7 @@ type
     oldChatMember*: ChatMember
     newChatMember*: ChatMember
     inviteLink*: ChatInviteLink
+    viaJoinRequest*: bool
     viaChatFolderInviteLink*: bool
 
   ChatJoinRequest* = ref object of TelegramObject
@@ -791,6 +864,7 @@ type
   ReactionTypeKind* = enum
     kindReactionTypeEmoji = "emoji"
     kindReactionTypeCustomEmoji = "custom_emoji"
+    kindReactionTypePaid = "paid"
 
   ReactionType* = ref object of TelegramObject
     case kind*: ReactionTypeKind
@@ -798,6 +872,8 @@ type
       emoji*: string
     of kindReactionTypeCustomEmoji:
       customEmoji*: string
+    else:
+      discard
 
   ReactionCount* = ref object of TelegramObject
     kind*: ReactionType
@@ -850,6 +926,7 @@ type
     callbackQuery*: CallbackQuery
     shippingQuery*: ShippingQuery
     preCheckoutQuery*: PreCheckoutQuery
+    purchasedPaidMedia*: PaidMediaPurchased
     poll*: Poll
     pollAnswer*: PollAnswer
     myChatMember*: ChatMemberUpdated
@@ -917,6 +994,13 @@ type
     telegramPaymentChargeId*: string
     providerPaymentChargeId*: string
 
+  RefundedPayment* = ref object of TelegramObject
+    currency*: string
+    totalAmount*: int
+    invoicePayload*: string
+    telegramPaymentChargeId*: int
+    providerPaymentChargeId*: int
+
   ShippingQuery* = ref object of TelegramObject
     id*: string
     fromUser*: User
@@ -931,6 +1015,67 @@ type
     invoicePayload*: string
     shippingOptionId*: string
     orderInfo*: OrderInfo
+
+  PaidMediaInfo* = ref object of TelegramObject
+    starCount*: int
+    paidMedia*: seq[PaidMedia]
+
+  PaidMedia* = ref object of TelegramObject
+    kind*: string
+
+  PaidMediaPreview* = ref object of PaidMedia
+    width*: int
+    height*: int
+    duration*: int
+
+  PaidMediaPhoto* = ref object of PaidMedia
+    photo*: seq[PhotoSize]
+
+  PaidMediaVideo* = ref object of PaidMedia
+    video*: Video
+
+  PaidMediaPurchased* = ref object of TelegramObject
+    fromUser*: User
+    paidMediaPayload*: string
+
+  RevenueWithdrawalState* = ref object of TelegramObject
+    kind*: string
+
+  RevenueWithdrawalStatePending* = ref object of RevenueWithdrawalState
+
+  RevenueWithdrawalStateSucceeded* = ref object of RevenueWithdrawalState
+    date*: int
+    url*: string
+
+  RevenueWithdrawalStateFailed* = ref object of RevenueWithdrawalState
+
+  TransactionPartner* = ref object of TelegramObject
+    kind*: string
+
+  TransactionPartnerUser* = ref object of TransactionPartner
+    user*: User
+    invoicePayload*: string
+    paidMedia*: seq[PaidMedia]
+    paidMediaPayload*: string
+
+  TransactionPartnerFragment* = ref object of TransactionPartner
+    withdrawalState*: RevenueWithdrawalState
+
+  TransactionPartnerTelegramAds* = ref object of TransactionPartner
+  TransactionPartnerOther* = ref object of TransactionPartner
+
+  StarTransaction* = ref object of TelegramObject
+    id*: string
+    amount*: int
+    date*: int
+    source*: TransactionPartner
+    receiver*: TransactionPartner
+
+  StarTransactions* = ref object of TelegramObject
+    transactions*: seq[StarTransaction]
+
+
+
 
   #------------------
   # Inline Query
@@ -1016,6 +1161,8 @@ type
     title*: string
     description*: string
     caption*: string
+    parseMode*: string
+    showCaptionAboveMedia*: bool
 
   InlineQueryResultGif* = ref object of InlineQueryResult
     gifUrl*: string
@@ -1026,6 +1173,8 @@ type
     thumbnailMimeType*: string
     title*: string
     caption*: string
+    parseMode*: string
+    showCaptionAboveMedia*: bool
 
   InlineQueryResultMpeg4Gif* = ref object of InlineQueryResult
     mpeg4Url*: string
@@ -1036,6 +1185,8 @@ type
     thumbnailMimeType*: string
     title*: string
     caption*: string
+    parseMode*: string
+    showCaptionAboveMedia*: bool
 
   InlineQueryResultVideo* = ref object of InlineQueryResult
     videoUrl*: string
@@ -1043,6 +1194,8 @@ type
     thumbnailUrl*: string
     title*: string
     caption*: string
+    parseMode*: string
+    showCaptionAboveMedia*: bool
     videoWidth*: int
     videoHeight*: int
     videoDuration*: int
@@ -1101,16 +1254,22 @@ type
     title*: string
     description*: string
     caption*: string
+    parseMode*: string
+    showCaptionAboveMedia*: bool
 
   InlineQueryResultCachedGif* = ref object of InlineQueryResult
     gifFileId*: string
     title*: string
     caption*: string
+    parseMode*: string
+    showCaptionAboveMedia*: bool
 
   InlineQueryResultCachedMpeg4Gif* = ref object of InlineQueryResult
     mpeg4FileId*: string
     title*: string
     caption*: string
+    parseMode*: string
+    showCaptionAboveMedia*: bool
 
   InlineQueryResultCachedSticker* = ref object of InlineQueryResult
     stickerFileId*: string
@@ -1120,6 +1279,8 @@ type
     title*: string
     caption*: string
     description*: string
+    parseMode*: string
+    showCaptionAboveMedia*: bool
 
   InlineQueryResultCachedAudio* = ref object of InlineQueryResult
     audioFileId*: string
@@ -1168,9 +1329,11 @@ type
     captionEntities*: seq[MessageEntity]
 
   InputMediaPhoto* = ref object of InputMedia
+    showCaptionAboveMedia*: bool
     hasSpoiler*: bool
 
   InputMediaVideo* = ref object of InputMedia
+    showCaptionAboveMedia*: bool
     width*: int
     height*: int
     duration*: int
@@ -1178,6 +1341,7 @@ type
     hasSpoiler*: bool
 
   InputMediaAnimation* = ref object of InputMedia
+    showCaptionAboveMedia*: bool
     width*: int
     height*: int
     duration*: int
@@ -1193,6 +1357,23 @@ type
 
 
   InputMediaSet* = InputMediaPhoto|InputMediaVideo|InputMediaAnimation|InputMediaAudio|InputMediaDocument
+
+  InputPaidMediaPhoto* = ref object of TelegramObject
+    kind*: string = "photo"
+    media*: string
+
+  InputPaidMediaVideo* = ref object of TelegramObject
+    kind*: string = "video"
+    media*: string
+    thumbail*: InputFileOrString
+    width*: int
+    height*: int
+    duration*: int
+    supportsStreaming*: bool
+
+  InputPaidMedia* = InputPaidMediaPhoto|InputPaidMediaVideo
+
+
 
   #------------------
   # Passport
@@ -1342,6 +1523,7 @@ type
     case source*: ChatBoostSourceKind
     of kindChatBoostSourceGiveaway:
       giveawayMessageId*: int
+      prizeStarCount*: int
       isUncaimed*: bool
     else: discard
 

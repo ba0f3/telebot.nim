@@ -8,11 +8,13 @@ type
     THEME_CHANGED = "themeChanged"
     VIEWPORT_CHANGED = "viewportChanged"
     MAIN_BUTTON_CLICKED = "mainButtonClicked"
-    BACk_BUTTON_CLICKED = "backButtonClicked"
+    SECONDARY_BUTTON_CLICKED = "secondaryButtonClicked"
+    BACK_BUTTON_CLICKED = "backButtonClicked"
     SETTINGS_BUTTON_CLICKED = "settingsButtonClicked"
     INVOICE_CLOSE = "invoiceClosed"
     POPUP_CLOSED = "popupClosed"
     QR_TEXT_RECEIVED = "qrTextReceived"
+    SCAN_QR_POPUP_CLOSED = "scanQrPopupClosed"
     CLIPBOARD_TEXT_RECEIVED = "clipboardTextReceived"
     WRITE_ACCESS_REQUESTED = "writeAccessRequested"
     CONTACT_REQUESTED = "contactRequested"
@@ -53,7 +55,7 @@ type
   BackButton* {.importc, nodecl.} = object
     isVisible*: bool
 
-  MainButton* {.importc, nodecl.} = object
+  BottomButton* {.importc, nodecl.} = object
     text*: cstring
     color*: cstring
     textColor*: cstring
@@ -92,11 +94,24 @@ type
     button_text_color*: cstring
     secondary_bg_color*: cstring
     header_bg_color*: cstring
+    bottom_bar_bg_color*: cstring
     accent_text_color*: cstring
     section_bg_color*: cstring
     section_header_text_color*: cstring
+    section_separator_color*: cstring
     subtitle_text_color*: cstring
     destructive_text_color*: cstring
+
+  StoryShareParams* {.importc, nodecl.} = object
+    text*: cstring
+    widgetLink*: StoryWidgetLink
+
+  StoryWidgetLink* {.importc, nodecl.} = object
+    url*: cstring
+    name*: cstring
+
+  ScanQrPopupParams* {.importc, nodecl.} = object
+    text*: cstring
 
   PopupButton* {.importc, nodecl.} = object
     id*: cstring
@@ -124,9 +139,12 @@ type
     viewportStableHeight*: cfloat
     headerColor*: cstring
     backgroundColor*: cstring
+    bottomBarColor*: cstring
     isClosingConfirmationEnabled*: bool
+    isVerticalSwipesEnabled*: bool
     BackButton*: BackButton
-    MainButton*: MainButton
+    BottomButton*: BottomButton
+    SecondaryButton*: BottomButton
     SettingsButton*: SettingsButton
     HapticFeedback*: HapticFeedback
     CloudStorage*: CloudStorage
@@ -206,15 +224,19 @@ proc `$`*(data: WebAppInitData): string =
 #--------
 proc isVersionAtLeast*(w: WebApp, version: cstring): bool {.importjs: "#.isVersionAtLeast(#)", nodecl.}
 proc setHeaderColor*(w: WebApp, color: cstring) {.importjs: "#.setHeaderColor(#)", nodecl.}
-proc setBackgrounColor*(w: WebApp, color: cstring) {.importjs: "#.setBackgrounColor(#)", nodecl.}
+proc setBackgroundColor*(w: WebApp, color: cstring) {.importjs: "#.setBackgrounColor(#)", nodecl.}
+proc setBottomBarColor*(w: WebApp, color: cstring) {.importjs: "#.setBottomBarColor(#)", nodecl.}
 proc enableClosingConfirmation*(w: WebApp) {.importjs: "#.enableClosingConfirmation()", nodecl.}
 proc disableClosingConfirmation*(w: WebApp) {.importjs: "#.disableClosingConfirmation()", nodecl.}
+proc enableVerticalSwipes*(w: WebApp) {.importjs: "#.enableVerticalSwipes()", nodecl.}
+proc disableVerticalSwipes*(w: WebApp) {.importjs: "#.disableVerticalSwipes()", nodecl.}
 proc onEvent*(w: WebApp, eventType: cstring, eventHandler: EmptyEventHandler) {.importjs: "#.onEvent(#, #)", nodecl.}
 proc offEvent*(w: WebApp, eventType: cstring, eventHandler: EmptyEventHandler) {.importjs: "#.offEvent(#, #)", nodecl.}
 proc sendData*(w: WebApp, data: cstring) {.importjs: "#.sendData(#)", nodecl.}
 proc openLink*(w: WebApp, url: cstring, options: JsObject) {.importjs: "#.openLink(#, #)", nodecl.}
 proc openTelegramLink*(w: WebApp, url: cstring) {.importjs: "#.openTelegramLink(#)", nodecl.}
 proc openInvoice*(w: WebApp, url: cstring, callback: InvoiceClosedEventHandler = nil) {.importjs: "#.openInvoice(#, #)", nodecl.}
+proc shareToStory*(w: WebApp, mediaUrl: cstring, params: StoryShareParams = nil) {.importjs: "#.shareToStory(#, #)", nodecl.}
 proc showPopup*(w: WebApp, params: PopupParams, callback: EmptyEventHandler = nil) {.importjs: "#.showPopup(#, #)", nodecl.}
 proc showAlert*(w: WebApp, message: string, callback: EmptyEventHandler = nil) {.importjs: "#.showAlert(#, #)", nodecl.}
 proc showScanQrPopup*(w: WebApp, params: ScanQrPopupParams, callback: QrTextReceivedEventHandler) {.importjs: "#.showScanQrPopup(#, #)", nodecl.}
@@ -238,16 +260,16 @@ proc hide*(b: BackButton): BackButton {.importjs: "#.hide()", nodecl.}
 #--------
 # MainButtton
 #--------
-proc setText*(b: MainButton, text: cstring): MainButton {.importjs: "#.setText(#)", nodecl, discardable.}
-proc onClick*(b: MainButton, callback: EmptyEventHandler): MainButton {.importjs: "#.onClick(#)", nodecl, discardable.}
-proc offClick*(b: MainButton, callback: EmptyEventHandler): MainButton {.importjs: "#.offClick(#)", nodecl, discardable.}
-proc show*(b: MainButton): MainButton {.importjs: "#.show()", nodecl.}
-proc hide*(b: MainButton): MainButton {.importjs: "#.hide()", nodecl.}
-proc enable*(b: MainButton): MainButton {.importjs: "#.enable()", nodecl.}
-proc disable*(b: MainButton): MainButton {.importjs: "#.disable()", nodecl.}
-proc showProgress*(b: MainButton, leaveAction: bool): MainButton {.importjs: "#.showProgress(#)", nodecl.}
-proc hideProgress*(b: MainButton): MainButton {.importjs: "#.hideProgress()", nodecl.}
-proc setParams*(b: MainButton, params: JsObject): MainButton {.importjs: "#.setParams(#)", nodecl.}
+proc setText*(b: BottomButton, text: cstring): BottomButton {.importjs: "#.setText(#)", nodecl, discardable.}
+proc onClick*(b: BottomButton, callback: EmptyEventHandler): BottomButton {.importjs: "#.onClick(#)", nodecl, discardable.}
+proc offClick*(b: BottomButton, callback: EmptyEventHandler): BottomButton {.importjs: "#.offClick(#)", nodecl, discardable.}
+proc show*(b: BottomButton): BottomButton {.importjs: "#.show()", nodecl.}
+proc hide*(b: BottomButton): BottomButton {.importjs: "#.hide()", nodecl.}
+proc enable*(b: BottomButton): BottomButton {.importjs: "#.enable()", nodecl.}
+proc disable*(b: BottomButton): BottomButton {.importjs: "#.disable()", nodecl.}
+proc showProgress*(b: BottomButton, leaveAction: bool): BottomButton {.importjs: "#.showProgress(#)", nodecl.}
+proc hideProgress*(b: BottomButton): BottomButton {.importjs: "#.hideProgress()", nodecl.}
+proc setParams*(b: BottomButton, params: JsObject): BottomButton {.importjs: "#.setParams(#)", nodecl.}
 
 
 #--------
