@@ -456,4 +456,4 @@ proc getStarTransactions*(b: TeleBot, offset = 0, limit = 0): Future[StarTransac
 
 proc refundStarPayment*(b: TeleBot, userId: int, telegramPaymentChargeId: int): Future[bool] {.api, async.}
 
-proc sendPaidMedia*(b: TeleBot, chatId: ChatId, startCount: int, media: seq[InputPaidMedia],  businessConnectionId = 0, payload = "", caption = "", parseMode = "", captionEntities = seq[MessageEntity], showCaptionAboveMedia = false, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,  replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
+proc sendPaidMedia*(b: TeleBot, chatId: ChatId, starCount: int, media: seq[InputPaidMedia],  businessConnectionId = 0, payload = "", caption = "", parseMode = "", captionEntities = seq[MessageEntity], showCaptionAboveMedia = false, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,  replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
