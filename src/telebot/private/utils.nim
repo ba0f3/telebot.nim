@@ -95,7 +95,7 @@ proc unmarshal*(n: JsonNode, T: typedesc): T {.gcsafe.} =
   when T is TelegramObject:
     for name, value in result.fieldPairs:
       when not value.hasCustomPragma(telebotInternalUse):
-        let jsonKey = formatName(name)
+        let jsonKey = static(formatName(name))
         if n.hasKey(jsonKey):
           value = unmarshal(n[jsonKey], value.type)
   elif result is ref:
@@ -128,7 +128,7 @@ proc marshal*[T](t: T, s: var string) {.inline.} =
     s.add "{"
     for name, value in t.fieldPairs:
       when not value.hasCustomPragma(telebotInternalUse):
-        let jsonKey = formatName(name)
+        let jsonKey = static(formatName(name))
         if value.isSet:
           s.add("\"" & jsonKey & "\":")
           marshal(value, s)
