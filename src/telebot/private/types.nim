@@ -101,6 +101,7 @@ type
     inviteLink*: string
     pinnedMessage*: Message
     permissions*: ChatPermissions
+    canSendGift*: bool
     canSendPaidMedia*: bool
     slowModeDelay*: int
     unrestrictBoostCount*: int
@@ -188,6 +189,8 @@ type
     height*: int
     duration*: int
     thumbnail*: PhotoSize
+    cover*: seq[PhotoSize]
+    startTimestamp*: int
     fileName*: string
     mimeType*: string
     fileSize*: int
@@ -1380,6 +1383,8 @@ type
     hasSpoiler*: bool
 
   InputMediaVideo* = ref object of InputMedia
+    cover*: string
+    startTimestamp*: int
     showCaptionAboveMedia*: bool
     width*: int
     height*: int
@@ -1413,6 +1418,8 @@ type
     kind*: string = "video"
     media*: string
     thumbail*: InputFileOrString
+    cover*: seq[PhotoSize]
+    startTimestamp*: int
     width*: int
     height*: int
     duration*: int
