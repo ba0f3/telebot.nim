@@ -23,14 +23,18 @@ type
     BIOMETRIC_TOKEN_UPDATED = "biometricTokenUpdated"
 
   WebAppInitData* = object
-    query_id*: cstring
-    user*: WebAppUser
-    receiver*: WebAppUser
-    chat*: WebAppChat
-    start_param: cstring
-    can_send_after*: cint
-    auth_date*: cint
-    hash*: cstring
+    ## Represents the init data passed to the Web App.
+    ##
+    ## See [https://core.telegram.org/bots/webapps#webappinitdata](https://core.telegram.org/bots/webapps#webappinitdata)
+    ## for more details.
+    query_id*: cstring         ## Unique query identifier
+    user*: WebAppUser         ## An object describing the current user
+    receiver*: WebAppUser     ## An object describing the bot, in whose private chat the Web App was opened.
+    chat*: WebAppChat         ## An object describing the chat, in which the Web App was opened.
+    start_param: cstring      ## The value of the start parameter, passed via link
+    can_send_after*: cint     ## Time in seconds, after which a message can be sent via the answerWebAppQuery method.
+    auth_date*: cint         ## Unix time when the form was opened.
+    hash*: cstring            ## A hash of all passed parameters, which the bot server can use to check their validity
 
   WebAppUser* {.importc, nodecl.} = object
     id*: cint
@@ -45,13 +49,12 @@ type
     photo_url*: cstring
 
   WebAppChat* {.importc, nodecl.} = object
+    ## Represents a chat object
     id*: cint
     `type`*: cstring
     title*: cstring
     username*: cstring
     photo_url*: cstring
-
-
   BackButton* {.importc, nodecl.} = object
     isVisible*: bool
 
@@ -181,12 +184,12 @@ type
   InvoiceClosedEventHandler* = proc(event: InvoiceClosedEvent)
   ViewportChangedEventHandler* = proc(event: ViewportChangedEvent)
   PopupClosedEventHandler* = proc(event: PopupClosedEvent)
-  QrTextReceivedEventHandler* = proc(event: QrTextReceivedEvent)
-  ClipboardTextReceivedEventHandler* = proc(event: ClipboardTextReceivedEvent)
-  WriteAccessRequestedEventHandler* = proc(event: WriteAccessRequestedEvent)
-  ContactRequestedEventHandler* = proc(event: ContactRequestedEvent)
-  BiometricAuthRequestedEventHandler* = proc(event: BiometricAuthRequestedEvent)
-  BiometricTokenUpdatedEventHandler* = proc(event: BiometricTokenUpdatedEvent)
+  QrTextReceivedEventHandler* = proc(event: QrTextReceivedEventHandler)
+  ClipboardTextReceivedEventHandler* = proc(event: ClipboardTextReceivedEventHandler)
+  WriteAccessRequestedEventHandler* = proc(event: WriteAccessRequestedEventHandler)
+  ContactRequestedEventHandler* = proc(event: ContactRequestedEventHandler)
+  BiometricAuthRequestedEventHandler* = proc(event: BiometricAuthRequestedEventHandler)
+  BiometricTokenUpdatedEventHandler* = proc(event: BiometricTokenUpdatedEventHandler)
   CloudStorageHandler* = proc()
 
 var Telegram* {.importc, nodecl.}: TelegramRef

@@ -78,9 +78,37 @@ proc sendDice*(b: TeleBot, chatId: ChatId, messageThreadId = 0, emoji = "", disa
                allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
 proc getMe*(b: TeleBot): Future[User] {.api, async.}
-  ## Returns basic information about the bot in form of a ``User`` object.
+  ## Returns basic information about the bot in form of a `User` object.
+  ##
+  ## This method can be used to verify the bot's token is valid.
+  ##
+  ## Returns:
+  ##   * `Future[User]`: A Future that resolves to a `User` object containing information about the bot.
+  ##                      If the request fails (e.g., invalid token), the Future will be rejected with an error.
+  ##
+  ## Example:
+  ## ```nim
+  ## let bot = newTeleBot("YOUR_BOT_TOKEN")
+  ## let me = waitFor bot.getMe()
+  ## echo "Bot username: ", me.username
+  ## ```
 
 proc logOut*(b: TeleBot): Future[bool] {.api, async.}
+  ## Use this method to log out from the Telegram Bot API server before
+  ## concluding any activity, or when the bot becomes inactive.
+  ##
+  ## Returns:
+  ##   * `Future[bool]`: A Future that resolves to `true` on success, and `false` otherwise.
+  ##
+  ## Example:
+  ## ```nim
+  ## let bot = newTeleBot("YOUR_BOT_TOKEN")
+  ## let loggedOut = waitFor bot.logOut()
+  ## if loggedOut:
+  ##   echo "Bot logged out successfully"
+  ## else:
+  ##   echo "Failed to log out bot"
+  ## ```
 
 proc close*(b: TeleBot): Future[bool] {.api, async.}
 

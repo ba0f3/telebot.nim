@@ -1118,7 +1118,7 @@ type
       description*: string
       payload*: string
       providerToken*: string
-      currrency*: string
+      currency*: string
       prices*: seq[LabeledPrice]
       maxTipAmount*: int
       suggestedTipAmounts*: seq[int]
@@ -1560,4 +1560,3 @@ type
     messageIds*: seq[int]
 
 const DefaultChatId*: ChatId = 0
-
