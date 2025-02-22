@@ -426,9 +426,3 @@ macro api*(body: untyped) : untyped =
   #echo repr body
   #echo astGenRepr(body)
   result = body
-
-
-when isMainModule:
-  proc sendMessage*(b: TeleBot, chatId: ChatId, text: string, messageThreadId = 0, parseMode = "", entities: seq[MessageEntity] = @[],
-                  disableWebPagePreview = false, disableNotification = false, protectContent = false, replyToMessageId = 0,
-                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.api, async.}
