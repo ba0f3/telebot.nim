@@ -1198,7 +1198,6 @@ type
   InlineQueryResultArticle* = ref object of InlineQueryResultWithThumb
     title*: string
     url*: string
-    hideUrl*: bool
     description*: string
 
   InlineQueryResultPhoto* = ref object of InlineQueryResult

@@ -348,6 +348,14 @@ proc getAvailableGifts*(b: TeleBot): Future[Gifts] {.api, async.}
 
 proc sendGift*(b: TeleBot, giftId: int, userId = 0, chatId: ChatId = 0, payForUpgrade = false, text = "", textParseMode = "", textEntities = seq[MessageEntity]): Future[bool] {.api, async.}
 
+proc verifyUser*(b: TeleBot, userId: int, customDescription = ""): Future[bool] {.api, async.}
+
+proc verifyChat*(b: TeleBot, userId: int, customDescription = ""): Future[bool] {.api, async.}
+
+proc removeUserVerification*(b: TeleBot, userId: int): Future[bool] {.api, async.}
+
+proc removeChatVerification*(b: TeleBot, chatId: ChatId): Future[bool] {.api, async.}
+
 proc answerInlineQuery*[T: InlineQueryResult](b: TeleBot, inlineQueryId: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", button: InlineQueryResultsButton = nil): Future[bool] {.api, async.}
 
 proc setChatAdministratorCustomTitle*(b: TeleBot, chatId: ChatId, userId: int, customTitle: string): Future[bool] {.api, async.}
