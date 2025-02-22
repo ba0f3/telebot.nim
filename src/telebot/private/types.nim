@@ -1059,16 +1059,32 @@ type
 
   RevenueWithdrawalStateFailed* = ref object of RevenueWithdrawalState
 
+  AffiliateInfo* = ref object of TelegramObject
+    affiliateUser*: User
+    affiliateChat*: Chat
+    commissionPerMille*: int
+    ammount*: int
+    nanostarAmmount*: int
+
   TransactionPartner* = ref object of TelegramObject
     kind*: string
 
   TransactionPartnerUser* = ref object of TransactionPartner
     user*: User
+    affiliate*: AffiliateInfo
     invoicePayload*: string
     subscriptionPeriod*: int
     paidMedia*: seq[PaidMedia]
     paidMediaPayload*: string
     gift*: Gift
+
+  TransactionPartnerChar* = ref object of TransactionPartner
+    chat*: Chat
+    gift*: Gift
+
+  TransactionPartnerAffiliateProgram* = ref object of TransactionPartner
+    sponsorUser*: User
+    commissionPerMille*: int
 
   TransactionPartnerFragment* = ref object of TransactionPartner
     ## Describes a withdrawal transaction to the Telegram Ads platform.
@@ -1086,6 +1102,7 @@ type
   StarTransaction* = ref object of TelegramObject
     id*: string
     amount*: int
+    nanostarAmount*: int
     date*: int
     source*: TransactionPartner
     receiver*: TransactionPartner
