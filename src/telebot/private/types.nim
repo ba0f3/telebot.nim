@@ -440,6 +440,7 @@ type
     switchInlineQuery*: string
     switchInlineQueryCurrentChat*: string
     switchInlineQueryChosenChat*: SwitchInlineQueryChosenChat
+    copyText*: CopyTextButton
     callbackGame*: CallbackGame
     pay*: bool
 
@@ -516,6 +517,8 @@ type
     allowGroupChats*: bool
     allowChannelChats*: bool
 
+  CopyTextButton* = ref object of TelegramObject
+    text*: string
 
   CallbackQuery* = ref object of TelegramObject
     id*: string
@@ -1059,10 +1062,17 @@ type
     paidMediaPayload*: string
 
   TransactionPartnerFragment* = ref object of TransactionPartner
+    ## Describes a withdrawal transaction to the Telegram Ads platform.
     withdrawalState*: RevenueWithdrawalState
 
   TransactionPartnerTelegramAds* = ref object of TransactionPartner
+
+  TransactionPartnerTelegramApi* = ref object of TransactionPartner
+    ## Describes a transaction with payment for paid broadcasting.
+    requestCount*: int
+
   TransactionPartnerOther* = ref object of TransactionPartner
+    ## Describes a transaction with an unknown source or recipient.
 
   StarTransaction* = ref object of TelegramObject
     id*: string
