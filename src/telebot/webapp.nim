@@ -4,24 +4,6 @@ import
   std/macros
 
 type
-  WebAppEvents* = enum
-    THEME_CHANGED = "themeChanged"
-    VIEWPORT_CHANGED = "viewportChanged"
-    MAIN_BUTTON_CLICKED = "mainButtonClicked"
-    SECONDARY_BUTTON_CLICKED = "secondaryButtonClicked"
-    BACK_BUTTON_CLICKED = "backButtonClicked"
-    SETTINGS_BUTTON_CLICKED = "settingsButtonClicked"
-    INVOICE_CLOSE = "invoiceClosed"
-    POPUP_CLOSED = "popupClosed"
-    QR_TEXT_RECEIVED = "qrTextReceived"
-    SCAN_QR_POPUP_CLOSED = "scanQrPopupClosed"
-    CLIPBOARD_TEXT_RECEIVED = "clipboardTextReceived"
-    WRITE_ACCESS_REQUESTED = "writeAccessRequested"
-    CONTACT_REQUESTED = "contactRequested"
-    BIOMETRIC_MANAGER_UPDATED = "biometricManagerUpdated"
-    BIOMETRIC_AUTH_REQUESTED = "biometricAuthRequested"
-    BIOMETRIC_TOKEN_UPDATED = "biometricTokenUpdated"
-
   WebAppInitData* = object
     ## Represents the init data passed to the Web App.
     ##
@@ -126,8 +108,17 @@ type
     message*: cstring
     buttons*: seq[PopupButton]
 
-  ScanQrPopupParams* {.importc, nodecl.} = object
-    text*: cstring
+  SafeAreaInset* {.importc, nodecl.} = object
+    top*: int
+    bottom*: int
+    left*: int
+    right*: int
+
+  ContentSafeAreaInset* {.importc, nodecl.} = object
+    top*: int
+    bottom*: int
+    left*: int
+    right*: int
 
   WebApp* = ref WebAppObj
   WebAppObj* {.importc, nodecl.} = object of RootObj
@@ -137,6 +128,7 @@ type
     platform*: cstring
     colorScheme*: cstring
     themeParams*: ThemeParams
+    isActive*: bool
     isExpanded*: bool
     viewportHeight*: cfloat
     viewportStableHeight*: cfloat
@@ -145,6 +137,9 @@ type
     bottomBarColor*: cstring
     isClosingConfirmationEnabled*: bool
     isVerticalSwipesEnabled*: bool
+    isFullscreen*: bool
+    safeAreaInset*: SafeAreaInset
+    contentSafeAreaInset*: ContentSafeAreaInset
     BackButton*: BackButton
     BottomButton*: BottomButton
     SecondaryButton*: BottomButton
@@ -233,6 +228,10 @@ proc enableClosingConfirmation*(w: WebApp) {.importjs: "#.enableClosingConfirmat
 proc disableClosingConfirmation*(w: WebApp) {.importjs: "#.disableClosingConfirmation()", nodecl.}
 proc enableVerticalSwipes*(w: WebApp) {.importjs: "#.enableVerticalSwipes()", nodecl.}
 proc disableVerticalSwipes*(w: WebApp) {.importjs: "#.disableVerticalSwipes()", nodecl.}
+proc addToHomeScreen*(w: WebApp) {.importjs: "#.addToHomeScreen()", nodecl.}
+proc checkHomeScreenStatus*(w: WebApp, callback: proc() = nil) {.importjs: "#.checkHomeScreenStatus(#)", nodecl.}
+proc requestFullscreen*(w: WebApp) {.importjs: "#.requestFullscreen(#, #)", nodecl.}
+proc exitFullscreen*(w: WebApp) {.importjs: "#.exitFullscreen(#, #)", nodecl.}
 proc onEvent*(w: WebApp, eventType: cstring, eventHandler: EmptyEventHandler) {.importjs: "#.onEvent(#, #)", nodecl.}
 proc offEvent*(w: WebApp, eventType: cstring, eventHandler: EmptyEventHandler) {.importjs: "#.offEvent(#, #)", nodecl.}
 proc sendData*(w: WebApp, data: cstring) {.importjs: "#.sendData(#)", nodecl.}

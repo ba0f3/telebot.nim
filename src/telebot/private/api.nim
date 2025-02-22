@@ -56,7 +56,7 @@ proc sendInvoice*(b: TeleBot, chatId: ChatId, title: string, description: string
                   sendEmailToProvider = false, isFlexible = false, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,
                   allowSendingWithoutReply = false, allowPaidBroadcast = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}
 
-proc createInvoiceLink*(b: TeleBot, title: string, description: string, payload: string, providerToken: string, currency: string, prices: seq[LabeledPrice], maxTipAmount = 0,
+proc createInvoiceLink*(b: TeleBot, title: string, description: string, payload: string, providerToken: string, currency: string, prices: seq[LabeledPrice], businessConnectionId =  "", subscriptionPeriod = 0, maxTipAmount = 0,
                         suggestedTipAmounts: seq[int] = @[], providerData = "", photoUrl = "", photoSize = 0, photoWidth = 0, photoHeight = 0,
                         needName = false, needPhoneNumber = false, needEmail = false, needShippingAddress = false,
                         sendPhoneNumberToProvider = false, sendEmailToProvider = false, isFlexible = false): Future[string] {.api, async.}
@@ -131,6 +131,8 @@ proc setMessageReaction*(b: TeleBot, chatId: ChatId, messageId: int, reaction: s
 proc getUserProfilePhotos*(b: TeleBot, userId: int, offset = 0, limit = 100): Future[UserProfilePhotos] {.api, async.}
 
 proc getFile*(b: TeleBot, fileId: string): Future[FileObj] {.api, async.}
+
+proc setUserEmojiStatus*(b: TeleBot, userId: int, emojiStatusCustomEmojiId = "", emojiStatusExpirationDate = 0): Future[bool] {.api, async.}
 
 proc banChatMember*(b: TeleBot, chatId: ChatId, userId: int, untilDate = 0, revokeMessages = false): Future[bool] {.api, async.}
 
@@ -342,6 +344,10 @@ proc setCustomEmojiStickerSetThumbnail*(b: TeleBot, name: string, customEmojiId 
 
 proc deleteStickerSet*(b: TeleBot, name: string): Future[bool] {.api, async.}
 
+proc getAvailableGifts*(b: TeleBot): Future[Gifts] {.api, async.}
+
+proc sendGift*(b: TeleBot, giftId: int, userId = 0, chatId: ChatId = 0, payForUpgrade = false, text = "", textParseMode = "", textEntities = seq[MessageEntity]): Future[bool] {.api, async.}
+
 proc answerInlineQuery*[T: InlineQueryResult](b: TeleBot, inlineQueryId: string, results: seq[T], cacheTime = 0, isPersonal = false, nextOffset = "", button: InlineQueryResultsButton = nil): Future[bool] {.api, async.}
 
 proc setChatAdministratorCustomTitle*(b: TeleBot, chatId: ChatId, userId: int, customTitle: string): Future[bool] {.api, async.}
@@ -453,6 +459,8 @@ proc declineChatJoinRequest*(b: Telebot, chatId: ChatId, userId: int): Future[bo
 
 proc answerWebAppQuery*(b: Telebot, webAppQueryId: string, res: InlineQueryResult): Future[SentWebAppMessage] {.api, async.}
 
+proc savePreparedInlineMessage*(b: TeleBot, userId: int, res: InlineQueryResult, allowUserChats = false, allowBotChats = false, allowGroupChats = false, allowChannelChats = false): Future[PreparedInlineMessage] {.api, async.}
+
 proc setChatMenuButon*(b: TeleBot, chatId: ChatId, menuButton: MenuButton): Future[bool] {.api, async.}
 
 proc getChatMenuButon*(b: TeleBot, chatId: ChatId): Future[MenuButton] {.api, async.}
@@ -483,5 +491,7 @@ proc answerPreCheckoutQuery*(b: TeleBot, preCheckoutQueryId: string, ok: bool, e
 proc getStarTransactions*(b: TeleBot, offset = 0, limit = 0): Future[StarTransactions] {.api, async.}
 
 proc refundStarPayment*(b: TeleBot, userId: int, telegramPaymentChargeId: int): Future[bool] {.api, async.}
+
+proc editUserStarSubscription*(b: TeleBot, userId: int, telegramPaymentChargeId: int, isCanceled = true): Future[bool] {.api, async.}
 
 proc sendPaidMedia*(b: TeleBot, chatId: ChatId, starCount: int, media: seq[InputPaidMedia], businessConnectionId = 0, payload = "", caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[], showCaptionAboveMedia = false, disableNotification = false, protectContent = false, replyParameters: ReplyParameters = nil,  replyMarkup: KeyboardMarkup = nil): Future[Message] {.api, async.}

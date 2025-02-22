@@ -936,6 +936,10 @@ type
     chatMember*: ChatMemberUpdated
     chatJoinRequest*: ChatJoinRequest
 
+  PreparedInlineMessage* = ref object of TelegramObject
+    id*: string
+    expirationDate*: int
+
   #------------------
   # Game
   #------------------
@@ -992,6 +996,9 @@ type
     currentcy*: string
     totalAmount*: int
     invoicePayload*: string
+    subscriptionExpirationDate*: int
+    isRecurring*: bool
+    isFirstRecurring*: bool
     shippingOptionId*: string
     orderInfo*: OrderInfo
     telegramPaymentChargeId*: string
@@ -1058,8 +1065,10 @@ type
   TransactionPartnerUser* = ref object of TransactionPartner
     user*: User
     invoicePayload*: string
+    subscriptionPeriod*: int
     paidMedia*: seq[PaidMedia]
     paidMediaPayload*: string
+    gift*: Gift
 
   TransactionPartnerFragment* = ref object of TransactionPartner
     ## Describes a withdrawal transaction to the Telegram Ads platform.
@@ -1084,7 +1093,19 @@ type
   StarTransactions* = ref object of TelegramObject
     transactions*: seq[StarTransaction]
 
+  #------------------
+  # Gift
+  #------------------
+  Gift* = ref object of TelegramObject
+    id*: string
+    sticker*: Sticker
+    starCount*: int
+    upgradeStarCount*: int
+    totalCount*: int
+    remainingCount*: int
 
+  Gifts* = ref object of TelegramObject
+    gifts*: seq[Gift]
 
 
   #------------------
