@@ -180,28 +180,61 @@ proc postWithTimeout(client: AsyncHttpClient, endpoint: string, data: MultipartD
         res.fail(newException(IOError, "HTTP response timeout exceeded"))
 
 proc makeRequest*(b: Telebot, `method`: string, data: MultipartData = nil, timeoutMs = -1): Future[JsonNode] {.async.} =
-  when defined(telebotTestMode):
-    let endpoint = API_URL % [b.serverUrl, b.token, "test/" & `method`]
-  else:
-    let endpoint = API_URL % [b.serverUrl, b.token, `method`]
-  d("Making request to ", endpoint)
-  when defined(TELEBOT_DEBUG):
-    if data != nil:
-      echo $data
-  let client = newAsyncHttpClient(userAgent="telebot.nim/2023.02 Nim/" & NimVersion, proxy=b.proxy)
-  defer: client.close()
-  let r = await client.postWithTimeout(endpoint, data, timeoutMs)
-  if r.code == Http200 or r.code == Http400:
-    let body = await r.body
-    var obj: JsonNode
-    obj = parseJson(body)
-    if obj.hasKey("ok") and obj["ok"].getBool:
-      result = obj["result"]
-      d("Result: ", $result)
+  const maxRetries = 3
+  const initialBackoff = 100 # milliseconds
+
+  var retries = 0
+  var currentBackoff = initialBackoff
+
+  while retries < maxRetries:
+    when defined(telebotTestMode):
+      let endpoint = API_URL % [b.serverUrl, b.token, "test/" & `method`]
     else:
-      raise newException(IOError, obj["description"].getStr)
-  else:
-    raise newException(IOError, r.status)
+      let endpoint = API_URL % [b.serverUrl, b.token, `method`]
+    d("Making request to ", endpoint, ", retry: ", retries)
+    when defined(TELEBOT_DEBUG):
+      if data != nil:
+        echo $data
+    let client = newAsyncHttpClient(userAgent="telebot.nim/2023.02 Nim/" & NimVersion, proxy=b.proxy)
+    defer: client.close()
+
+    try:
+      let r = await client.postWithTimeout(endpoint, data, timeoutMs)
+      if r.code == Http200:
+        let body = await r.body
+        var obj: JsonNode
+        obj = parseJson(body)
+        if obj.hasKey("ok") and obj["ok"].getBool:
+          result = obj["result"]
+          d("Result: ", $result)
+          return # Success, return result
+        else:
+          let description = obj["description"].getStr
+          let errorCode = obj["error_code"].getInt
+          error "Telegram API error: ", errorCode, " - ", description
+          raise newException(IOError, "Telegram API error: " & $errorCode & " - " & description)
+      elif r.code == Http400:
+        # HTTP 400 Bad Request is usually due to invalid request parameters, so don't retry
+        let body = await r.body
+        var obj: JsonNode = parseJson(body)
+        let description = obj["description"].getStr
+        let errorCode = obj["error_code"].getInt
+        error "Telegram API error (Bad Request): ", errorCode, " - ", description
+        raise newException(IOError, "Telegram API error (Bad Request): " & $errorCode & " - " & description)
+      else:
+        error "HTTP error: ", r.code, " - ", r.status
+        if retries >= maxRetries - 1:
+          raise newException(IOError, "HTTP error: " & $r.code & " - " & $r.status) # Max retries reached, raise error
+    except IOError as e:
+      error "Request error: ", e.msg
+      if retries >= maxRetries - 1:
+        raise e # Max retries reached, re-raise exception
+
+    retries += 1
+    await sleepAsync(currentBackoff)
+    currentBackoff *= 2 # Exponential backoff
+
+  return # Should not reach here in normal execution, exception will be raised in case of persistent errors
 
 proc uploadInputMedia*(p: var MultipartData, m: InputMedia)
 
@@ -399,4 +432,3 @@ when isMainModule:
   proc sendMessage*(b: TeleBot, chatId: ChatId, text: string, messageThreadId = 0, parseMode = "", entities: seq[MessageEntity] = @[],
                   disableWebPagePreview = false, disableNotification = false, protectContent = false, replyToMessageId = 0,
                   allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.api, async.}
-

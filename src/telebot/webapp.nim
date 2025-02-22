@@ -184,12 +184,12 @@ type
   InvoiceClosedEventHandler* = proc(event: InvoiceClosedEvent)
   ViewportChangedEventHandler* = proc(event: ViewportChangedEvent)
   PopupClosedEventHandler* = proc(event: PopupClosedEvent)
-  QrTextReceivedEventHandler* = proc(event: QrTextReceivedEventHandler)
-  ClipboardTextReceivedEventHandler* = proc(event: ClipboardTextReceivedEventHandler)
-  WriteAccessRequestedEventHandler* = proc(event: WriteAccessRequestedEventHandler)
-  ContactRequestedEventHandler* = proc(event: ContactRequestedEventHandler)
-  BiometricAuthRequestedEventHandler* = proc(event: BiometricAuthRequestedEventHandler)
-  BiometricTokenUpdatedEventHandler* = proc(event: BiometricTokenUpdatedEventHandler)
+  QrTextReceivedEventHandler* = proc(event: QrTextReceivedEvent)
+  ClipboardTextReceivedEventHandler* = proc(event: ClipboardTextReceivedEvent)
+  WriteAccessRequestedEventHandler* = proc(event: WriteAccessRequestedEvent)
+  ContactRequestedEventHandler* = proc(event: ContactRequestedEvent)
+  BiometricAuthRequestedEventHandler* = proc(event: BiometricAuthRequestedEvent)
+  BiometricTokenUpdatedEventHandler* = proc(event: BiometricTokenUpdatedEvent)
   CloudStorageHandler* = proc()
 
 var Telegram* {.importc, nodecl.}: TelegramRef
