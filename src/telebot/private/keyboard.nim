@@ -61,7 +61,7 @@ proc `$`*(k: KeyboardMarkup): string =
   of kReplyKeyboardMarkup:
     marshal(ReplyKeyboardMarkup(k), result)
   of kReplyKeyboardRemove:
-    let kb = ReplyKeyboardMarkup(k)
+    let kb = ReplyKeyboardRemove(k)
     if kb.selective:
       result = "{\"remove_keyboard\": true, \"selective\": true}"
     else:
