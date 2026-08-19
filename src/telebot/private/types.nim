@@ -46,7 +46,7 @@ type
     params*: string
 
   User* = ref object of TelegramObject
-    id*: int
+    id*: int64
     isBot*: bool
     firstName*: string
     lastName*: string
